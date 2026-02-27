@@ -1,0 +1,11 @@
+syntax: glob
+# Directory
+logs/
+.idea/
+.cursor/
+.devops-mcp-temp/
+# 含 ak/sk，勿提交
+config.txt
+.venv/
+*__pycache__/
+.specify/
