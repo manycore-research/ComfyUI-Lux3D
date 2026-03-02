@@ -1,8 +1,8 @@
 # ComfyUI-Lux3D & LuxReal Engine Nodes
 
-<div align="center" style="white-space:nowrap;">
-  <u><span><mark>English</mark></span></u>&nbsp;&nbsp;
-  <a href="https://gitlab.qunhequnhe.com/render/moria/comfyui-lux3d/-/blob/re_20260228/README_CN.md"><u><span>中文</span></u></a>
+<div align="center">
+
+[English](README.md)/[中文](README_CN.md)
 </div>
 
 A ComfyUI extension for converting 2D images into 3D models in your workflow. Supports real-time rendering, scene template switching, material preview, and rendering of various render passes (channel maps).
@@ -225,7 +225,7 @@ Node for real-time rendering and material preview.
 
 ## FAQ
 
-(To be added)
+1.When installing plugins through comfyui-manager, if you encounter security level issues, please modify the corresponding security level in the comfyui-manager configuration file and then retry the installation.
 
 ## Development
 
