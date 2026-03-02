@@ -217,11 +217,22 @@ class LuxRealEngine:
         )
 
         render_image = image_url_to_image_tensor(poll.get("RGB"))
+        logger.info(f">>> image_url_to_image_tensor: render_image")
+
         material_ch = image_url_to_image_tensor(poll.get("MtlId"))
+        logger.info(f">>> image_url_to_image_tensor: material_ch")
+
         model_ch = image_url_to_image_tensor(poll.get("ModelId"))
+        logger.info(f">>> image_url_to_image_tensor: model_ch")
+
         depth = depth_exr_url_to_tensor(poll.get("Depth"))
+        logger.info(f">>> depth_exr_url_to_tensor: depth")
+
         diffuse = image_url_to_image_tensor(poll.get("RawDiffuseFilter"))
+        logger.info(f">>> image_url_to_image_tensor: diffuse")
+
         normal = image_url_to_image_tensor(poll.get("WorldSpaceNormal"))
+        logger.info(f">>> image_url_to_image_tensor: normal")
 
         logger.info(f">>> Finished render design: {render_design_id}")
 
