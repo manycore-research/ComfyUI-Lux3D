@@ -256,12 +256,12 @@ comfyui-lux3d/
 
 ### Dependencies
 
-| **Dependency** | **Version**  | **Purpose**                      | **License** |
-| -------------- |--------------| -------------------------------- | ----------- |
-| requests       | &gt;=2.25.0  | HTTP client for API calls        | Apache 2.0  |
-| Pillow         | &gt;=9.0.0   | Image processing                 | BSD         |
-| NumPy          | &gt;=1.21.0  | Numerical computing              | BSD         |
-| OpenEXR        | ==3.4.4      | EXR image processing (for depth) | BSD         |
+| **Dependency** | **Version**                                                           | **Purpose**                      | **License** |
+| -------------- |-----------------------------------------------------------------------| -------------------------------- | ----------- |
+| requests       | &gt;=2.25.0                                                           | HTTP client for API calls        | Apache 2.0  |
+| Pillow         | &gt;=9.0.0                                                            | Image processing                 | BSD         |
+| NumPy          | &gt;=1.21.0                                                           | Numerical computing              | BSD         |
+| OpenEXR        | ==3.4.4 (python_version == "3.12");==3.2.4(python_version == "3.11")  | EXR image processing (for depth) | BSD         |
 
 
 ## Configuration
