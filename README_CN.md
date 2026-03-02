@@ -1,8 +1,8 @@
 # ComfyUI-Lux3D & LuxReal Engine Nodes
 
-<div align="center" style="white-space:nowrap;">
-  <a href="https://gitlab.qunhequnhe.com/render/moria/comfyui-lux3d/-/blob/re_20260228/README.md"><u><span>English</span></u></a>&nbsp;&nbsp;
-  <u><span><mark>中文</mark></span></u>
+<div align="center">
+
+[中文](README_CN.md)/[English](README.md) 
 </div>
 
 一个ComfyUI插件，用于在你的工作流中将2D图片转换为3D模型；支持实时渲染、场景模板切换、材质预览以及各类通道图渲染。
@@ -218,8 +218,8 @@
   - （待添加）
 
 ## 常见问题
-
-(待添加)
+ 
+1.通过comfyui-manager安装插件时，如果遇到安全等级问题，请修改comfyui-manager配置文件内的对应的安全等级后，再重试安装。
 
 ## 开发说明
 
