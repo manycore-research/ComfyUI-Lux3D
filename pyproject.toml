@@ -29,7 +29,7 @@ Documentation = "https://github.com/manycore-research/ComfyUI-Lux3D/wiki"
 "Bug Tracker" = "https://github.com/manycore-research/ComfyUI-Lux3D/issues"
 
 [tool.comfy]
-PublisherId = ""
+PublisherId = "violalulu"
 DisplayName = "ComfyUI-Lux3D"
 Icon = ""
 includes = ["js"] 
