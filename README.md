@@ -53,6 +53,12 @@ A ComfyUI extension for converting 2D images into 3D models in your workflow. Su
 
 ## Installation
 
+### Install via ComfyUI CLI (Recommended)
+
+```
+comfy node install lux3d
+```
+
 ### Install via ComfyUI Manager
 
 1. Open ComfyUI.
