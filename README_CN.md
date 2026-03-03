@@ -54,6 +54,12 @@
 
 ## 安装方式
 
+### 通过 ComfyUI CLI 安装（推荐）
+
+```
+comfy node install lux3d
+```
+
 ### 通过 ComfyUI Manager 安装
 
 1. 打开 ComfyUI。
