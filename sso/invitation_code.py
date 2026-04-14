@@ -66,7 +66,7 @@ def parse_invitation_code(invitation_code):
 
         validate_field("ak", ak)
         validate_field("sk", sk)
-        validate_field("appuid", appuid)
+        # validate_field("appuid", appuid)
 
         return {
             "version": version,

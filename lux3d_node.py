@@ -232,25 +232,24 @@ class Lux3D:
         self, base_url: str, lux3d_code: Dict[str, str], task_id: str
     ) -> str:
         """Query task status and get results."""
-        code_with_sign = generate_sign_by_lux3d_code(lux3d_code)
-        appuid = code_with_sign["appuid"]
-        appkey = code_with_sign["appkey"]
-        sign = code_with_sign["sign"]
-        timestamp = code_with_sign["timestamp"]
-        url = (
-            f"{base_url}/global/lux3d/generate/task/get?"
-            f"busid={task_id}&appuid={appuid}&appkey={appkey}&sign={sign}&timestamp={timestamp}"
-        )
-
-        headers = {
-            "Content-Type": "application/json"
-        }
-
         max_attempts = 60
         interval = 15
 
         for attempt in range(max_attempts):
             try:
+                code_with_sign = generate_sign_by_lux3d_code(lux3d_code)
+                appuid = code_with_sign["appuid"]
+                appkey = code_with_sign["appkey"]
+                sign = code_with_sign["sign"]
+                timestamp = code_with_sign["timestamp"]
+                url = (
+                    f"{base_url}/global/lux3d/generate/task/get?"
+                    f"busid={task_id}&appuid={appuid}&appkey={appkey}&sign={sign}&timestamp={timestamp}"
+                )
+
+                headers = {
+                    "Content-Type": "application/json"
+                }
                 response = requests.get(url, headers=headers)
                 response.raise_for_status()  # Check HTTP errors
 
