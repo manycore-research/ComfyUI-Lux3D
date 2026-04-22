@@ -27,7 +27,9 @@ Create 3D product visualizations for immersive shopping experiences.
   </summary>
   <br>
   <p>Generated Result:</p>
-  <video src="https://github.com/user-attachments/assets/25df0ee3-1100-4201-9670-22ada6e43374" controls width="80%"></video>
+  
+  <video src=" https://github.com/user-attachments/assets/8f7d423f-2477-4f69-bb5e-5fb3f7c8cfb4" controls width="100%"></video>
+  
 </details>
 
 ### Game Development
@@ -46,8 +48,8 @@ Rapidly prototype and generate assets for your game worlds.
   </summary>
   <br>
   <p>Generated Result:</p>
-
-https://github.com/manycore-research/ComfyUI-Lux3D/releases/download/Assets/game.mp4
+  
+  <video src="https://github.com/user-attachments/assets/5f026961-f276-4ab2-ba0f-a5809d54363a" controls width="100%"></video> 
 
 </details>
 
@@ -68,8 +70,7 @@ Visualize concepts and prototypes with speed and precision.
   <br>
   <p>Generated Result:</p>
   
-  https://github.com/manycore-research/ComfyUI-Lux3D/releases/download/Assets/industrial.mp4
-  
+  <video src="https://github.com/user-attachments/assets/67ed25c7-a843-4484-a509-fbc53fc11630" controls width="100%"></video> 
 </details>
 
 ### Furniture & Interior
