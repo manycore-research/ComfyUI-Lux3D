@@ -3,6 +3,8 @@
 <div align="center">
 
 [English](README.md)/[中文](README_CN.md)
+
+🌐 Official Website: [Lux3D China](https://www.luxreal.com/lux3d/home) | [Lux3D Global](https://www.luxreal.ai/lux3d/home)
 </div>
 
 A ComfyUI extension for converting 2D images into 3D models in your workflow. Supports real-time rendering, scene template switching, material preview, and rendering of various render passes (channel maps).
