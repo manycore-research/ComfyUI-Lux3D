@@ -27,7 +27,7 @@
   </summary>
   <br>
   <p>生成结果：</p>
-  <video src="videos/ecommerce.mp4" controls width="100%"></video>
+  <video src="https://github.com/user-attachments/assets/25df0ee3-1100-4201-9670-22ada6e43374" controls width="100%"></video>
 </details>
 
 ### 游戏开发
@@ -46,7 +46,7 @@
   </summary>
   <br>
   <p>生成结果：</p>
-  <video src="videos/game.mp4" controls width="100%"></video>
+  <video src="https://github.com/user-attachments/assets/5f026961-f276-4ab2-ba0f-a5809d54363a" controls width="100%"></video>
 </details>
 
 ### 工业设计
@@ -65,7 +65,7 @@
   </summary>
   <br>
   <p>生成结果：</p>
-  <video src="videos/industrial.mp4" controls width="100%"></video>
+  <video src="https://github.com/user-attachments/assets/67ed25c7-a843-4484-a509-fbc53fc11630" controls width="100%"></video>
 </details>
 
 ### 家具与室内设计
@@ -82,7 +82,7 @@
   </summary>
   <br>
   <p>生成结果：</p>
-  <video src="videos/furniture.mp4" controls width="100%"></video>
+  <video src="https://github.com/user-attachments/assets/3ca88eb5-5cc3-4952-aedd-74ab8df1fede" controls width="100%"></video>
 </details>
 
 ## 功能介绍
