@@ -9,6 +9,82 @@
 
 A ComfyUI extension for converting 2D images into 3D models in your workflow. Supports real-time rendering, scene template switching, material preview, and rendering of various render passes (channel maps).
 
+## Industry Applications
+
+From gaming to e-commerce, Lux3D powers the next generation of 3D content creation.
+
+### E-Commerce
+
+Create 3D product visualizations for immersive shopping experiences.
+
+- Product configurators
+- AR Try-On
+- Virtual Showrooms
+
+<details>
+  <summary><b>Click to view generation results</b><br>
+  <img src="figures/ecommerce.jpg" width="400" alt="Input Image">
+  </summary>
+  <br>
+  <p>Generated Result:</p>
+  <video src="videos/ecommerce.mp4" controls width="100%"></video>
+</details>
+
+### Game Development
+
+Rapidly prototype and generate assets for your game worlds.
+
+- Props & Environment
+- Character Accessories
+- Level Design
+
+<details>
+  <summary><b>Click to view generation results</b><br>
+    <img src="figures/game1.jpg" height="320" alt="Input 1">
+    <img src="figures/game2.jpg" height="320" alt="Input 2">
+    <img src="figures/game3.jpg" height="320" alt="Input 3">
+  </summary>
+  <br>
+  <p>Generated Result:</p>
+  <video src="videos/game.mp4" controls width="100%"></video>
+</details>
+
+### Industrial Design
+
+Visualize concepts and prototypes with speed and precision.
+
+- Concept Visualization
+- Digital Twins
+- Rapid Prototyping
+
+<details>
+  <summary><b>Click to view generation results</b><br>
+  <img src="figures/industrial1.jpg" height="320" alt="Input 1">
+  <img src="figures/industrial2.jpg" height="320" alt="Input 2">
+  <img src="figures/industrial3.jpg" height="320" alt="Input 3">
+  </summary>
+  <br>
+  <p>Generated Result:</p>
+  <video src="videos/industrial.mp4" controls width="100%"></video>
+</details>
+
+### Furniture & Interior
+
+Rapidly digitize furniture and create realistic 3D assets for interior planning.
+
+- Furniture Digitization
+- Room Planning
+- Virtual Staging
+
+<details>
+  <summary><b>Click to view generation results</b><br>
+  <img src="figures/furniture.png" width="400" alt="Input Image">
+  </summary>
+  <br>
+  <p>Generated Result:</p>
+  <video src="videos/furniture.mp4" controls width="100%"></video>
+</details>
+
 ## Features
 
 ### Lux3D Node
