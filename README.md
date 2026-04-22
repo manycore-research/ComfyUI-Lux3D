@@ -27,7 +27,7 @@ Create 3D product visualizations for immersive shopping experiences.
   </summary>
   <br>
   <p>Generated Result:</p>
-  <video src="videos/ecommerce.mp4" controls width="100%"></video>
+  <video src="https://github.com/user-attachments/assets/25df0ee3-1100-4201-9670-22ada6e43374" controls width="80%"></video>
 </details>
 
 ### Game Development
