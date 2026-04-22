@@ -9,6 +9,82 @@
 
 一个ComfyUI插件，用于在你的工作流中将2D图片转换为3D模型；支持实时渲染、场景模板切换、材质预览以及各类通道图渲染。
 
+## 行业应用
+
+从游戏开发到电子商务，Lux3D 全面驱动下一代 3D 内容创作。
+
+### 电商
+
+为沉浸式购物体验打造高品质的 3D 产品可视化。
+
+- 产品配置器
+- AR 试穿
+- 虚拟展厅
+
+<details>
+  <summary><b>点击查看生成效果</b><br>
+  <img src="figures/ecommerce.jpg" width="400" alt="输入图">
+  </summary>
+  <br>
+  <p>生成结果：</p>
+  <video src="https://github.com/user-attachments/assets/25df0ee3-1100-4201-9670-22ada6e43374" controls width="100%"></video>
+</details>
+
+### 游戏开发
+
+为游戏世界快速构建原型并高效生成高质量资产。
+
+- 道具与环境
+- 角色配饰
+- 关卡设计
+
+<details>
+  <summary><b>点击查看生成效果</b><br>
+  <img src="figures/game1.jpg" height="320" alt="输入图1">
+  <img src="figures/game2.jpg" height="320" alt="输入图2">
+  <img src="figures/game3.jpg" height="320" alt="输入图3">
+  </summary>
+  <br>
+  <p>生成结果：</p>
+  <video src="https://github.com/user-attachments/assets/5f026961-f276-4ab2-ba0f-a5809d54363a" controls width="100%"></video>
+</details>
+
+### 工业设计
+
+以前所未有的速度和精度进行概念可视化及原型验证。
+
+- 概念可视化
+- 数字孪生
+- 快速原型
+
+<details>
+  <summary><b>点击查看生成效果</b><br>
+  <img src="figures/industrial1.jpg" height="320" alt="输入图1">
+  <img src="figures/industrial2.jpg" height="320" alt="输入图2">
+  <img src="figures/industrial3.jpg" height="320" alt="输入图3">
+  </summary>
+  <br>
+  <p>生成结果：</p>
+  <video src="https://github.com/user-attachments/assets/67ed25c7-a843-4484-a509-fbc53fc11630" controls width="100%"></video>
+</details>
+
+### 家具与室内设计
+
+快速实现家具数字化，为室内设计提供极其逼真的 3D 资产。
+
+- 家具数字化
+- 空间规划
+- 虚拟布置
+
+<details>
+  <summary><b>点击查看生成效果</b><br>
+  <img src="figures/furniture.png" width="400" alt="输入图">
+  </summary>
+  <br>
+  <p>生成结果：</p>
+  <video src="https://github.com/user-attachments/assets/3ca88eb5-5cc3-4952-aedd-74ab8df1fede" controls width="100%"></video>
+</details>
+
 ## 功能介绍
 
 ### Lux3D 节点
