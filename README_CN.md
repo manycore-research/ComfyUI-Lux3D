@@ -21,14 +21,20 @@
 - AR 试穿
 - 虚拟展厅
 
-<details>
-  <summary><b>点击查看生成效果</b><br>
-  <img src="figures/ecommerce.jpg" width="400" alt="输入图">
-  </summary>
-  <br>
-  <p>生成结果：</p>
-  <video src="https://github.com/user-attachments/assets/25df0ee3-1100-4201-9670-22ada6e43374" controls width="100%"></video>
-</details>
+<table>
+<tr>
+<th align="center" width="50%">输入图</th>
+<th align="center" width="50%">生成结果</th>
+</tr>
+<tr>
+<td align="center" width="50%">
+<img src="figures/ecommerce.jpg" width="100%" alt="输入图">
+</td>
+<td align="center" width="50%">
+<video src="https://github.com/user-attachments/assets/25df0ee3-1100-4201-9670-22ada6e43374" controls width="100%"></video>
+</td>
+</tr>
+</table>
 
 ### 游戏开发
 
@@ -38,16 +44,22 @@
 - 角色配饰
 - 关卡设计
 
-<details>
-  <summary><b>点击查看生成效果</b><br>
-  <img src="figures/game1.jpg" height="320" alt="输入图1">
-  <img src="figures/game2.jpg" height="320" alt="输入图2">
-  <img src="figures/game3.jpg" height="320" alt="输入图3">
-  </summary>
-  <br>
-  <p>生成结果：</p>
-  <video src="https://github.com/user-attachments/assets/5f026961-f276-4ab2-ba0f-a5809d54363a" controls width="100%"></video>
-</details>
+<table>
+<tr>
+<th align="center" width="50%">输入图</th>
+<th align="center" width="50%">生成结果</th>
+</tr>
+<tr>
+<td align="center" width="50%">
+<img src="figures/game1.jpg" height="180" alt="输入图1">
+<img src="figures/game2.jpg" height="180" alt="输入图2">
+<img src="figures/game3.jpg" height="180" alt="输入图3">
+</td>
+<td align="center" width="50%">
+<video src="https://github.com/user-attachments/assets/5f026961-f276-4ab2-ba0f-a5809d54363a" controls width="100%"></video>
+</td>
+</tr>
+</table>
 
 ### 工业设计
 
@@ -57,16 +69,22 @@
 - 数字孪生
 - 快速原型
 
-<details>
-  <summary><b>点击查看生成效果</b><br>
-  <img src="figures/industrial1.jpg" height="320" alt="输入图1">
-  <img src="figures/industrial2.jpg" height="320" alt="输入图2">
-  <img src="figures/industrial3.jpg" height="320" alt="输入图3">
-  </summary>
-  <br>
-  <p>生成结果：</p>
-  <video src="https://github.com/user-attachments/assets/67ed25c7-a843-4484-a509-fbc53fc11630" controls width="100%"></video>
-</details>
+<table>
+<tr>
+<th align="center" width="50%">输入图</th>
+<th align="center" width="50%">生成结果</th>
+</tr>
+<tr>
+<td align="center" width="50%">
+<img src="figures/industrial1.jpg" height="180" alt="输入图1">
+<img src="figures/industrial2.jpg" height="180" alt="输入图2">
+<img src="figures/industrial3.jpg" height="180" alt="输入图3">
+</td>
+<td align="center" width="50%">
+<video src="https://github.com/user-attachments/assets/67ed25c7-a843-4484-a509-fbc53fc11630" controls width="100%"></video>
+</td>
+</tr>
+</table>
 
 ### 家具与室内设计
 
@@ -76,14 +94,20 @@
 - 空间规划
 - 虚拟布置
 
-<details>
-  <summary><b>点击查看生成效果</b><br>
-  <img src="figures/furniture.png" width="400" alt="输入图">
-  </summary>
-  <br>
-  <p>生成结果：</p>
-  <video src="https://github.com/user-attachments/assets/3ca88eb5-5cc3-4952-aedd-74ab8df1fede" controls width="100%"></video>
-</details>
+<table>
+<tr>
+<th align="center" width="50%">输入图</th>
+<th align="center" width="50%">生成结果</th>
+</tr>
+<tr>
+<td align="center" width="50%">
+<img src="figures/furniture.png" width="100%" alt="输入图">
+</td>
+<td align="center" width="50%">
+<video src="https://github.com/user-attachments/assets/3ca88eb5-5cc3-4952-aedd-74ab8df1fede" controls width="100%"></video>
+</td>
+</tr>
+</table>
 
 ## 功能介绍
 
