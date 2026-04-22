@@ -46,7 +46,9 @@ Rapidly prototype and generate assets for your game worlds.
   </summary>
   <br>
   <p>Generated Result:</p>
-  <video src="https://github.com/manycore-research/ComfyUI-Lux3D/releases/download/Assets/game.mp4" controls width="100%"></video>
+
+https://github.com/manycore-research/ComfyUI-Lux3D/releases/download/Assets/game.mp4
+
 </details>
 
 ### Industrial Design
@@ -65,7 +67,9 @@ Visualize concepts and prototypes with speed and precision.
   </summary>
   <br>
   <p>Generated Result:</p>
-  <video src="https://github.com/manycore-research/ComfyUI-Lux3D/releases/download/Assets/industrial.mp4" controls width="100%"></video>
+  
+  https://github.com/manycore-research/ComfyUI-Lux3D/releases/download/Assets/industrial.mp4
+  
 </details>
 
 ### Furniture & Interior
