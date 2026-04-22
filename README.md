@@ -28,7 +28,7 @@ Create 3D product visualizations for immersive shopping experiences.
   <br>
   <p>Generated Result:</p>
   
-  <video src=" https://github.com/user-attachments/assets/8f7d423f-2477-4f69-bb5e-5fb3f7c8cfb4" controls width="100%"></video>
+  <video src="https://github.com/user-attachments/assets/25df0ee3-1100-4201-9670-22ada6e43374" controls width="100%"></video>
   
 </details>
 
