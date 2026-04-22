@@ -2,7 +2,9 @@
 
 <div align="center">
 
-[中文](README_CN.md)/[English](README.md) 
+[中文](README_CN.md)/[English](README.md)
+
+🌐 官方网站：[Lux3D 国内站](https://www.luxreal.com/lux3d/home) | [Lux3D 国际站](https://www.luxreal.ai/lux3d/home)
 </div>
 
 一个ComfyUI插件，用于在你的工作流中将2D图片转换为3D模型；支持实时渲染、场景模板切换、材质预览以及各类通道图渲染。
