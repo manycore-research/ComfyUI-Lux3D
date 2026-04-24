@@ -195,10 +195,7 @@ Rapidly digitize furniture and create realistic 3D assets for interior planning.
   <img src="figures/Office-chair.jpg" height="200" alt="Input">
 </td>
 <td align="center" width="50%">
-  <video src=" 
-
-
-" controls autoplay loop muted width="100%"></video>
+  <video src="https://github.com/user-attachments/assets/7536eb17-c717-4291-b59e-e21d886096a8" controls autoplay loop muted width="100%"></video>
 </td>
 </tr>
 <tr>
