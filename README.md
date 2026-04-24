@@ -28,10 +28,58 @@ Create 3D product visualizations for immersive shopping experiences.
 </tr>
 <tr>
 <td align="center" width="50%">
-<img src="figures/ecommerce.jpg" width="100%" alt="Input">
+<img src="figures/ecommerce.jpg" height="200" alt="Input">
 </td>
 <td align="center" width="50%">
 <video src="https://github.com/user-attachments/assets/25df0ee3-1100-4201-9670-22ada6e43374" controls width="100%"></video>
+</td>
+</tr>
+<tr>
+<td align="center" width="50%">
+<img src="figures/fruit.png" height="200" alt="Input">
+</td>
+<td align="center" width="50%">
+<img src="figures/fruit-output.jpg" height="200" alt="Output">
+</td>
+</tr>
+<tr>
+<td align="center" width="50%">
+<img src="figures/Glass-vase.jpg" height="200" alt="Input">
+</td>
+<td align="center" width="50%">
+<img src="figures/Glass-vase-output.jpg" height="200" alt="Output">
+</td>
+</tr>
+<tr>
+<td align="center" width="50%">
+<img src="figures/Lawnmower.jpg" height="200" alt="Input">
+</td>
+<td align="center" width="50%">
+<img src="figures/Lawnmower-output.jpg" height="200" alt="Output">
+</td>
+</tr>
+<tr>
+<td align="center" width="50%">
+<img src="figures/Pet-bowl.png" height="200" alt="Input">
+</td>
+<td align="center" width="50%">
+<img src="figures/Pet-bowl-output.jpg" height="200" alt="Output">
+</td>
+</tr>
+<tr>
+<td align="center" width="50%">
+<img src="figures/Speaker.png" height="200" alt="Input">
+</td>
+<td align="center" width="50%">
+<img src="figures/Speaker-output.jpg" height="200" alt="Output">
+</td>
+</tr>
+<tr>
+<td align="center" width="50%">
+<img src="figures/vase.jpg" height="200" alt="Input">
+</td>
+<td align="center" width="50%">
+<img src="figures/vase-output.jpg" height="200" alt="Output">
 </td>
 </tr>
 </table>
@@ -54,9 +102,9 @@ Rapidly prototype and generate assets for your game worlds.
 <tr>
 <td align="center" width="50%">
 <!-- 使用统一高度，使其整齐对齐 -->
-<img src="figures/game1.jpg" height="180" alt="Input 1">
-<img src="figures/game2.jpg" height="180" alt="Input 2">
-<img src="figures/game3.jpg" height="180" alt="Input 3">
+<img src="figures/game1.jpg" height="120" alt="Input 1">
+<img src="figures/game2.jpg" height="120" alt="Input 2">
+<img src="figures/game3.jpg" height="120" alt="Input 3">
 </td>
 <td align="center" width="50%">
 <video src="https://github.com/user-attachments/assets/5f026961-f276-4ab2-ba0f-a5809d54363a" controls width="100%"></video>
@@ -80,9 +128,9 @@ Visualize concepts and prototypes with speed and precision.
 <tr>
 <td align="center" width="50%">
 <!-- 使用统一高度，使其整齐对齐 -->
-<img src="figures/industrial1.jpg" height="180" alt="Input 1">
-<img src="figures/industrial2.jpg" height="180" alt="Input 2">
-<img src="figures/industrial3.jpg" height="180" alt="Input 3">
+<img src="figures/industrial1.jpg" height="120" alt="Input 1">
+<img src="figures/industrial2.jpg" height="120" alt="Input 2">
+<img src="figures/industrial3.jpg" height="120" alt="Input 3">
 </td>
 <td align="center" width="50%">
 <video src="https://github.com/user-attachments/assets/67ed25c7-a843-4484-a509-fbc53fc11630" controls width="100%"></video>
@@ -105,10 +153,26 @@ Rapidly digitize furniture and create realistic 3D assets for interior planning.
 </tr>
 <tr>
 <td align="center" width="50%">
-  <img src="figures/furniture.png" width="100%" alt="Input Image">
+  <img src="figures/furniture.png" height="200" alt="Input">
 </td>
 <td align="center" width="50%">
   <video src="https://github.com/user-attachments/assets/3ca88eb5-5cc3-4952-aedd-74ab8df1fede" controls autoplay loop muted width="100%"></video>
+</td>
+</tr>
+<tr>
+<td align="center" width="50%">
+  <img src="figures/Glassware.png" height="200" alt="Input">
+</td>
+<td align="center" width="50%">
+  <img src="figures/Glassware-output.jpg" height="200" alt="Output">
+</td>
+</tr>
+<tr>
+<td align="center" width="50%">
+  <img src="figures/Outdoor-furniture.jpg" height="200" alt="Input">
+</td>
+<td align="center" width="50%">
+  <img src="figures/Outdoor-furniture-output.jpg" height="200" alt="Output">
 </td>
 </tr>
 </table>

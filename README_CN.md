@@ -28,10 +28,58 @@
 </tr>
 <tr>
 <td align="center" width="50%">
-<img src="figures/ecommerce.jpg" width="100%" alt="输入图">
+<img src="figures/ecommerce.jpg" height="200" alt="输入图">
 </td>
 <td align="center" width="50%">
 <video src="https://github.com/user-attachments/assets/25df0ee3-1100-4201-9670-22ada6e43374" controls width="100%"></video>
+</td>
+</tr>
+<tr>
+<td align="center" width="50%">
+<img src="figures/fruit.png" height="200" alt="输入图">
+</td>
+<td align="center" width="50%">
+<img src="figures/fruit-output.jpg" height="200" alt="生成结果">
+</td>
+</tr>
+<tr>
+<td align="center" width="50%">
+<img src="figures/Glass-vase.jpg" height="200" alt="输入图">
+</td>
+<td align="center" width="50%">
+<img src="figures/Glass-vase-output.jpg" height="200" alt="生成结果">
+</td>
+</tr>
+<tr>
+<td align="center" width="50%">
+<img src="figures/Lawnmower.jpg" height="200" alt="输入图">
+</td>
+<td align="center" width="50%">
+<img src="figures/Lawnmower-output.jpg" height="200" alt="生成结果">
+</td>
+</tr>
+<tr>
+<td align="center" width="50%">
+<img src="figures/Pet-bowl.png" height="200" alt="输入图">
+</td>
+<td align="center" width="50%">
+<img src="figures/Pet-bowl-output.jpg" height="200" alt="生成结果">
+</td>
+</tr>
+<tr>
+<td align="center" width="50%">
+<img src="figures/Speaker.png" height="200" alt="输入图">
+</td>
+<td align="center" width="50%">
+<img src="figures/Speaker-output.jpg" height="200" alt="生成结果">
+</td>
+</tr>
+<tr>
+<td align="center" width="50%">
+<img src="figures/vase.jpg" height="200" alt="输入图">
+</td>
+<td align="center" width="50%">
+<img src="figures/vase-output.jpg" height="200" alt="生成结果">
 </td>
 </tr>
 </table>
@@ -101,10 +149,26 @@
 </tr>
 <tr>
 <td align="center" width="50%">
-<img src="figures/furniture.png" width="100%" alt="输入图">
+<img src="figures/furniture.png" height="200" alt="输入图">
 </td>
 <td align="center" width="50%">
 <video src="https://github.com/user-attachments/assets/3ca88eb5-5cc3-4952-aedd-74ab8df1fede" controls width="100%"></video>
+</td>
+</tr>
+<tr>
+<td align="center" width="50%">
+<img src="figures/Glassware.png" height="200" alt="输入图">
+</td>
+<td align="center" width="50%">
+<img src="figures/Glassware-output.jpg" height="200" alt="生成结果">
+</td>
+</tr>
+<tr>
+<td align="center" width="50%">
+<img src="figures/Outdoor-furniture.jpg" height="200" alt="输入图">
+</td>
+<td align="center" width="50%">
+<img src="figures/Outdoor-furniture-output.jpg" height="200" alt="生成结果">
 </td>
 </tr>
 </table>
