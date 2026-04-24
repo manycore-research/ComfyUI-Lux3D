@@ -39,7 +39,7 @@ Create 3D product visualizations for immersive shopping experiences.
 <img src="figures/Ghost-chair.jpg" height="200" alt="Input">
 </td>
 <td align="center" width="50%">
-<video src=" https://github.com/user-attachments/assets/6c078cd2-baf3-4577-b0d4-6ef0f52fd621" controls width="100%"></video>
+<video src="https://github.com/user-attachments/assets/6c078cd2-baf3-4577-b0d4-6ef0f52fd621" controls width="100%"></video>
 </td>
 </tr>
 <tr>
@@ -48,7 +48,7 @@ Create 3D product visualizations for immersive shopping experiences.
 <img src="figures/Hanfu.jpg" height="200" alt="Input">
 </td>
 <td align="center" width="50%">
-<video src=" https://github.com/user-attachments/assets/aeef4778-f5a4-443d-bd1b-3aeefc961506" controls width="100%"></video>
+<video src="https://github.com/user-attachments/assets/aeef4778-f5a4-443d-bd1b-3aeefc961506" controls width="100%"></video>
 </td>
 </tr>
 <tr>
@@ -131,11 +131,7 @@ Rapidly prototype and generate assets for your game worlds.
 <img src="figures/box.jpg" height="120" alt="Input 1">
 </td>
 <td align="center" width="50%">
-<video src=" 
-
-https://github.com/user-attachments/assets/ee0efc54-96e3-4c1b-8da0-8c3264ebf82e
-
-" controls width="100%"></video>
+<video src="https://github.com/user-attachments/assets/ee0efc54-96e3-4c1b-8da0-8c3264ebf82e" controls width="100%"></video>
 </td>
 </tr>
 <tr>
@@ -143,15 +139,7 @@ https://github.com/user-attachments/assets/ee0efc54-96e3-4c1b-8da0-8c3264ebf82e
 <img src="figures/Glass.jpg" height="120" alt="Input 1">
 </td>
 <td align="center" width="50%">
-<video src=" 
-
-
-
-https://github.com/user-attachments/assets/4b6ac21f-ad7f-409f-acf4-554d8a33ec81
-
-
-
-" controls width="100%"></video>
+<video src="https://github.com/user-attachments/assets/4b6ac21f-ad7f-409f-acf4-554d8a33ec81" controls width="100%"></video>
 </td>
 </tr>
 </table>
@@ -171,7 +159,6 @@ Visualize concepts and prototypes with speed and precision.
 </tr>
 <tr>
 <td align="center" width="50%">
-<!-- 使用统一高度，使其整齐对齐 -->
 <img src="figures/industrial1.jpg" height="120" alt="Input 1">
 <img src="figures/industrial2.jpg" height="120" alt="Input 2">
 <img src="figures/industrial3.jpg" height="120" alt="Input 3">
@@ -205,7 +192,7 @@ Rapidly digitize furniture and create realistic 3D assets for interior planning.
 </tr>
 <tr>
 <td align="center" width="50%">
-  <img src="figures/Office-chair.png" height="200" alt="Input">
+  <img src="figures/Office-chair.jpg" height="200" alt="Input">
 </td>
 <td align="center" width="50%">
   <video src=" 
