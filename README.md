@@ -9,6 +9,10 @@
 
 A ComfyUI extension for converting 2D images into 3D models in your workflow. Supports real-time rendering, scene template switching, material preview, and rendering of various render passes (channel maps).
 
+## Related Project
+
+Looking for a Skill Hub version of Lux3D? Try [Lux3d on ClawHub](https://clawhub.ai/violalulu/lux3d) for a workflow-focused skill entry.
+
 ## Industry Applications
 
 From gaming to e-commerce, Lux3D powers the next generation of 3D content creation.
