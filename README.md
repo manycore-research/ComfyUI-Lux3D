@@ -432,15 +432,43 @@ Node for real-time rendering and material preview.
 
 - Use Lux3D + LuxReal Engine to generate an object model and render images:
   
-  - (To be added)
+  - Workflow overview:
+
+    ![Lux3D and LuxReal Engine workflow](figures/pipeline1.jpg)
 
 - Use Lux3D + LuxReal Engine with local models to create combined objects and arrange a scene for rendering:
   
-  - (To be added)
+  - Workflow overview:
+
+    ![Lux3D and LuxReal Engine combined workflow](figures/pipeline2.jpg)
 
 - Use LuxReal Engine to generate object/channel passes and re-generate parts of an object’s materials after editing:
   
-  - (To be added)
+  - Workflow overview (1/3):
+
+    ![LuxReal Engine channel and material editing workflow 1](figures/pipeline3.1.jpg)
+
+  - Workflow overview (2/3):
+
+    ![LuxReal Engine channel and material editing workflow 2](figures/pipeline3.2.jpg)
+
+  - Workflow overview (3/3):
+
+    ![LuxReal Engine channel and material editing workflow 3](figures/pipeline3.3.jpg)
+
+  - Intermediate output 1:
+
+    ![Intermediate result before material editing](figures/pipeline3render2.jpg)
+
+  - Intermediate output 2 (channel pass):
+
+    ![Generated channel pass](figures/pipeline3render3.png)
+
+  - Final result:
+
+    ![Final result after material editing](figures/pipeline3render1.jpg)
+
+  - In addition to editing rendered images of generated models, you can also edit the input image to regenerate a new model and render.
 
 ## FAQ
 

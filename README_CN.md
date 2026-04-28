@@ -423,15 +423,43 @@ comfy node install lux3d
 
 - 使用lux3D节点和LuxReal Engine节点，生成物体模型，并渲染成图：
   
-  - （待添加）
+  - 工作流示意：
+
+    ![Lux3D与LuxReal Engine工作流](figures/pipeline1.jpg)
 
 - 使用lux3D节点和LuxReal Engine节点，结合本地模型，生成组合物体，并进行场景布置成图：
   
-  - （待添加）
+  - 工作流示意：
+
+    ![Lux3D与LuxReal Engine组合工作流](figures/pipeline2.jpg)
 
 - 使用LuxReal Engine节点，生成物体通道图，并对物体的部分材质进行编辑重生成：
   
-  - （待添加）
+  - 工作流示意（1/3）：
+
+    ![LuxReal Engine通道图与材质编辑工作流1](figures/pipeline3.1.jpg)
+
+  - 工作流示意（2/3）：
+
+    ![LuxReal Engine通道图与材质编辑工作流2](figures/pipeline3.2.jpg)
+
+  - 工作流示意（3/3）：
+
+    ![LuxReal Engine通道图与材质编辑工作流3](figures/pipeline3.3.jpg)
+
+  - 中间产物 1：
+
+    ![LuxReal Engine材质编辑前的中间结果](figures/pipeline3render2.jpg)
+
+  - 中间产物 2（通道图）：
+
+    ![LuxReal Engine生成的通道图](figures/pipeline3render3.png)
+
+  - 最终结果：
+
+    ![LuxReal Engine材质编辑后的最终结果](figures/pipeline3render1.jpg)
+
+  - 除了编辑已生成模型的渲染图，也可以直接编辑输入图，重新生成新的模型与渲染结果。
 
 ## 常见问题
  
