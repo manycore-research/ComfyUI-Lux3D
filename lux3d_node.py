@@ -1,7 +1,8 @@
 import base64
 import io
+import logging
 from time import sleep
-from typing import Any, Dict, Tuple
+from typing import Any, Dict, Tuple, Optional
 
 import numpy as np
 import requests
@@ -9,326 +10,17 @@ from PIL import Image
 
 from .sso.sso_token import generate_sign_by_lux3d_code, load_config
 
+logger = logging.getLogger("Lux3D")
 
-# ComfyUI node class definition
-class Lux3D:
-    """Lux3D image to 3D model node"""
 
-    # Output type: generated glb model URL
+class BaseLux3DNode:
+    """Base class for Lux3D nodes with common functionality"""
+    
     RETURN_TYPES = ("STRING",)
     RETURN_NAMES = ("glb_model_url",)
-
-    # Execution method name
-    FUNCTION = "generate_3d_model"
-
-    # Node category
     CATEGORY = "Lux3D"
     OUTPUT_NODE = True
-
-    # Node input configuration
-    @classmethod
-    def INPUT_TYPES(cls):
-        return {
-            "required": {
-                # Image input, supports receiving IMAGE type through connections
-                "image": ("IMAGE", {
-                    "label": "Input Image",
-                }),
-                "base_api_path": ("STRING",
-                                  {"default": "https://api.luxreal.ai"}),
-                # Invitation code input (optional), used to parse ak/sk/appuid
-                "lux3d_api_key": ("STRING", {
-                    "label": "Invitation Code (Optional)",
-                    "default": "",
-                    "multiline": False,
-                }),
-            }
-        }
-
-    @staticmethod
-    def tensor2pil(image: Any) -> Image.Image:
-        """Convert tensor to PIL Image."""
-        return Image.fromarray(
-            np.clip(255.0 * image.cpu().numpy().squeeze(), 0, 255).astype(np.uint8)
-        )
-
-    def image_to_base64(self, image: Any) -> Tuple[str, tuple, tuple]:
-        """Convert image tensor to base64 format.
-            
-        Args:
-            image: Image tensor with shape [B, C, H, W]
-                
-        Returns:
-            Tuple containing base64 image string, original shape, and permuted shape.
-        """
-        # Get original shape of input image
-        original_shape = image.shape  # [B, C, H, W]
-        print(f"Original input image shape: {original_shape}")
-                
-        # Get image channel count
-        channels = original_shape[1]
-        print(f"Image channels: {channels}")
-
-        # Convert first batch image using tensor2pil function
-        pil_image = self.tensor2pil(image[0])
-                
-        # Output processed image information
-        print(f"Processed image size: {pil_image.size}, mode: {pil_image.mode}")
-
-        # Choose save format based on channel count
-        if channels == 4:
-            # 4-channel image, use PNG format to preserve transparency channel
-            save_format = 'png'
-            # Ensure image mode is RGBA
-            if pil_image.mode != 'RGBA':
-                pil_image = pil_image.convert('RGBA')
-            save_mode = 'RGBA'
-        elif channels == 3:
-            # 3-channel image, use JPEG format
-            save_format = 'jpeg'
-            # Ensure image mode is RGB
-            if pil_image.mode != 'RGB':
-                pil_image = pil_image.convert('RGB')
-            save_mode = 'RGB'
-        elif channels == 1:
-            # 1-channel grayscale image, use JPEG format as grayscale
-            save_format = 'jpeg'
-            # Ensure image mode is L (grayscale)
-            if pil_image.mode != 'L':
-                pil_image = pil_image.convert('L')
-            save_mode = 'L'
-        else:
-            # Other channel counts, convert to RGB and use JPEG format
-            save_format = 'jpeg'
-            pil_image = pil_image.convert('RGB')
-            save_mode = 'RGB'
-
-        # Add debug information
-        print(
-            f"Preparing to save image, mode: {save_mode}, "
-            f"format: {save_format}, size: {pil_image.size}"
-        )
-
-        # Save image to buffer
-        buffer = io.BytesIO()
-
-        # Set different save parameters based on save format
-        if save_format == 'jpeg':
-            # Use JPEG format, set appropriate quality parameters
-            pil_image.save(buffer, format=save_format)
-            #   quality=85,  # Moderate quality, balance file size and image quality
-            #   optimize=True,  # Enable optimization
-            #   subsampling=2,  # Use 4:2:0 subsampling, reduce file size
-            #   dpi=(72, 72))  # Set standard DPI
-        else:
-            # Use PNG format
-            pil_image.save(buffer, format=save_format,
-                           optimize=True,  # Enable optimization
-                           dpi=(72, 72))  # Set standard DPI
-
-        # Ensure buffer pointer is at the beginning
-        buffer.seek(0)
-                
-        # Encode to base64
-        img_str = base64.b64encode(buffer.getvalue()).decode("utf-8")
-        base64_image = f"data:image/{save_format.lower()};base64,{img_str}"
-
-        # Output debug information
-        print(f"Save successful, base64 length: {len(img_str)} characters")
-
-        # Record permuted shape information (for output)
-        permuted_shape = (
-            pil_image.size[1],
-            pil_image.size[0],
-            len(pil_image.mode) if pil_image.mode in ["RGB", "RGBA"] else 1,
-        )
-
-        return base64_image, original_shape, permuted_shape
-
-    def generate_3d_model(
-        self, image: Any, base_api_path: str, lux3d_api_key: str = ""
-    ) -> Tuple[str]:
-        """Core logic for generating 3D model."""
-
-        lux3d_code = load_config(lux3d_api_key=lux3d_api_key if lux3d_api_key else None)
-        appuid = lux3d_code["appuid"]
-        # Validate API key
-        if not appuid:
-            raise ValueError(
-                "API key cannot be empty, please provide invitation code "
-                "or configure config.txt file"
-            )
-
-        # Validate image input
-        if image is None or image.shape[0] == 0:
-            raise ValueError("Image input cannot be empty")
-
-        try:
-            # Convert image to base64 format
-            base64_image, _, _ = self.image_to_base64(image)
-        
-            # Submit task to API
-            task_id = self.submit_task(
-                base_api_path, lux3d_api_key, lux3d_code, base64_image
-            )
-            print(f"Task submitted successfully, Task ID: {task_id}")
-        
-            # Query task status
-            glb_url = self.query_task_status(base_api_path, lux3d_code, task_id)
-        
-            # Simulate task processing delay
-            sleep(1)
-            print(f"Task completed, generated 3D model URL: {glb_url}")
-                    
-            return (glb_url,)
-                    
-        except Exception as e:
-            print(f"Failed to generate 3D model: {str(e)}")
-            raise RuntimeError(f"Failed to generate 3D model: {str(e)}")
-
-    def submit_task(
-        self, base_url: str, lux3d_api_key: str, lux3d_code: Dict[str, str], base64_image: str
-    ) -> str:
-        """Submit task to API."""
-        code_with_sign = generate_sign_by_lux3d_code(lux3d_code)
-        appuid = code_with_sign["appuid"]
-        appkey = code_with_sign["appkey"]
-        sign = code_with_sign["sign"]
-        timestamp = code_with_sign["timestamp"]
-        url = (
-            f"{base_url}/global/lux3d/generate/task/create?"
-            f"appuid={appuid}&appkey={appkey}&sign={sign}&timestamp={timestamp}"
-        )
-
-        headers = {
-            "Content-Type": "application/json"
-        }
-
-        payload = {
-            "img": base64_image,
-            "lux3dToken": lux3d_api_key,
-        }
-
-        try:
-            response = requests.post(url, json=payload, headers=headers)
-            response.raise_for_status()
-
-            result = response.json()
-            bus_id = result.get("d")
-
-            if bus_id is None:
-                raise KeyError("Task ID not found in API response")
-            
-            return str(bus_id)
-
-        except requests.exceptions.RequestException as e:
-            print(f"Task submission request failed: {str(e)}")
-            raise
-        except KeyError as e:
-            print(f"Expected task_id field not found in API response: {str(e)}")
-            raise
-
-    def query_task_status(
-        self, base_url: str, lux3d_code: Dict[str, str], task_id: str
-    ) -> str:
-        """Query task status and get results."""
-        max_attempts = 60
-        interval = 15
-
-        for attempt in range(max_attempts):
-            try:
-                code_with_sign = generate_sign_by_lux3d_code(lux3d_code)
-                appuid = code_with_sign["appuid"]
-                appkey = code_with_sign["appkey"]
-                sign = code_with_sign["sign"]
-                timestamp = code_with_sign["timestamp"]
-                url = (
-                    f"{base_url}/global/lux3d/generate/task/get?"
-                    f"busid={task_id}&appuid={appuid}&appkey={appkey}&sign={sign}&timestamp={timestamp}"
-                )
-
-                headers = {
-                    "Content-Type": "application/json"
-                }
-                response = requests.get(url, headers=headers)
-                response.raise_for_status()  # Check HTTP errors
-
-                result = response.json()
-                print(f"API Response Result: {result}")
-                c_code = result.get("c")
-                d_data = result.get("d")
-
-                if not d_data:
-                    raise Exception("Missing d field in API response")
-
-                status = d_data.get("status")
-
-                if c_code == "0" and status == 3:
-                    outputs = d_data.get("outputs", [])
-                    if outputs and len(outputs) > 0:
-                        lux3d_url = outputs[0].get("content")
-                        if lux3d_url:
-                            return lux3d_url
-                        raise Exception("content field not found in API response outputs")
-                    raise Exception("outputs is empty in API response")
-                elif status == 1:
-                    print(
-                        f"Task status: Running, waiting {interval} seconds "
-                        f"before continuing polling..."
-                    )
-                    sleep(interval)
-                elif status == 4:
-                    raise Exception(f"Task execution failed, status code: {status}")
-                else:
-                    print(
-                        f"Task status: {status}, waiting {interval} seconds "
-                        f"before continuing polling..."
-                    )
-                    sleep(interval)
-
-            except requests.exceptions.RequestException as e:
-                print(f"Task status query request failed: {str(e)}")
-                raise RuntimeError(f"Task status query request failed: {str(e)}")
-            except KeyError as e:
-                print(f"Expected fields not found in API response: {str(e)}")
-                raise RuntimeError(f"Expected fields not found in API response: {str(e)}")
-        # If maximum attempts reached without completion
-        raise Exception("Task timeout, could not complete within specified time")
-
-
-class Lux3DTextTo3D:
-    """Lux3D text to 3D model node (文生3D)"""
-
-    RETURN_TYPES = ("STRING",)
-    RETURN_NAMES = ("glb_model_url",)
-    FUNCTION = "generate_3d_from_text"
-    CATEGORY = "Lux3D"
-    OUTPUT_NODE = True
-
-    @classmethod
-    def INPUT_TYPES(cls):
-        return {
-            "required": {
-                "prompt": ("STRING", {
-                    "label": "Text Prompt",
-                    "default": "",
-                    "multiline": True,
-                }),
-                "base_api_path": ("STRING",
-                                  {"default": "https://api.luxreal.ai"}),
-                "lux3d_api_key": ("STRING", {
-                    "label": "Invitation Code (Optional)",
-                    "default": "",
-                    "multiline": False,
-                }),
-            },
-            "optional": {
-                "image": ("IMAGE", {
-                    "label": "Reference Image (Optional)",
-                }),
-            }
-        }
-
+    
     @staticmethod
     def tensor2pil(image: Any) -> Image.Image:
         """Convert tensor to PIL Image."""
@@ -340,7 +32,6 @@ class Lux3DTextTo3D:
         """Convert image tensor to base64 format."""
         original_shape = image.shape
         channels = original_shape[1]
-
         pil_image = self.tensor2pil(image[0])
 
         if channels == 4:
@@ -360,171 +51,222 @@ class Lux3DTextTo3D:
             pil_image = pil_image.convert('RGB')
 
         buffer = io.BytesIO()
-        if save_format == 'jpeg':
-            pil_image.save(buffer, format=save_format)
-        else:
-            pil_image.save(buffer, format=save_format, optimize=True, dpi=(72, 72))
-
+        pil_image.save(buffer, format=save_format, optimize=True)
         buffer.seek(0)
+        
         img_str = base64.b64encode(buffer.getvalue()).decode("utf-8")
         return f"data:image/{save_format.lower()};base64,{img_str}"
 
-    def generate_3d_from_text(
-        self, prompt: str, base_api_path: str, lux3d_api_key: str = "", image: Any = None
-    ) -> Tuple[str]:
-        """Generate 3D model from text prompt with optional reference image."""
+    def query_task_status(
+        self, base_url: str, lux3d_code: Dict[str, str], task_id: str, 
+        max_attempts: int = 60, interval: int = 15
+    ) -> str:
+        """Query task status and get results."""
+        for attempt in range(max_attempts):
+            try:
+                code_with_sign = generate_sign_by_lux3d_code(lux3d_code)
+                url = (
+                    f"{base_url}/global/lux3d/generate/task/get?"
+                    f"busid={task_id}&appuid={code_with_sign['appuid']}"
+                    f"&appkey={code_with_sign['appkey']}&sign={code_with_sign['sign']}"
+                    f"&timestamp={code_with_sign['timestamp']}"
+                )
 
-        lux3d_code = load_config(lux3d_api_key=lux3d_api_key if lux3d_api_key else None)
-        appuid = lux3d_code["appuid"]
+                response = requests.get(url, headers={"Content-Type": "application/json"}, timeout=30)
+                response.raise_for_status()
+                result = response.json()
+
+                c_code = result.get("c")
+                d_data = result.get("d")
+
+                if not d_data:
+                    raise ValueError("Missing d field in API response")
+
+                status = d_data.get("status")
+
+                if c_code == "0" and status == 3:
+                    outputs = d_data.get("outputs", [])
+                    if outputs:
+                        lux3d_url = outputs[0].get("content")
+                        if lux3d_url:
+                            return lux3d_url
+                        raise ValueError("content field not found in API response outputs")
+                    raise ValueError("outputs is empty in API response")
+                elif status == 4:
+                    raise ValueError(f"Task execution failed, status code: {status}")
+                elif attempt < max_attempts - 1:
+                    logger.info(f"Task status: {status}, waiting {interval}s before polling...")
+                    sleep(interval)
+
+            except requests.exceptions.RequestException as e:
+                logger.error(f"Task status query failed: {str(e)}")
+                raise RuntimeError(f"Task status query failed: {str(e)}")
         
-        if not appuid:
-            raise ValueError(
-                "API key cannot be empty, please provide invitation code "
-                "or configure config.txt file"
-            )
+        raise TimeoutError("Task timeout, could not complete within specified time")
 
-        if not prompt or not prompt.strip():
-            raise ValueError("Text prompt cannot be empty")
+    def _submit_task(
+        self, base_url: str, api_path: str, lux3d_api_key: str, 
+        lux3d_code: Dict[str, str], payload: Dict[str, Any]
+    ) -> str:
+        """Generic task submission helper."""
+        code_with_sign = generate_sign_by_lux3d_code(lux3d_code)
+        url = (
+            f"{base_url}{api_path}?"
+            f"appuid={code_with_sign['appuid']}&appkey={code_with_sign['appkey']}"
+            f"&sign={code_with_sign['sign']}&timestamp={code_with_sign['timestamp']}"
+        )
 
         try:
-            base64_image = None
-            if image is not None and image.shape[0] > 0:
-                base64_image = self.image_to_base64(image)
-                print(f"Reference image provided, base64 length: {len(base64_image)} characters")
-
-            else:
-                print("No reference image provided")
-
-            task_id = self.submit_text_task(
-                base_api_path, lux3d_api_key, lux3d_code, prompt, base64_image
+            response = requests.post(
+                url, json=payload, 
+                headers={"Content-Type": "application/json"},
+                timeout=30
             )
-            print(f"Text-to-3D task submitted successfully, Task ID: {task_id}")
+            response.raise_for_status()
+            result = response.json()
+            
+            bus_id = result.get("d")
+            if bus_id is None:
+                raise KeyError("Task ID not found in API response")
+            
+            return str(bus_id)
+
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Task submission failed: {str(e)}")
+            raise
+        except KeyError as e:
+            logger.error(f"Expected field not found: {str(e)}")
+            raise
+
+
+class Lux3D(BaseLux3DNode):
+    """Lux3D image to 3D model node"""
+
+    FUNCTION = "generate_3d_model"
+
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "image": ("IMAGE", {"label": "Input Image"}),
+                "base_api_path": ("STRING", {"default": "https://api.luxreal.ai"}),
+                "lux3d_api_key": ("STRING", {
+                    "label": "Invitation Code (Optional)",
+                    "default": "",
+                    "multiline": False,
+                }),
+            }
+        }
+
+    def generate_3d_model(
+        self, image: Any, base_api_path: str, lux3d_api_key: str = ""
+    ) -> Tuple[str]:
+        """Core logic for generating 3D model from image."""
+        lux3d_code = load_config(lux3d_api_key=lux3d_api_key if lux3d_api_key else None)
+        
+        if not lux3d_code["appuid"]:
+            raise ValueError("API key cannot be empty")
+        
+        if image is None or image.shape[0] == 0:
+            raise ValueError("Image input cannot be empty")
+
+        try:
+            base64_image = self.image_to_base64(image)
+            logger.info(f"Image base64 encoded, length: {len(base64_image)}")
+
+            payload = {
+                "img": base64_image,
+                "lux3dToken": lux3d_api_key,
+            }
+
+            task_id = self._submit_task(
+                base_api_path, "/global/lux3d/generate/task/create",
+                lux3d_api_key, lux3d_code, payload
+            )
+            logger.info(f"Task submitted, ID: {task_id}")
 
             glb_url = self.query_task_status(base_api_path, lux3d_code, task_id)
-
-            sleep(1)
-            print(f"Text-to-3D task completed, generated 3D model URL: {glb_url}")
+            logger.info(f"Task completed, model URL: {glb_url}")
 
             return (glb_url,)
 
         except Exception as e:
-            print(f"Failed to generate 3D model from text: {str(e)}")
-            raise RuntimeError(f"Failed to generate 3D model from text: {str(e)}")
+            logger.error(f"Failed to generate 3D model: {str(e)}")
+            raise RuntimeError(f"Failed to generate 3D model: {str(e)}")
 
-    def submit_text_task(
-        self, base_url: str, lux3d_api_key: str, lux3d_code: Dict[str, str], prompt: str, base64_image: str = None
-    ) -> str:
-        """Submit text-to-3D task to API."""
-        code_with_sign = generate_sign_by_lux3d_code(lux3d_code)
-        appuid = code_with_sign["appuid"]
-        appkey = code_with_sign["appkey"]
-        sign = code_with_sign["sign"]
-        timestamp = code_with_sign["timestamp"]
-        url = (
-            f"{base_url}/global/lux3d/generate/text-to-3d/task/create?"
-            f"appuid={appuid}&appkey={appkey}&sign={sign}&timestamp={timestamp}"
-        )
 
-        headers = {
-            "Content-Type": "application/json"
+class Lux3DTextTo3D(BaseLux3DNode):
+    """Lux3D text to 3D model node (文生3D)"""
+
+    FUNCTION = "generate_3d_from_text"
+
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "prompt": ("STRING", {
+                    "label": "Text Prompt",
+                    "default": "",
+                    "multiline": True,
+                }),
+                "style": (
+                    ["photorealistic", "cartoon", "anime", "hand_painted", "cyberpunk", "fantasy", "glass"],
+                    {"default": "photorealistic", "label": "Style"},
+                ),
+                "base_api_path": ("STRING", {"default": "https://api.luxreal.ai"}),
+                "lux3d_api_key": ("STRING", {
+                    "label": "Invitation Code (Optional)",
+                    "default": "",
+                    "multiline": False,
+                }),
+            },
+            "optional": {
+                "image": ("IMAGE", {"label": "Reference Image (Optional)"}),
+            }
         }
 
-        payload = {
-            "style": "photorealistic",
-            "prompt": prompt,
-            "img": "",
-            "lux3dToken": lux3d_api_key,
-        }
-
-        if base64_image:
-            payload["img"] = base64_image
+    def generate_3d_from_text(
+        self, prompt: str, style: str, base_api_path: str, lux3d_api_key: str = "", 
+        image: Optional[Any] = None
+    ) -> Tuple[str]:
+        """Generate 3D model from text prompt with optional reference image."""
+        lux3d_code = load_config(lux3d_api_key=lux3d_api_key if lux3d_api_key else None)
+        
+        if not lux3d_code["appuid"]:
+            raise ValueError("API key cannot be empty")
+        
+        if not prompt or not prompt.strip():
+            raise ValueError("Text prompt cannot be empty")
 
         try:
-            response = requests.post(url, json=payload, headers=headers)
-            response.raise_for_status()
+            payload = {
+                "style": style,
+                "prompt": prompt,
+                "lux3dToken": lux3d_api_key,
+            }
 
-            result = response.json()
-            bus_id = result.get("d")
+            if image is not None and image.shape[0] > 0:
+                payload["img"] = self.image_to_base64(image)
+                logger.info(f"Reference image provided, base64 length: {len(payload['img'])}")
+            else:
+                logger.info("No reference image provided")
 
-            if bus_id is None:
-                raise KeyError("Task ID not found in API response")
+            task_id = self._submit_task(
+                base_api_path, "/global/lux3d/generate/text-to-3d/task/create",
+                lux3d_api_key, lux3d_code, payload
+            )
+            logger.info(f"Text-to-3D task submitted, ID: {task_id}")
 
-            return str(bus_id)
+            glb_url = self.query_task_status(base_api_path, lux3d_code, task_id)
+            logger.info(f"Text-to-3D task completed, model URL: {glb_url}")
 
-        except requests.exceptions.RequestException as e:
-            print(f"Text task submission request failed: {str(e)}")
-            raise
-        except KeyError as e:
-            print(f"Expected task_id field not found in API response: {str(e)}")
-            raise
-    def query_task_status(
-            self, base_url: str, lux3d_code: Dict[str, str], task_id: str
-        ) -> str:
-            """Query task status and get results."""
-            max_attempts = 60
-            interval = 15
+            return (glb_url,)
 
-            for attempt in range(max_attempts):
-                try:
-                    code_with_sign = generate_sign_by_lux3d_code(lux3d_code)
-                    appuid = code_with_sign["appuid"]
-                    appkey = code_with_sign["appkey"]
-                    sign = code_with_sign["sign"]
-                    timestamp = code_with_sign["timestamp"]
-                    url = (
-                        f"{base_url}/global/lux3d/generate/task/get?"
-                        f"busid={task_id}&appuid={appuid}&appkey={appkey}&sign={sign}&timestamp={timestamp}"
-                    )
+        except Exception as e:
+            logger.error(f"Failed to generate 3D model from text: {str(e)}")
+            raise RuntimeError(f"Failed to generate 3D model from text: {str(e)}")
 
-                    headers = {
-                        "Content-Type": "application/json"
-                    }
-                    response = requests.get(url, headers=headers)
-                    response.raise_for_status()  # Check HTTP errors
 
-                    result = response.json()
-                    print(f"API Response Result: {result}")
-                    c_code = result.get("c")
-                    d_data = result.get("d")
-
-                    if not d_data:
-                        raise Exception("Missing d field in API response")
-
-                    status = d_data.get("status")
-
-                    if c_code == "0" and status == 3:
-                        outputs = d_data.get("outputs", [])
-                        if outputs and len(outputs) > 0:
-                            lux3d_url = outputs[0].get("content")
-                            if lux3d_url:
-                                return lux3d_url
-                            raise Exception("content field not found in API response outputs")
-                        raise Exception("outputs is empty in API response")
-                    elif status == 1:
-                        print(
-                            f"Task status: Running, waiting {interval} seconds "
-                            f"before continuing polling..."
-                        )
-                        sleep(interval)
-                    elif status == 4:
-                        raise Exception(f"Task execution failed, status code: {status}")
-                    else:
-                        print(
-                            f"Task status: {status}, waiting {interval} seconds "
-                            f"before continuing polling..."
-                        )
-                        sleep(interval)
-
-                except requests.exceptions.RequestException as e:
-                    print(f"Task status query request failed: {str(e)}")
-                    raise RuntimeError(f"Task status query request failed: {str(e)}")
-                except KeyError as e:
-                    print(f"Expected fields not found in API response: {str(e)}")
-                    raise RuntimeError(f"Expected fields not found in API response: {str(e)}")
-            # If maximum attempts reached without completion
-            raise Exception("Task timeout, could not complete within specified time")
-
-# Register nodes
 NODE_CLASS_MAPPINGS = {
     "Lux3D": Lux3D,
     "Lux3DTextTo3D": Lux3DTextTo3D
