@@ -222,7 +222,7 @@ Rapidly digitize furniture and create realistic 3D assets for interior planning.
 
 ## Features
 
-### Lux3D Node
+### Lux3D Node (Image to 3D)
 
 <img src="figures/image.png?msec=1772184417471" title="" alt="imagepng" width="382">
 
@@ -235,6 +235,18 @@ Rapidly digitize furniture and create realistic 3D assets for interior planning.
 - Waits up to **15 minutes** (60 polls × 15-second interval)
 
 - Outputs the generated 3D model URL
+
+### Lux3D Text to 3D Node
+
+<img src="figures/text-2-3d.png" title="" alt="text-2-3d.png" width="403">
+
+- Converts text prompts into 3D models
+
+- Supports optional reference images for better control
+
+- Multiple style options: photorealistic, cartoon, anime, hand_painted, cyberpunk, fantasy, glass
+
+- `api_key` can be provided via node parameters or read from a config file
 
 ### LuxReal Engine Node
 
@@ -311,21 +323,44 @@ pip install -r requirements.txt
 
 If you have any questions, please contact [lux3d@qunhemail.com](mailto:lux3d@qunhemail.com). We will respond as soon as possible.
 
-### Using the Lux3D Node
+### Using the Lux3D Node (Image to 3D)
 
-1. In ComfyUI’s node library, find `Lux3D` under the `Lux3D` category,or double click the blank area to add.
+1. In ComfyUI's node library, find `Lux3D` under the `Lux3D` category, or double click the blank area to add.
    
    ![image (2).png](figures/image%20(2).png)
 
-2. Connect an `IMAGE`input port.
+2. Connect an `IMAGE` input port.
 
 3. Run the workflow.
 
 4. The node returns a download URL for the generated 3D model.
    
    ![image (3).png](figures/image%20(3).png)
+
+### Using the Lux3D Text to 3D Node
+
+1. In ComfyUI's node library, find `Lux3D Text to 3D` under the `Lux3D` category.
    
-  ### Using the LuxReal Engine Node
+   ![image (2).png](figures/image%20(2).png)
+
+2. Enter a text prompt describing the object you want to generate.
+
+3. (Optional) Connect a reference `IMAGE` input to guide the generation.
+
+4. Select a style from the dropdown:
+   - `photorealistic`: Realistic photo style (default)
+   - `cartoon`: Cartoon style
+   - `anime`: Anime style
+   - `hand_painted`: Hand-painted style
+   - `cyberpunk`: Cyberpunk style
+   - `fantasy`: Fantasy style
+   - `glass`: Glass texture style
+
+5. Run the workflow.
+
+6. The node returns a download URL for the generated 3D model.
+
+### Using the LuxReal Engine Node
 
 1. In the ComfyUI workspace, find `LuxReal Engine` under the `Lux3D` category in the node menu.
 
@@ -384,7 +419,7 @@ If you have any questions, please contact [lux3d@qunhemail.com](mailto:lux3d@qun
 
 ## Node Explanation
 
-### Lux3D Node
+### Lux3D Node (Image to 3D)
 
 Core node for converting a 2D image into a 3D model.
 
@@ -394,7 +429,27 @@ Core node for converting a 2D image into a 3D model.
 | ------------- | -------- | ------------------------------------------------------------ |
 | image         | IMAGE    | Input image; accepts ComfyUI standard `IMAGE` via connection |
 | base_api_path | STRING   | API server base URL                                          |
-| lux3d_api_key | STRING   |                                                              |
+| lux3d_api_key | STRING   | Invitation code (optional)                                    |
+
+#### Outputs
+
+| **Name**      | Type   | Description                            |
+| ------------- | ------ | -------------------------------------- |
+| glb_model_url | STRING | Download URL of the generated 3D model |
+
+### Lux3D Text to 3D Node
+
+Core node for converting text prompts into 3D models.
+
+#### Inputs
+
+| **Name**      | **Type** | Description                                                  |
+| ------------- | -------- | ------------------------------------------------------------ |
+| prompt        | STRING   | Text prompt describing the object to generate                |
+| style         | Enum     | Style type: photorealistic, cartoon, anime, hand_painted, cyberpunk, fantasy, glass |
+| base_api_path | STRING   | API server base URL                                          |
+| lux3d_api_key | STRING   | Invitation code (optional)                                    |
+| image         | IMAGE    | Optional reference image (optional)                           |
 
 #### Outputs
 

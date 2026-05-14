@@ -219,7 +219,7 @@
 
 ## 功能介绍
 
-### Lux3D 节点
+### Lux3D 节点（图生3D）
 
 <img src="figures/image.png" title="" alt="image.png" width="403">
 
@@ -232,6 +232,18 @@
 - 最多等待**15分钟**（60次 × 15秒间隔）
 
 - 输出生成的3D模型URL
+
+### Lux3D 文生3D 节点
+
+<img src="figures/text-2-3d.png" title="" alt="text-2-3d.png" width="403">
+
+- 将文本描述转换为3D模型
+
+- 支持可选参考图输入，提供更好的生成控制
+
+- 多种风格选项：写实、卡通、二次元、手绘、赛博朋克、奇幻、玻璃质感
+
+- `api_key`支持从节点参数输入或配置文件读取
 
 ### LuxReal Engine 节点
 
@@ -304,7 +316,7 @@ comfy node install lux3d
 
 如有任何问题，请联系我们lux3d@qunhemail.com，我们将尽快回复。
 
-### Lux3D 节点使用
+### Lux3D 节点使用（图生3D）
 
 1. 在ComfyUI 节点库中的`Lux3D`分类下找到`Lux3D`节点，或在空白处双击搜索并添加。
    
@@ -317,6 +329,29 @@ comfy node install lux3d
 4. 节点将返回生成的3D模型下载URL。
    
    ![image (3).png](figures/image%20(3).png)
+
+### Lux3D 文生3D 节点使用
+
+1. 在ComfyUI节点库中的`Lux3D`分类下找到`Lux3D Text to 3D`节点。
+   
+   ![image (2).png](figures/image%20(2).png)
+
+2. 输入描述物体的文本prompt。
+
+3. （可选）连接参考图`IMAGE`输入，以引导生成方向。
+
+4. 从下拉菜单选择风格：
+   - `photorealistic`: 写实风格（默认）
+   - `cartoon`: 卡通风格
+   - `anime`: 二次元风格
+   - `hand_painted`: 手绘风格
+   - `cyberpunk`: 赛博朋克风格
+   - `fantasy`: 奇幻风格
+   - `glass`: 玻璃质感风格
+
+5. 运行工作流。
+
+6. 节点将返回生成的3D模型下载URL。
 
 ### LuxReal Engine 节点使用
 
@@ -374,7 +409,7 @@ comfy node install lux3d
 
 ## 节点说明
 
-### Lux3D 节点
+### Lux3D 节点（图生3D）
 
 将2D图片转换为3D模型的核心节点。
 
@@ -384,7 +419,27 @@ comfy node install lux3d
 | ------------- | ------ | ------------------------------- |
 | image         | IMAGE  | 输入图片，支持通过连线接收ComfyUI标准`IMAGE`类型 |
 | base_api_path | STRING | API服务器地址                        |
-| lux3d_api_key | STRING |                                 |
+| lux3d_api_key | STRING | 邀请码（可选）                        |
+
+#### 输出说明
+
+| **输出名**       | **类型** | **描述**       |
+| ------------- | ------ | ------------ |
+| glb_model_url | STRING | 生成的3D模型下载URL |
+
+### Lux3D 文生3D 节点
+
+将文本描述转换为3D模型的核心节点。
+
+#### 输入参数
+
+| **参数名**       | **类型** | **描述**                          |
+| ------------- | ------ | ------------------------------- |
+| prompt        | STRING | 描述要生成物体的文本prompt               |
+| style         | 枚举     | 风格类型：photorealistic（写实）、cartoon（卡通）、anime（二次元）、hand_painted（手绘）、cyberpunk（赛博朋克）、fantasy（奇幻）、glass（玻璃质感） |
+| base_api_path | STRING | API服务器地址                        |
+| lux3d_api_key | STRING | 邀请码（可选）                        |
+| image         | IMAGE  | 参考图（可选）                        |
 
 #### 输出说明
 
