@@ -1,0 +1,10 @@
+ComfyUI-Lux3D Viewer third-party notices
+
+Three.js 0.183.2 - MIT - https://github.com/mrdoob/three.js
+GaussianSplats3D 0.4.6 - MIT - https://github.com/mkkellogg/GaussianSplats3D
+@google/model-viewer 4.2.0 legacy environment scene - Apache-2.0 - https://github.com/google/model-viewer
+Draco decoder distributed by Three.js 0.183.2 - Apache-2.0 - https://github.com/google/draco
+Basis Universal transcoder distributed by Three.js 0.183.2 - Apache-2.0 - https://github.com/BinomialLLC/basis_universal
+meshoptimizer decoder 0.22 distributed by Three.js 0.183.2 - MIT - https://github.com/zeux/meshoptimizer
+
+The corresponding license texts are included in this directory.

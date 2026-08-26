@@ -7,5 +7,6 @@ logs/
 # 含 ak/sk，勿提交
 config.txt
 .venv/
+node_modules/
 *__pycache__/
 .specify/

@@ -1,0 +1,126 @@
+{
+  "schema_version": 1,
+  "assets": [
+    {
+      "logical_key": "basis/basis_transcoder.js",
+      "source_package": "three",
+      "source_version": "0.183.2",
+      "source_path": "examples/jsm/libs/basis/basis_transcoder.js",
+      "path": "basis/basis_transcoder.js",
+      "size": 57529,
+      "mime": "text/javascript; charset=utf-8",
+      "license": "Apache-2.0",
+      "sha256": "8478b5b6d6b74e7d3082b89f6417321d8d1dc0307f2b30d4484bb11b441696a1"
+    },
+    {
+      "logical_key": "basis/basis_transcoder.wasm",
+      "source_package": "three",
+      "source_version": "0.183.2",
+      "source_path": "examples/jsm/libs/basis/basis_transcoder.wasm",
+      "path": "basis/basis_transcoder.wasm",
+      "size": 527333,
+      "mime": "application/wasm",
+      "license": "Apache-2.0",
+      "sha256": "6cf17dc889352c42e9acf8897107978d127005fe3386c36a0e3845e27967630a"
+    },
+    {
+      "logical_key": "draco/draco_decoder.wasm",
+      "source_package": "three",
+      "source_version": "0.183.2",
+      "source_path": "examples/jsm/libs/draco/gltf/draco_decoder.wasm",
+      "path": "draco/draco_decoder.wasm",
+      "size": 192420,
+      "mime": "application/wasm",
+      "license": "Apache-2.0",
+      "sha256": "a680d927bed9cb864ddbd63521868891af2bfbe755092761b4837487618df8ac"
+    },
+    {
+      "logical_key": "draco/draco_wasm_wrapper.js",
+      "source_package": "three",
+      "source_version": "0.183.2",
+      "source_path": "examples/jsm/libs/draco/gltf/draco_wasm_wrapper.js",
+      "path": "draco/draco_wasm_wrapper.js",
+      "size": 58456,
+      "mime": "text/javascript; charset=utf-8",
+      "license": "Apache-2.0",
+      "sha256": "8bb2952d2ba7d67e1414f8df819410cb0434a666be53f671fff75f68843d76f6"
+    },
+    {
+      "logical_key": "licenses/Apache-2.0.txt",
+      "source_package": "Apache-2.0",
+      "source_version": "2.0",
+      "source_path": "license terms",
+      "path": "licenses/Apache-2.0.txt",
+      "size": 10348,
+      "mime": "text/plain; charset=utf-8",
+      "license": "Apache-2.0",
+      "sha256": "6558108dba48eede8454bf13a1f92a6fa65f8df06d0fea130baf8444708d501d"
+    },
+    {
+      "logical_key": "licenses/basis-NOTICE.md",
+      "source_package": "three",
+      "source_version": "0.183.2",
+      "source_path": "examples/jsm/libs/basis/README.md",
+      "path": "licenses/basis-NOTICE.md",
+      "size": 1448,
+      "mime": "text/markdown; charset=utf-8",
+      "license": "Apache-2.0",
+      "sha256": "930b11bbbb742b2525491b0964f0462d63d8b21383c0623ec4c98c43d53723c6"
+    },
+    {
+      "logical_key": "licenses/draco-NOTICE.md",
+      "source_package": "three",
+      "source_version": "0.183.2",
+      "source_path": "examples/jsm/libs/draco/README.md",
+      "path": "licenses/draco-NOTICE.md",
+      "size": 1489,
+      "mime": "text/markdown; charset=utf-8",
+      "license": "Apache-2.0",
+      "sha256": "8b9d277bf5743f4ce8d85d63c16690071b53f81796e877d4d395af943bde02a0"
+    },
+    {
+      "logical_key": "licenses/gaussian-splats-3d-MIT.txt",
+      "source_package": "@mkkellogg/gaussian-splats-3d",
+      "source_version": "0.4.6",
+      "source_path": "LICENSE",
+      "path": "licenses/gaussian-splats-3d-MIT.txt",
+      "size": 1078,
+      "mime": "text/plain; charset=utf-8",
+      "license": "MIT",
+      "sha256": "eaf88512a83fc007481fee3c10b6b6e3dbab64bd6d0d3c64416decf86dbc9440"
+    },
+    {
+      "logical_key": "licenses/meshoptimizer-MIT.txt",
+      "source_package": "meshoptimizer via three",
+      "source_version": "0.22",
+      "source_path": "examples/jsm/libs/meshopt_decoder.module.js",
+      "path": "licenses/meshoptimizer-MIT.txt",
+      "size": 1079,
+      "mime": "text/plain; charset=utf-8",
+      "license": "MIT",
+      "sha256": "d1bc307ff896c7fc65e3ff4823cc478194f7a5bc6436f99534ebede4d9e2017a"
+    },
+    {
+      "logical_key": "licenses/THIRD_PARTY_NOTICES.txt",
+      "source_package": "ComfyUI-Lux3D",
+      "source_version": "1.0.0",
+      "source_path": "frontend/build.mjs",
+      "path": "licenses/THIRD_PARTY_NOTICES.txt",
+      "size": 669,
+      "mime": "text/plain; charset=utf-8",
+      "license": "NOTICE",
+      "sha256": "01bd29a9ae6a8116efae855d566165703669d57db7207a27b1c1a8265269c29e"
+    },
+    {
+      "logical_key": "licenses/three-MIT.txt",
+      "source_package": "three",
+      "source_version": "0.183.2",
+      "source_path": "LICENSE",
+      "path": "licenses/three-MIT.txt",
+      "size": 1081,
+      "mime": "text/plain; charset=utf-8",
+      "license": "MIT",
+      "sha256": "8b378ebe60e2fe500158cb0ac71cb5e8b7d92953c2abcc63a0eb90499653b5bc"
+    }
+  ]
+}

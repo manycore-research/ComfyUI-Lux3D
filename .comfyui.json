@@ -1,17 +1,17 @@
 {
   "name": "Lux3D",
   "author": "Manycore Tech",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "project_url": "https://github.com/manycore-research/ComfyUI-Lux3D",
-  "description": "A ComfyUI extension providing nodes for generating 3D models from images and rendering/visualizing 3D assets within your workflow.",
+  "description": "Lux3D OpenAPI task creation, material redraw, and model-viewer nodes for ComfyUI.",
   "nodes": [
-    "lux3d_node.py",
-    "luxreal_engine.py"
+    "lux3d_openapi/nodes.py",
+    "lux3d_material.py",
+    "lux3d_viewer.py"
   ],
   "requirements": [
     "requests>=2.25.0",
     "Pillow>=9.0.0",
-    "numpy>=1.21.0",
-    "openexr>=1.7.0"
+    "numpy>=1.21.0"
   ]
 }

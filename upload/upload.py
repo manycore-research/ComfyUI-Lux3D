@@ -243,6 +243,55 @@ def fetch_token_and_domain(base_api_path: Optional[str] = None, guid: Optional[s
     return token, global_domain, block_size
 
 
+_V1_TOKEN_PATHS = {
+    "https://api.aholo3d.cn": "/asset/v1/token",
+    "https://api.aholo3d.com": "/global/asset/v1/token",
+}
+
+
+def fetch_token_and_domain_by_authorization(
+        base_api_path: str,
+        authorization_api_key: str,
+) -> Tuple[str, str, int]:
+    """Get OUS credentials from the regional v1 API using Authorization."""
+    token_path = _V1_TOKEN_PATHS.get(base_api_path)
+    if token_path is None:
+        supported = ", ".join(_V1_TOKEN_PATHS)
+        raise create_error(
+            "ConfigError",
+            f"Unsupported v1 upload base API path: {base_api_path!r}; "
+            f"expected one of: {supported}",
+        )
+    if not isinstance(authorization_api_key, str) or not authorization_api_key.strip():
+        raise create_error("ConfigError", "Authorization API key must not be empty")
+
+    url = f"{base_api_path}{token_path}"
+    result = make_request(
+        "GET",
+        url,
+        headers={
+            "Accept": "application/json",
+            "Authorization": authorization_api_key.strip(),
+        },
+    )
+    if not isinstance(result, dict):
+        raise create_error(
+            "InvalidResponse",
+            "V1 upload token response must be a JSON object",
+        )
+
+    token = result.get("ousToken")
+    global_domain = result.get("globalDomain")
+    block_size = int(result.get("blockSize") or (5 * 1024 * 1024))
+    if not token or not global_domain:
+        raise create_error(
+            "InvalidResponse",
+            "V1 upload token response is missing ousToken or globalDomain",
+            extra={"response_data": result},
+        )
+    return token, global_domain, block_size
+
+
 def upload_single_file(
         domain: str,
         md5: str,
@@ -492,6 +541,7 @@ def upload_file(
         metadata: Optional[Dict[str, Any]] = None,
         on_progress: Optional[Callable[[int, int], None]] = None,
         lux3d_api_key: Optional[str] = None,
+        authorization_api_key: Optional[str] = None,
 ) -> Dict[str, Any]:
     """
     Main file upload function (OUS V2)
@@ -513,6 +563,7 @@ def upload_file(
         metadata: File metadata
         on_progress: Progress callback (uploaded bytes, total bytes)
         lux3d_api_key: Invitation code (optional), used for OpenAPI signature
+        authorization_api_key: V1 API key passed directly in Authorization
 
     Returns:
         Final upload status (including url, uploadKey, status, etc.)
@@ -529,8 +580,19 @@ def upload_file(
     # Step 1: Get token, global domain and chunk threshold (V2 returns once, no chunk rule interface needed)
     try:
         logger.info(f">>>  Fetching upload token...")
-        ous_token, global_domain, block_size = fetch_token_and_domain(base_api_path, guid=guid,
-                                                                      lux3d_api_key=lux3d_api_key)
+        if authorization_api_key is not None:
+            ous_token, global_domain, block_size = (
+                fetch_token_and_domain_by_authorization(
+                    base_api_path,
+                    authorization_api_key,
+                )
+            )
+        else:
+            ous_token, global_domain, block_size = fetch_token_and_domain(
+                base_api_path,
+                guid=guid,
+                lux3d_api_key=lux3d_api_key,
+            )
         logger.info(f">>>  Token fetched successfully")
     except Exception as e:
         logger.error(f">>> Failed to fetch upload token")
