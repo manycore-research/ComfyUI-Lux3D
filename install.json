@@ -1,14 +1,14 @@
 {
   "name": "ComfyUI-Lux3D",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "nodes": [
-    "lux3d_node.py",
-    "luxreal_engine.py"
+    "lux3d_openapi/nodes.py",
+    "lux3d_material.py",
+    "lux3d_viewer.py"
   ],
   "requirements": [
     "requests>=2.25.0",
     "Pillow>=9.0.0",
-    "numpy>=1.21.0",
-    "openexr>=1.7.0"
+    "numpy>=1.21.0"
   ]
 }
