@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="assets/logo.png" width="420" alt="ComfyUI-Lux3D Nodes" />
+  <img src="figures/logo.png" width="420" alt="ComfyUI-Lux3D Nodes" />
 </div>
 
 # ComfyUI-Lux3D Nodes
@@ -41,58 +41,58 @@
 </tr>
 <tr>
 <td align="center" width="50%">
-<img src="assets/handbag.jpg" height="200" alt="皮包输入图">
+<img src="figures/handbag.jpg" height="200" alt="皮包输入图">
 </td>
 <td align="center" width="50%">
-<img src="assets/handbag.gif" height="200" alt="皮包生成结果">
-</td>
-</tr>
-<tr>
-<td align="center" width="50%">
-<img src="assets/chips.jpg" height="200" alt="薯片输入图">
-</td>
-<td align="center" width="50%">
-<img src="assets/chips.gif" height="200" alt="薯片生成结果">
+<img src="figures/handbag.gif" height="200" alt="皮包生成结果">
 </td>
 </tr>
 <tr>
 <td align="center" width="50%">
-<img src="assets/milk-carton.jpg" height="200" alt="牛奶盒输入图">
+<img src="figures/chips.jpg" height="200" alt="薯片输入图">
 </td>
 <td align="center" width="50%">
-<img src="assets/milk-carton-render.png" height="200" alt="牛奶盒生成结果">
-</td>
-</tr>
-<tr>
-<td align="center" width="50%">
-<img src="assets/Lawnmower.jpg" height="200" alt="输入图">
-</td>
-<td align="center" width="50%">
-<img src="assets/Lawnmower-output.jpg" height="200" alt="生成结果">
+<img src="figures/chips.gif" height="200" alt="薯片生成结果">
 </td>
 </tr>
 <tr>
 <td align="center" width="50%">
-<img src="assets/Pet-bowl.png" height="200" alt="输入图">
+<img src="figures/milk-carton.jpg" height="200" alt="牛奶盒输入图">
 </td>
 <td align="center" width="50%">
-<img src="assets/Pet-bowl-output.jpg" height="200" alt="生成结果">
-</td>
-</tr>
-<tr>
-<td align="center" width="50%">
-<img src="assets/Speaker.png" height="200" alt="输入图">
-</td>
-<td align="center" width="50%">
-<img src="assets/Speaker-output.jpg" height="200" alt="生成结果">
+<img src="figures/milk-carton-render.png" height="200" alt="牛奶盒生成结果">
 </td>
 </tr>
 <tr>
 <td align="center" width="50%">
-<img src="assets/vase.jpg" height="200" alt="输入图">
+<img src="figures/Lawnmower.jpg" height="200" alt="输入图">
 </td>
 <td align="center" width="50%">
-<img src="assets/vase-output.jpg" height="200" alt="生成结果">
+<img src="figures/Lawnmower-output.jpg" height="200" alt="生成结果">
+</td>
+</tr>
+<tr>
+<td align="center" width="50%">
+<img src="figures/Pet-bowl.png" height="200" alt="输入图">
+</td>
+<td align="center" width="50%">
+<img src="figures/Pet-bowl-output.jpg" height="200" alt="生成结果">
+</td>
+</tr>
+<tr>
+<td align="center" width="50%">
+<img src="figures/Speaker.png" height="200" alt="输入图">
+</td>
+<td align="center" width="50%">
+<img src="figures/Speaker-output.jpg" height="200" alt="生成结果">
+</td>
+</tr>
+<tr>
+<td align="center" width="50%">
+<img src="figures/vase.jpg" height="200" alt="输入图">
+</td>
+<td align="center" width="50%">
+<img src="figures/vase-output.jpg" height="200" alt="生成结果">
 </td>
 </tr>
 </table>
@@ -112,40 +112,40 @@
 </tr>
 <tr>
 <td align="center" width="50%">
-<img src="assets/cartoon-sofa.jpg" height="200" alt="卡通沙发输入图">
+<img src="figures/cartoon-sofa.jpg" height="200" alt="卡通沙发输入图">
 </td>
 <td align="center" width="50%">
-<img src="assets/cartoon-sofa.gif" height="200" alt="卡通沙发生成结果">
+<img src="figures/cartoon-sofa.gif" height="200" alt="卡通沙发生成结果">
 </td>
 </tr>
 <tr>
 <td align="center" width="50%">
-<img src="assets/cartoon-boy.jpg" height="200" alt="卡通男孩输入图">
+<img src="figures/cartoon-boy.jpg" height="200" alt="卡通男孩输入图">
 </td>
 <td align="center" width="50%">
-<img src="assets/cartoon-boy.gif" height="200" alt="卡通男孩生成结果">
+<img src="figures/cartoon-boy.gif" height="200" alt="卡通男孩生成结果">
 </td>
 </tr>
 
 <tr>
 <td align="center" width="50%">
-<img src="assets/axe.jpg" height="200" alt="斧头输入图">
+<img src="figures/axe.jpg" height="200" alt="斧头输入图">
 </td>
 <td align="center" width="50%">
-<img src="assets/axe-render.png" height="200" alt="斧头生成结果">
-</td>
-</tr>
-<tr>
-<td align="center" width="50%">
-<img src="assets/toy-gun.jpg" height="200" alt="玩具手枪输入图">
-</td>
-<td align="center" width="50%">
-<img src="assets/toy-gun-render.png" height="200" alt="玩具手枪生成结果">
+<img src="figures/axe-render.png" height="200" alt="斧头生成结果">
 </td>
 </tr>
 <tr>
 <td align="center" width="50%">
-<img src="assets/box.jpg" height="120" alt="输入图">
+<img src="figures/toy-gun.jpg" height="200" alt="玩具手枪输入图">
+</td>
+<td align="center" width="50%">
+<img src="figures/toy-gun-render.png" height="200" alt="玩具手枪生成结果">
+</td>
+</tr>
+<tr>
+<td align="center" width="50%">
+<img src="figures/box.jpg" height="120" alt="输入图">
 </td>
 <td align="center" width="50%">
 <video src="https://github.com/user-attachments/assets/ee0efc54-96e3-4c1b-8da0-8c3264ebf82e" controls width="100%"></video>
@@ -168,9 +168,9 @@
 </tr>
 <tr>
 <td align="center" width="50%">
-<img src="assets/industrial1.jpg" height="180" alt="输入图1">
-<img src="assets/industrial2.jpg" height="180" alt="输入图2">
-<img src="assets/industrial3.jpg" height="180" alt="输入图3">
+<img src="figures/industrial1.jpg" height="180" alt="输入图1">
+<img src="figures/industrial2.jpg" height="180" alt="输入图2">
+<img src="figures/industrial3.jpg" height="180" alt="输入图3">
 </td>
 <td align="center" width="50%">
 <video src="https://github.com/user-attachments/assets/67ed25c7-a843-4484-a509-fbc53fc11630" controls width="100%"></video>
@@ -193,39 +193,39 @@
 </tr>
 <tr>
 <td align="center" width="50%">
-<img src="assets/leather-sofa.png" height="200" alt="真皮沙发输入图">
+<img src="figures/leather-sofa.png" height="200" alt="真皮沙发输入图">
 </td>
 <td align="center" width="50%">
-<img src="assets/leather-sofa.gif" height="200" alt="真皮沙发生成结果">
-</td>
-</tr>
-<tr>
-<td align="center" width="50%">
-<img src="assets/marble-coffee-table.png" height="200" alt="大理石茶几输入图">
-</td>
-<td align="center" width="50%">
-<img src="assets/marble-coffee-table.gif" height="200" alt="大理石茶几生成结果">
+<img src="figures/leather-sofa.gif" height="200" alt="真皮沙发生成结果">
 </td>
 </tr>
 <tr>
 <td align="center" width="50%">
-<img src="assets/refrigerator.jpg" height="200" alt="冰箱输入图">
+<img src="figures/marble-coffee-table.png" height="200" alt="大理石茶几输入图">
 </td>
 <td align="center" width="50%">
-<img src="assets/refrigerator-render.png" height="200" alt="冰箱生成结果">
-</td>
-</tr>
-<tr>
-<td align="center" width="50%">
-<img src="assets/stainless-steel-table.png" height="200" alt="不锈钢桌子输入图">
-</td>
-<td align="center" width="50%">
-<img src="assets/stainless-steel-table-render.png" height="200" alt="不锈钢桌子生成结果">
+<img src="figures/marble-coffee-table.gif" height="200" alt="大理石茶几生成结果">
 </td>
 </tr>
 <tr>
 <td align="center" width="50%">
-<img src="assets/furniture.png" height="200" alt="输入图">
+<img src="figures/refrigerator.jpg" height="200" alt="冰箱输入图">
+</td>
+<td align="center" width="50%">
+<img src="figures/refrigerator-render.png" height="200" alt="冰箱生成结果">
+</td>
+</tr>
+<tr>
+<td align="center" width="50%">
+<img src="figures/stainless-steel-table.png" height="200" alt="不锈钢桌子输入图">
+</td>
+<td align="center" width="50%">
+<img src="figures/stainless-steel-table-render.png" height="200" alt="不锈钢桌子生成结果">
+</td>
+</tr>
+<tr>
+<td align="center" width="50%">
+<img src="figures/furniture.png" height="200" alt="输入图">
 </td>
 <td align="center" width="50%">
 <video src="https://github.com/user-attachments/assets/3ca88eb5-5cc3-4952-aedd-74ab8df1fede" controls width="100%"></video>
@@ -233,7 +233,7 @@
 </tr>
 <tr>
 <td align="center" width="50%">
-<img src="assets/Office-chair.jpg" height="200" alt="输入图">
+<img src="figures/Office-chair.jpg" height="200" alt="输入图">
 </td>
 <td align="center" width="50%">
 <video src="https://github.com/user-attachments/assets/7536eb17-c717-4291-b59e-e21d886096a8" controls width="100%"></video>
@@ -241,10 +241,10 @@
 </tr>
 <tr>
 <td align="center" width="50%">
-<img src="assets/Outdoor-furniture.jpg" height="200" alt="输入图">
+<img src="figures/Outdoor-furniture.jpg" height="200" alt="输入图">
 </td>
 <td align="center" width="50%">
-<img src="assets/Outdoor-furniture-output.jpg" height="200" alt="生成结果">
+<img src="figures/Outdoor-furniture-output.jpg" height="200" alt="生成结果">
 </td>
 </tr>
 </table>
@@ -350,6 +350,10 @@ comfy node install lux3d
 
 5. 将非空的 `glb` 或 `ply` 输出连接到 `Lux3D Viewer`，即可在画布内预览；ZIP 输出不能直接预览。
 
+<p align="center">
+  <img src="figures/image-to-3d-workflow-cn.png" width="900" alt="Lux3D 图生 3D 工作流" />
+</p>
+
 #### Lux3D Text to 3D（文生3D）
 
 1. 在 ComfyUI 节点库的 `Lux3D/Generate` 分类下找到 `Lux3D Text to 3D`。
@@ -372,6 +376,10 @@ comfy node install lux3d
 6. 节点完成轮询后返回 `task_id`、`lux3d_zip`、`glb` 和 `ply`。
 
 7. 将非空的 `glb` 或 `ply` 输出连接到 `Lux3D Viewer`，即可在画布内预览。
+
+<p align="center">
+  <img src="figures/text-to-3d-workflow-cn.png" width="900" alt="Lux3D 文生 3D 工作流" />
+</p>
 
 #### Lux3D Multi-View Generator（多视图生成）
 
@@ -402,6 +410,10 @@ comfy node install lux3d
 4. 运行工作流，节点将返回重绘材质后的新 `glb_model_url`。
 
 5. 返回的模型 URL 可连接到 `Lux3D Viewer` 节点，在画布内直接预览。
+
+<p align="center">
+  <img src="figures/material-redraw-workflow-cn.png" width="900" alt="Lux3D 材质重绘工作流" />
+</p>
 
 #### Lux3D Viewer（模型预览）
 

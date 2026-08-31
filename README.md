@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="assets/logo.png" width="420" alt="ComfyUI-Lux3D Nodes" />
+  <img src="figures/logo.png" width="420" alt="ComfyUI-Lux3D Nodes" />
 </div>
 
 # ComfyUI-Lux3D Nodes
@@ -41,58 +41,58 @@ Create 3D product visualizations for immersive shopping experiences.
 </tr>
 <tr>
 <td align="center" width="50%">
-<img src="assets/handbag.jpg" height="200" alt="Input">
+<img src="figures/handbag.jpg" height="200" alt="Input">
 </td>
 <td align="center" width="50%">
-<img src="assets/handbag.gif" height="200" alt="Output">
-</td>
-</tr>
-<tr>
-<td align="center" width="50%">
-<img src="assets/chips.jpg" height="200" alt="Input">
-</td>
-<td align="center" width="50%">
-<img src="assets/chips.gif" height="200" alt="Output">
+<img src="figures/handbag.gif" height="200" alt="Output">
 </td>
 </tr>
 <tr>
 <td align="center" width="50%">
-<img src="assets/milk-carton.jpg" height="200" alt="Input">
+<img src="figures/chips.jpg" height="200" alt="Input">
 </td>
 <td align="center" width="50%">
-<img src="assets/milk-carton-render.png" height="200" alt="Output">
-</td>
-</tr>
-<tr>
-<td align="center" width="50%">
-<img src="assets/Lawnmower.jpg" height="200" alt="Input">
-</td>
-<td align="center" width="50%">
-<img src="assets/Lawnmower-output.jpg" height="200" alt="Output">
+<img src="figures/chips.gif" height="200" alt="Output">
 </td>
 </tr>
 <tr>
 <td align="center" width="50%">
-<img src="assets/Pet-bowl.png" height="200" alt="Input">
+<img src="figures/milk-carton.jpg" height="200" alt="Input">
 </td>
 <td align="center" width="50%">
-<img src="assets/Pet-bowl-output.jpg" height="200" alt="Output">
-</td>
-</tr>
-<tr>
-<td align="center" width="50%">
-<img src="assets/Speaker.png" height="200" alt="Input">
-</td>
-<td align="center" width="50%">
-<img src="assets/Speaker-output.jpg" height="200" alt="Output">
+<img src="figures/milk-carton-render.png" height="200" alt="Output">
 </td>
 </tr>
 <tr>
 <td align="center" width="50%">
-<img src="assets/vase.jpg" height="200" alt="Input">
+<img src="figures/Lawnmower.jpg" height="200" alt="Input">
 </td>
 <td align="center" width="50%">
-<img src="assets/vase-output.jpg" height="200" alt="Output">
+<img src="figures/Lawnmower-output.jpg" height="200" alt="Output">
+</td>
+</tr>
+<tr>
+<td align="center" width="50%">
+<img src="figures/Pet-bowl.png" height="200" alt="Input">
+</td>
+<td align="center" width="50%">
+<img src="figures/Pet-bowl-output.jpg" height="200" alt="Output">
+</td>
+</tr>
+<tr>
+<td align="center" width="50%">
+<img src="figures/Speaker.png" height="200" alt="Input">
+</td>
+<td align="center" width="50%">
+<img src="figures/Speaker-output.jpg" height="200" alt="Output">
+</td>
+</tr>
+<tr>
+<td align="center" width="50%">
+<img src="figures/vase.jpg" height="200" alt="Input">
+</td>
+<td align="center" width="50%">
+<img src="figures/vase-output.jpg" height="200" alt="Output">
 </td>
 </tr>
 </table>
@@ -112,40 +112,40 @@ Rapidly prototype and generate assets for your game worlds.
 </tr>
 <tr>
 <td align="center" width="50%">
-<img src="assets/cartoon-sofa.jpg" height="200" alt="Input">
+<img src="figures/cartoon-sofa.jpg" height="200" alt="Input">
 </td>
 <td align="center" width="50%">
-<img src="assets/cartoon-sofa.gif" height="200" alt="Output">
+<img src="figures/cartoon-sofa.gif" height="200" alt="Output">
 </td>
 </tr>
 <tr>
 <td align="center" width="50%">
-<img src="assets/cartoon-boy.jpg" height="200" alt="Input">
+<img src="figures/cartoon-boy.jpg" height="200" alt="Input">
 </td>
 <td align="center" width="50%">
-<img src="assets/cartoon-boy.gif" height="200" alt="Output">
+<img src="figures/cartoon-boy.gif" height="200" alt="Output">
 </td>
 </tr>
 
 <tr>
 <td align="center" width="50%">
-<img src="assets/axe.jpg" height="200" alt="Input">
+<img src="figures/axe.jpg" height="200" alt="Input">
 </td>
 <td align="center" width="50%">
-<img src="assets/axe-render.png" height="200" alt="Output">
-</td>
-</tr>
-<tr>
-<td align="center" width="50%">
-<img src="assets/toy-gun.jpg" height="200" alt="Input">
-</td>
-<td align="center" width="50%">
-<img src="assets/toy-gun-render.png" height="200" alt="Output">
+<img src="figures/axe-render.png" height="200" alt="Output">
 </td>
 </tr>
 <tr>
 <td align="center" width="50%">
-<img src="assets/box.jpg" height="120" alt="Input">
+<img src="figures/toy-gun.jpg" height="200" alt="Input">
+</td>
+<td align="center" width="50%">
+<img src="figures/toy-gun-render.png" height="200" alt="Output">
+</td>
+</tr>
+<tr>
+<td align="center" width="50%">
+<img src="figures/box.jpg" height="120" alt="Input">
 </td>
 <td align="center" width="50%">
 <video src="https://github.com/user-attachments/assets/ee0efc54-96e3-4c1b-8da0-8c3264ebf82e" controls width="100%"></video>
@@ -168,9 +168,9 @@ Visualize concepts and prototypes with speed and precision.
 </tr>
 <tr>
 <td align="center" width="50%">
-<img src="assets/industrial1.jpg" height="180" alt="Input 1">
-<img src="assets/industrial2.jpg" height="180" alt="Input 2">
-<img src="assets/industrial3.jpg" height="180" alt="Input 3">
+<img src="figures/industrial1.jpg" height="180" alt="Input 1">
+<img src="figures/industrial2.jpg" height="180" alt="Input 2">
+<img src="figures/industrial3.jpg" height="180" alt="Input 3">
 </td>
 <td align="center" width="50%">
 <video src="https://github.com/user-attachments/assets/67ed25c7-a843-4484-a509-fbc53fc11630" controls width="100%"></video>
@@ -193,39 +193,39 @@ Rapidly digitize furniture and create realistic 3D assets for interior planning.
 </tr>
 <tr>
 <td align="center" width="50%">
-<img src="assets/leather-sofa.png" height="200" alt="Input">
+<img src="figures/leather-sofa.png" height="200" alt="Input">
 </td>
 <td align="center" width="50%">
-<img src="assets/leather-sofa.gif" height="200" alt="Output">
-</td>
-</tr>
-<tr>
-<td align="center" width="50%">
-<img src="assets/marble-coffee-table.png" height="200" alt="Input">
-</td>
-<td align="center" width="50%">
-<img src="assets/marble-coffee-table.gif" height="200" alt="Output">
+<img src="figures/leather-sofa.gif" height="200" alt="Output">
 </td>
 </tr>
 <tr>
 <td align="center" width="50%">
-<img src="assets/refrigerator.jpg" height="200" alt="Input">
+<img src="figures/marble-coffee-table.png" height="200" alt="Input">
 </td>
 <td align="center" width="50%">
-<img src="assets/refrigerator-render.png" height="200" alt="Output">
-</td>
-</tr>
-<tr>
-<td align="center" width="50%">
-<img src="assets/stainless-steel-table.png" height="200" alt="Input">
-</td>
-<td align="center" width="50%">
-<img src="assets/stainless-steel-table-render.png" height="200" alt="Output">
+<img src="figures/marble-coffee-table.gif" height="200" alt="Output">
 </td>
 </tr>
 <tr>
 <td align="center" width="50%">
-<img src="assets/furniture.png" height="200" alt="Input">
+<img src="figures/refrigerator.jpg" height="200" alt="Input">
+</td>
+<td align="center" width="50%">
+<img src="figures/refrigerator-render.png" height="200" alt="Output">
+</td>
+</tr>
+<tr>
+<td align="center" width="50%">
+<img src="figures/stainless-steel-table.png" height="200" alt="Input">
+</td>
+<td align="center" width="50%">
+<img src="figures/stainless-steel-table-render.png" height="200" alt="Output">
+</td>
+</tr>
+<tr>
+<td align="center" width="50%">
+<img src="figures/furniture.png" height="200" alt="Input">
 </td>
 <td align="center" width="50%">
 <video src="https://github.com/user-attachments/assets/3ca88eb5-5cc3-4952-aedd-74ab8df1fede" controls width="100%"></video>
@@ -233,7 +233,7 @@ Rapidly digitize furniture and create realistic 3D assets for interior planning.
 </tr>
 <tr>
 <td align="center" width="50%">
-<img src="assets/Office-chair.jpg" height="200" alt="Input">
+<img src="figures/Office-chair.jpg" height="200" alt="Input">
 </td>
 <td align="center" width="50%">
 <video src="https://github.com/user-attachments/assets/7536eb17-c717-4291-b59e-e21d886096a8" controls width="100%"></video>
@@ -241,10 +241,10 @@ Rapidly digitize furniture and create realistic 3D assets for interior planning.
 </tr>
 <tr>
 <td align="center" width="50%">
-<img src="assets/Outdoor-furniture.jpg" height="200" alt="Input">
+<img src="figures/Outdoor-furniture.jpg" height="200" alt="Input">
 </td>
 <td align="center" width="50%">
-<img src="assets/Outdoor-furniture-output.jpg" height="200" alt="Output">
+<img src="figures/Outdoor-furniture-output.jpg" height="200" alt="Output">
 </td>
 </tr>
 </table>
@@ -350,6 +350,10 @@ The current release provides six nodes, which can be combined as needed.
 
 5. Connect a non-empty `glb` or `ply` output to `Lux3D Viewer` for in-canvas preview. ZIP output cannot be previewed directly.
 
+<p align="center">
+  <img src="figures/image-to-3d-workflow-en.png" width="900" alt="Lux3D Image to 3D workflow" />
+</p>
+
 #### Lux3D Text to 3D
 
 1. Find `Lux3D Text to 3D` under `Lux3D/Generate`.
@@ -372,6 +376,10 @@ The current release provides six nodes, which can be combined as needed.
 6. After polling completes, the node returns `task_id`, `lux3d_zip`, `glb`, and `ply`.
 
 7. Connect a non-empty `glb` or `ply` output to `Lux3D Viewer` for in-canvas preview.
+
+<p align="center">
+  <img src="figures/text-to-3d-workflow-en.png" width="900" alt="Lux3D Text to 3D workflow" />
+</p>
 
 #### Lux3D Multi-View Generator
 
@@ -402,6 +410,10 @@ The current release provides six nodes, which can be combined as needed.
 4. Run the workflow. The node returns a new `glb_model_url` with the redrawn material.
 
 5. The returned model URL can be connected to the `Lux3D Viewer` node for in-canvas preview.
+
+<p align="center">
+  <img src="figures/material-redraw-workflow-en.png" width="900" alt="Lux3D Material Redraw workflow" />
+</p>
 
 #### Lux3D Viewer
 
