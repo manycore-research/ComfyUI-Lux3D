@@ -106,7 +106,6 @@ function installNodeHooks(nodeType, context) {
           getDevicePixelRatio: context.getDevicePixelRatio,
           getReducedMotion: context.getReducedMotion,
           assetUrlResolver: context.assetUrlResolver,
-          glbVisualConfig: context.config.glbVisualConfig,
           loadGlbAdapterModule: makeModuleLoader(
             context.loadGlbAdapterModule,
             context.adapterModuleUrls?.glb,

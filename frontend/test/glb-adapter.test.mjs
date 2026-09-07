@@ -1,497 +1,220 @@
 import assert from "node:assert/strict";
 import {test} from "node:test";
-import * as REAL_THREE from "three";
+import {readFile} from "node:fs/promises";
+import {runInNewContext} from "node:vm";
 
-import {
-  GlbAdapterError,
-  createGlbAdapter,
-} from "../src/viewer/adapters/glb-adapter.js";
+import {createGlbAdapter, buildGlbViewerDocument} from "../src/viewer/adapters/glb-adapter.js";
+import {applyModelViewerPreset} from "../src/viewer/model-viewer-frame.js";
+import {LOCAL_MODEL_VIEWER_PRESET} from "../src/viewer/local-model-viewer-preset.js";
+import {FakeEventTarget, makeGlb} from "./viewer-test-helpers.mjs";
 
-const VIEWPORT = Object.freeze({width: 300, height: 200, dpr: 2});
-const VISUAL_CONFIG = Object.freeze({
-  environment: "legacy",
-  exposure: 0.95,
-  toneMapping: "Neutral",
-  clearColor: 0x000000,
-  clearAlpha: 1.0,
-});
+const VIEWPORT = {width: 300, height: 200, dpr: 2};
+const ENVIRONMENT_URL = "https://comfy.example/assets/model-viewer/environment.hdr";
 
-test("requires an explicit valid visual configuration", async () => {
-  const harness = createHarness();
-  await assert.rejects(
-    () => createAdapter(harness, {visualConfig: undefined}),
-    (error) => error instanceof GlbAdapterError && error.code === "GLB_VISUAL_CONFIG_REQUIRED",
-  );
-  await assert.rejects(
-    () => createAdapter(harness, {visualConfig: {...VISUAL_CONFIG, exposure: 0}}),
-    (error) => error instanceof GlbAdapterError && error.code === "INVALID_GLB_VISUAL_CONFIG",
-  );
-  assert.equal(harness.rendererInstances.length, 0);
-});
-
-test("keeps the browser frame scheduler bound to the global object", async () => {
-  const harness = createHarness();
-  const originalRequestFrame = globalThis.requestAnimationFrame;
-  const originalCancelFrame = globalThis.cancelAnimationFrame;
-  const requestedFrames = [];
-  const cancelledFrames = [];
-  globalThis.requestAnimationFrame = function (callback) {
-    assert.strictEqual(this, globalThis);
-    requestedFrames.push(callback);
-    return 37;
-  };
-  globalThis.cancelAnimationFrame = function (frameId) {
-    assert.strictEqual(this, globalThis);
-    cancelledFrames.push(frameId);
-  };
-
+test("keeps the complete preset in sync with the local Web reference when available", async (t) => {
+  const reference = new URL("../../../lux3d-web/src/site-impl/shared/viewers/local-model-viewer-preset.ts", import.meta.url);
+  let source;
   try {
-    const adapter = await createGlbAdapter({
-      host: harness.host,
-      arrayBuffer: harness.arrayBuffer,
-      validation: harness.validation,
-      viewport: VIEWPORT,
-      visualConfig: VISUAL_CONFIG,
-      reducedMotion: false,
-      dependencies: harness.dependencies,
-      now: () => harness.nowValue,
-    });
+    source = await readFile(reference, "utf8");
+  } catch (error) {
+    if (error.code === "ENOENT") return t.skip("Sibling lux3d-web checkout is not available");
+    throw error;
+  }
+  const web = runInNewContext(source.replace("export const LOCAL_MODEL_VIEWER_PRESET =", "(").replace("} as const;", "})"));
+  assert.deepEqual(LOCAL_MODEL_VIEWER_PRESET, JSON.parse(JSON.stringify(web)));
+});
 
-    assert.equal(requestedFrames.length, 1);
-    await adapter.dispose();
-    assert.deepEqual(cancelledFrames, [37]);
+test("applies Web lighting, framing, controls, transform and animation attributes", () => {
+  const attributes = new Map();
+  const viewer = {
+    setAttribute(name, value) {
+      if (name === "environment-image" || name === "skybox-image") {
+        assert.equal(value, ENVIRONMENT_URL, "Every environment assignment must use the bundled HDR");
+      }
+      attributes.set(name, value);
+    },
+    toggleAttribute(name, enabled) { if (enabled) attributes.set(name, ""); else attributes.delete(name); },
+  };
+  applyModelViewerPreset(viewer, ENVIRONMENT_URL);
+  assert.equal(attributes.get("environment-image"), ENVIRONMENT_URL);
+  assert.equal(attributes.get("tone-mapping"), "auto");
+  assert.equal(attributes.get("exposure"), "0.95");
+  assert.equal(attributes.get("shadow-intensity"), "0");
+  assert.equal(attributes.get("shadow-softness"), "0.88");
+  assert.equal(attributes.has("skybox-image"), false);
+  assert.equal(attributes.get("camera-orbit"), "0deg 90deg 125%");
+  assert.equal(attributes.get("max-camera-orbit"), "auto auto 300%");
+  assert.equal(attributes.get("camera-target"), "auto auto auto");
+  assert.equal(attributes.get("field-of-view"), "30deg");
+  assert.equal(attributes.get("interpolation-decay"), "50");
+  assert.equal(attributes.get("scale"), "1 1 1");
+  assert.equal(attributes.get("orientation"), "0deg 0deg 0deg");
+  assert.equal(attributes.has("auto-rotate"), false);
+  assert.equal(attributes.has("disable-zoom"), false);
+  assert.equal(attributes.has("disable-pan"), false);
+  assert.equal(attributes.has("camera-controls"), true);
+  assert.equal(attributes.has("autoplay"), true);
+  assert.equal(attributes.get("animation-crossfade-duration"), "300");
+  assert.equal(viewer.timeScale, 1);
+});
+
+test("requires a bundled environment URL without falling back to the external Web URL", () => {
+  for (const environmentUrl of [undefined, null, ""]) {
+    assert.throws(() => applyModelViewerPreset({
+      setAttribute() { assert.fail("Invalid environment must be rejected before setting attributes"); },
+    }, environmentUrl), /Bundled environment URL is required/);
+  }
+});
+
+test("uses the bundled HDR for a visible skybox too", () => {
+  const lighting = LOCAL_MODEL_VIEWER_PRESET.lighting;
+  const wasVisible = lighting.skyboxVisible;
+  const attributes = new Map();
+  try {
+    lighting.skyboxVisible = true;
+    applyModelViewerPreset({
+      setAttribute(name, value) { attributes.set(name, value); },
+      toggleAttribute() {},
+    }, ENVIRONMENT_URL);
+    assert.equal(attributes.get("environment-image"), ENVIRONMENT_URL);
+    assert.equal(attributes.get("skybox-image"), ENVIRONMENT_URL);
   } finally {
-    if (originalRequestFrame === undefined) delete globalThis.requestAnimationFrame;
-    else globalThis.requestAnimationFrame = originalRequestFrame;
-    if (originalCancelFrame === undefined) delete globalThis.cancelAnimationFrame;
-    else globalThis.cancelAnimationFrame = originalCancelFrame;
+    lighting.skyboxVisible = wasVisible;
   }
 });
 
-test("detects KTX support before parsing and uses only manifest decoder URLs", async () => {
+test("loads in an isolated iframe and accepts readiness only from that frame", async () => {
   const harness = createHarness();
-  const adapter = await createAdapter(harness);
-
-  assert.ok(harness.timeline.indexOf("ktx-detect") < harness.timeline.indexOf("parse"));
-  assert.deepEqual(harness.parseCalls, [[harness.arrayBuffer, ""]]);
-  assert.equal(harness.dracoInstances[0].decoderPath, "/local/draco/");
-  assert.deepEqual(harness.dracoInstances[0].decoderConfig, {type: "wasm"});
-  assert.equal(harness.ktxInstances[0].transcoderPath, "/local/basis/");
-  assert.equal(harness.gltfInstances[0].meshoptDecoder, harness.dependencies.MeshoptDecoder);
-  assert.deepEqual(harness.revokedUrls, ["blob:embedded-image"]);
-  assert.throws(
-    () => harness.gltfInstances[0].manager.resolveURL("https://cdn.example/decoder.wasm"),
-    (error) => error instanceof GlbAdapterError && error.code === "EXTERNAL_RESOURCE_BLOCKED",
-  );
-  assert.equal(harness.modelRoot.children.includes(harness.embeddedCamera), false);
-  assert.equal(harness.modelRoot.children.includes(harness.embeddedLight), false);
-  assert.ok(harness.modelRoot.parent);
-  assert.equal(harness.modelRoot.parent.children.includes(harness.modelRoot), true);
-  assert.equal(harness.alternateScene.parent, null);
+  let ready = false;
+  const pending = createAdapter(harness).then((adapter) => { ready = true; return adapter; });
+  harness.message("ready", {source: {}});
+  harness.message("ready", {origin: "https://other.example"});
+  await Promise.resolve();
+  assert.equal(ready, false);
+  assert.equal(harness.frame.title, "Lux3D GLB Viewer");
+  const config = readConfig(harness.frame.srcdoc);
+  assert.equal(config.assets.runtime, "https://comfy.example/assets/model-viewer/model-viewer.min.js");
+  assert.equal(config.assets.environment, "https://comfy.example/assets/model-viewer/environment.hdr");
+  assert.equal(config.modelUrl, "blob:local-model");
+  harness.message("ready");
+  const adapter = await pending;
+  assert.equal(harness.window.listeners.get("message").length, 0);
+  assert.equal(harness.timers.size, 0);
   await adapter.dispose();
 });
 
-test("applies exact Box3 sphere fitting and ignores model camera and lights", async () => {
+test("forwards reset, suspend and resume; disposes iframe and blob exactly once", async () => {
   const harness = createHarness();
-  const adapter = await createAdapter(harness);
-  const camera = harness.cameraInstances[0];
-  const controls = harness.controlsInstances[0];
-
-  assert.equal(harness.boxSetCalls, 1);
-  assert.equal(harness.lastBoxPrecise, true);
-  assert.equal(camera.fov, 30);
-  assert.equal(camera.aspect, 1.5);
-  assert.ok(camera.near > 0);
-  assert.ok(camera.far > camera.near);
-  assert.deepEqual(controls.target.toArray(), [0.5, 0.5, 0.5]);
-  assert.deepEqual(controls.cursor.toArray(), [0.5, 0.5, 0.5]);
-  assert.ok(controls.minDistance > 0);
-  assert.ok(controls.maxDistance > controls.minDistance);
-  assert.equal(controls.minPolarAngle, 0);
-  assert.equal(controls.maxPolarAngle, Math.PI);
-  assert.equal(controls.minAzimuthAngle, -Infinity);
-  assert.equal(controls.maxAzimuthAngle, Infinity);
-  assert.equal(controls.maxTargetRadius > 0, true);
-  assert.deepEqual(camera.position.toArray().slice(0, 2), [0.5, 0.5]);
-  assert.ok(camera.position.z > 4);
-  assert.deepEqual(camera.up.toArray(), [0, 1, 0]);
-  assert.equal(harness.rendererInstances[0].toneMapping, REAL_THREE.NeutralToneMapping);
-  assert.equal(harness.rendererInstances[0].toneMappingExposure, 0.95 * 1.3);
-  assert.deepEqual(harness.rendererInstances[0].clearColor, [0x000000, 1.0]);
-  assert.equal(harness.pmremCalls.length, 1);
-  const [environmentScene, sigma, near, far, options] = harness.pmremCalls[0];
-  assert.equal(environmentScene.position.y, -3.5);
-  assert.equal(environmentScene.children.length, 14);
-  assert.equal(environmentScene.children[0].isPointLight, true);
-  assert.equal(environmentScene.children[0].intensity, 500);
-  assert.deepEqual(environmentScene.children[0].position.toArray(), [0.418, 16.199, 0.3]);
-  assert.equal(sigma, 0.04);
-  assert.equal(near, 0.1);
-  assert.equal(far, 100);
-  assert.deepEqual(options, {size: 256});
-  assert.equal(harness.pmremCaptureState.toneMapping, REAL_THREE.NoToneMapping);
-  assert.equal(harness.pmremCaptureState.outputColorSpace, REAL_THREE.LinearSRGBColorSpace);
-  assert.strictEqual(harness.modelRoot.parent.environment, harness.environmentTarget.texture);
-  assert.equal(harness.modelRoot.parent.children.some((child) => child.isAmbientLight || child.isDirectionalLight), false);
-  await adapter.dispose();
-});
-
-test("rejects forged non-self-contained validation and unsupported extensions before rendering", async () => {
-  const invalidJsonValues = [
-    {buffers: [{byteLength: 4, uri: "data:application/octet-stream;base64,AA=="}]},
-    {buffers: [{byteLength: 5}]},
-    {buffers: [{byteLength: 4}], images: [{uri: "texture.png"}]},
-    {buffers: [{byteLength: 4}], extensionsRequired: ["UNKNOWN_required"]},
-    {buffers: [{byteLength: 4}], extensionsRequired: ["KHR_lights_punctual"]},
-    {buffers: [{byteLength: 4}], extensionsUsed: ["EXT_mesh_gpu_instancing"]},
-  ];
-  for (const json of invalidJsonValues) {
-    const harness = createHarness({json});
-    await assert.rejects(() => createAdapter(harness), GlbAdapterError);
-    assert.equal(harness.rendererInstances.length, 0);
-  }
-});
-
-test("resize refits before interaction, preserves model-preview controls, and never auto-rotates", async () => {
-  const harness = createHarness();
-  const adapter = await createAdapter(harness);
-  const controls = harness.controlsInstances[0];
-  const renderer = harness.rendererInstances[0];
-
-  harness.runFrame(0);
-  assert.equal(controls.autoRotate, false);
-  harness.nowValue = 12_999;
-  harness.runFrame(1_000);
-  assert.equal(controls.autoRotate, false);
-  harness.nowValue = 13_000;
-  harness.runFrame(2_000);
-  assert.equal(controls.autoRotate, false);
-
-  await adapter.resize({width: 480, height: 270, dpr: 1});
-  assert.equal(harness.boxSetCalls, 2);
-  assert.deepEqual(renderer.size, [480, 270, true]);
-  assert.equal(harness.cameraInstances[0].fov, 30);
-  controls.dispatch("start");
-  await adapter.resize({width: 270, height: 480, dpr: 1});
-  assert.equal(harness.boxSetCalls, 3);
-  assert.equal(harness.cameraInstances[0].aspect, 270 / 480);
-  assert.ok(harness.cameraInstances[0].fov > 30);
-  await adapter.reset();
-  assert.equal(harness.boxSetCalls, 4);
-
-  await adapter.suspend();
-  const pendingAfterSuspend = harness.frames.size;
-  await adapter.suspend();
-  assert.equal(harness.frames.size, pendingAfterSuspend);
-  await adapter.resume();
-  await adapter.resume();
-  assert.equal(harness.frames.size, 1);
-  await adapter.dispose();
-});
-
-test("reduced motion prevents auto-rotation while retaining manual controls", async () => {
-  const harness = createHarness();
-  const adapter = await createAdapter(harness, {reducedMotion: true});
-  const controls = harness.controlsInstances[0];
-
-  harness.nowValue = 1_000_000;
-  harness.runFrame(1_000);
-  assert.equal(controls.autoRotate, false);
-  assert.equal(controls.listenerCount("start"), 1);
-  await adapter.dispose();
-});
-
-test("disposes shared model resources exactly once and releases the WebGL owner", async () => {
-  const harness = createHarness();
-  const adapter = await createAdapter(harness);
-  const renderer = harness.rendererInstances[0];
-  const controls = harness.controlsInstances[0];
-
-  await Promise.all([adapter.dispose(), adapter.dispose()]);
-
-  for (const resource of [
-    "geometry", "material", "texture", "bitmap", "skeleton", "bone-texture",
-    "draco", "ktx", "environment-target", "pmrem-generator", "render-lists", "context-loss", "renderer",
-  ]) {
-    assert.equal(harness.disposeCalls.filter((value) => value === resource).length, 1, resource);
-  }
-  assert.equal(harness.textureSource.data, null);
-  assert.equal(harness.skeleton.boneTexture, null);
-  assert.equal(controls.listenerCount("start"), 0);
-  assert.equal(controls.disposeCount, 1);
-  assert.equal(renderer.domElement.parentNode, null);
-
-  await adapter.resize(VIEWPORT);
+  const pending = createAdapter(harness);
+  harness.message("ready");
+  const adapter = await pending;
+  await adapter.resize({width: 420, height: 320, dpr: 1});
   await adapter.reset();
   await adapter.suspend();
+  assert.equal(harness.frame.style.visibility, "hidden");
   await adapter.resume();
-  assert.equal(harness.disposeCalls.filter((value) => value === "renderer").length, 1);
+  assert.equal(harness.frame.style.visibility, "visible");
+  await adapter.dispose();
+  await adapter.dispose();
+  await adapter.reset();
+  assert.deepEqual(harness.actions, ["reset", "pause", "play", "dispose"]);
+  assert.equal(harness.removals, 1);
+  assert.deepEqual(harness.revoked, ["blob:local-model"]);
+  assert.equal(harness.frame.srcdoc, "");
+});
+
+test("all operations after disposal leave the released iframe and resources untouched", async () => {
+  const harness = createHarness();
+  const pending = createAdapter(harness);
+  harness.message("ready");
+  const adapter = await pending;
+  await adapter.suspend();
+  await adapter.dispose();
+  for (const property of ["style", "contentWindow"]) {
+    Object.defineProperty(harness.frame, property, {
+      get() { assert.fail(`Disposed adapter must not access iframe.${property}`); },
+    });
+  }
+  for (let attempt = 0; attempt < 2; attempt++) {
+    await adapter.resume();
+    await adapter.suspend();
+    await adapter.reset();
+    await adapter.resize(null);
+    await adapter.dispose();
+  }
+  assert.deepEqual(harness.actions, ["pause", "dispose"]);
+  assert.equal(harness.removals, 1);
+  assert.deepEqual(harness.revoked, ["blob:local-model"]);
+});
+
+test("rejects actual external-resource bytes even if the supplied validation is forged", async () => {
+  const harness = createHarness();
+  await assert.rejects(createAdapter(harness, {
+    arrayBuffer: makeGlb({buffers: [{byteLength: 4, uri: "https://other.example/model.bin"}]}).buffer,
+    validation: {format: "glb", json: {buffers: [{byteLength: 4}]}},
+  }), {code: "EXTERNAL_BUFFER_URI"});
+  assert.equal(harness.blobs.length, 0);
+});
+
+test("load errors and timeouts release the frame, listener, timer and blob", async () => {
+  for (const timeout of [false, true]) {
+    const harness = createHarness();
+    const pending = createAdapter(harness);
+    if (timeout) [...harness.timers.values()][0]();
+    else harness.message("error");
+    await assert.rejects(pending, {code: timeout ? "GLB_LOAD_TIMEOUT" : "GLB_BUILD_FAILED"});
+    assert.equal(harness.removals, 1);
+    assert.equal(harness.timers.size, 0);
+    assert.equal(harness.window.listeners.get("message").length, 0);
+    assert.deepEqual(harness.revoked, ["blob:local-model"]);
+  }
+});
+
+test("escapes script delimiters in frame configuration", () => {
+  const document = buildGlbViewerDocument({id: "</script><script>unexpected()</script>"});
+  assert.equal((document.match(/<script/g) ?? []).length, 1);
+  assert.equal((document.match(/<\/script>/g) ?? []).length, 1);
+  assert.equal(readConfig(document).id, "</script><script>unexpected()</script>");
 });
 
 function createAdapter(harness, overrides = {}) {
   return createGlbAdapter({
-    host: harness.host,
-    arrayBuffer: harness.arrayBuffer,
-    validation: harness.validation,
-    viewport: VIEWPORT,
-    visualConfig: VISUAL_CONFIG,
-    reducedMotion: false,
-    dependencies: harness.dependencies,
-    requestFrame: harness.requestFrame,
-    cancelFrame: harness.cancelFrame,
-    now: () => harness.nowValue,
-    ...overrides,
+    host: harness.host, arrayBuffer: makeGlb().buffer, viewport: VIEWPORT,
+    assetUrlResolver: (key) => `/assets/${key}`, ...overrides,
   });
 }
 
-function createHarness({json = {buffers: [{byteLength: 4}]} } = {}) {
-  const document = new FakeDocument();
-  const host = document.createElement("div");
-  document.body.appendChild(host);
-  const arrayBuffer = new ArrayBuffer(24);
-  const timeline = [];
-  const parseCalls = [];
-  const revokedUrls = [];
-  const disposeCalls = [];
-  const rendererInstances = [];
-  const controlsInstances = [];
-  const cameraInstances = [];
-  const dracoInstances = [];
-  const ktxInstances = [];
-  const gltfInstances = [];
-  const pmremCalls = [];
-  const frames = new Map();
-  let nextFrameId = 0;
+function readConfig(source) {
+  return JSON.parse(source.match(/const config = (.+);/)[1]);
+}
 
-  const geometry = new REAL_THREE.BufferGeometry();
-  geometry.setAttribute("position", new REAL_THREE.Float32BufferAttribute([
-    -1, -2, -3,
-    2, 3, 4,
-    0, 1, 0,
-  ], 3));
-  geometry.dispose = () => disposeCalls.push("geometry");
-  const bitmap = {close: () => disposeCalls.push("bitmap")};
-  const texture = new REAL_THREE.Texture(bitmap);
-  const textureSource = texture.source;
-  texture.dispose = () => disposeCalls.push("texture");
-  const material = new REAL_THREE.MeshStandardMaterial({map: texture});
-  material.dispose = () => disposeCalls.push("material");
-  const mesh = new REAL_THREE.Mesh(geometry, material);
-  const boneTexture = new REAL_THREE.Texture();
-  boneTexture.dispose = () => disposeCalls.push("bone-texture");
-  const skeleton = {
-    boneTexture,
-    dispose() {
-      disposeCalls.push("skeleton");
-      this.boneTexture?.dispose();
-      this.boneTexture = null;
+function createHarness() {
+  const harness = {actions: [], revoked: [], blobs: [], removals: 0, timers: new Map()};
+  const window = new FakeEventTarget();
+  Object.assign(window, {
+    location: {origin: "https://comfy.example"},
+    Blob,
+    URL: {
+      createObjectURL(blob) { harness.blobs.push(blob); return "blob:local-model"; },
+      revokeObjectURL(url) { harness.revoked.push(url); },
     },
+    setTimeout(callback) { harness.timers.set(1, callback); return 1; },
+    clearTimeout(id) { harness.timers.delete(id); },
+  });
+  const frame = {
+    style: {}, setAttribute() {},
+    contentWindow: {postMessage(message, origin) {
+      assert.equal(origin, window.location.origin);
+      harness.actions.push(message.action);
+    }},
+    remove() { harness.removals += 1; },
   };
-  mesh.skeleton = skeleton;
-
-  const modelRoot = new REAL_THREE.Scene();
-  modelRoot.add(mesh);
-  const embeddedCamera = new REAL_THREE.PerspectiveCamera();
-  const embeddedLight = new REAL_THREE.PointLight();
-  modelRoot.add(embeddedCamera, embeddedLight);
-  const alternateScene = new REAL_THREE.Scene();
-
-  const harness = {
-    document,
-    host,
-    arrayBuffer,
-    timeline,
-    parseCalls,
-    revokedUrls,
-    disposeCalls,
-    rendererInstances,
-    controlsInstances,
-    cameraInstances,
-    dracoInstances,
-    ktxInstances,
-    gltfInstances,
-    pmremCalls,
-    frames,
-    modelRoot,
-    embeddedCamera,
-    embeddedLight,
-    alternateScene,
-    textureSource,
-    skeleton,
-    nowValue: 10_000,
-    boxSetCalls: 0,
-    lastBoxPrecise: null,
-  };
-
-  const environmentTarget = {
-    texture: {name: ""},
-    dispose() { disposeCalls.push("environment-target"); },
-  };
-  harness.environmentTarget = environmentTarget;
-
-  class FakeRenderer {
-    constructor(options) {
-      this.options = options;
-      this.domElement = document.createElement("canvas");
-      this.renderLists = {dispose: () => disposeCalls.push("render-lists")};
-      rendererInstances.push(this);
-    }
-
-    setPixelRatio(value) { this.pixelRatio = value; }
-    setSize(...values) { this.size = values; }
-    setClearColor(...values) { this.clearColor = values; }
-    render(scene) { harness.rendererScene = scene; }
-    forceContextLoss() { disposeCalls.push("context-loss"); }
-    dispose() { disposeCalls.push("renderer"); }
-  }
-
-  class FakePmremGenerator {
-    constructor(renderer) {
-      this.renderer = renderer;
-    }
-
-    fromScene(...args) {
-      pmremCalls.push(args);
-      harness.pmremCaptureState = {
-        toneMapping: this.renderer.toneMapping,
-        outputColorSpace: this.renderer.outputColorSpace,
-      };
-      return environmentTarget;
-    }
-
-    dispose() { disposeCalls.push("pmrem-generator"); }
-  }
-
-  class CountingBox3 extends REAL_THREE.Box3 {
-    setFromObject(root, precise) {
-      harness.boxSetCalls += 1;
-      harness.lastBoxPrecise = precise;
-      return super.setFromObject(root, precise);
-    }
-  }
-
-  class TrackingCamera extends REAL_THREE.PerspectiveCamera {
-    constructor(...args) {
-      super(...args);
-      cameraInstances.push(this);
-    }
-  }
-
-  class FakeControls {
-    constructor(camera) {
-      this.camera = camera;
-      this.target = new REAL_THREE.Vector3();
-      this.cursor = new REAL_THREE.Vector3();
-      this.listeners = new Map();
-      this.disposeCount = 0;
-      controlsInstances.push(this);
-    }
-
-    addEventListener(type, listener) {
-      if (!this.listeners.has(type)) this.listeners.set(type, new Set());
-      this.listeners.get(type).add(listener);
-    }
-
-    removeEventListener(type, listener) { this.listeners.get(type)?.delete(listener); }
-    dispatch(type) { for (const listener of this.listeners.get(type) ?? []) listener(); }
-    listenerCount(type) { return this.listeners.get(type)?.size ?? 0; }
-    update(delta) { this.lastDelta = delta; }
-    dispose() { this.disposeCount += 1; }
-  }
-
-  class FakeDracoLoader {
-    constructor(manager) { this.manager = manager; dracoInstances.push(this); }
-    setDecoderPath(value) { this.decoderPath = value; return this; }
-    setDecoderConfig(value) { this.decoderConfig = value; return this; }
-    dispose() { disposeCalls.push("draco"); }
-  }
-
-  class FakeKtxLoader {
-    constructor(manager) { this.manager = manager; ktxInstances.push(this); }
-    setTranscoderPath(value) { this.transcoderPath = value; return this; }
-    detectSupport(renderer) { this.detectedRenderer = renderer; timeline.push("ktx-detect"); return this; }
-    dispose() { disposeCalls.push("ktx"); }
-  }
-
-  class FakeGltfLoader {
-    constructor(manager) { this.manager = manager; gltfInstances.push(this); }
-    setDRACOLoader(value) { this.draco = value; return this; }
-    setKTX2Loader(value) { this.ktx = value; return this; }
-    setMeshoptDecoder(value) { this.meshoptDecoder = value; return this; }
-    async parseAsync(...args) {
-      timeline.push("parse");
-      parseCalls.push(args);
-      this.manager.resolveURL("blob:embedded-image");
-      this.manager.resolveURL("/local/draco/draco_decoder.wasm");
-      return {scene: modelRoot, scenes: [alternateScene, modelRoot]};
-    }
-  }
-
-  harness.dependencies = {
-    THREE: {
-      ...REAL_THREE,
-      WebGLRenderer: FakeRenderer,
-      PMREMGenerator: FakePmremGenerator,
-      Box3: CountingBox3,
-      PerspectiveCamera: TrackingCamera,
-    },
-    OrbitControls: FakeControls,
-    DRACOLoader: FakeDracoLoader,
-    GLTFLoader: FakeGltfLoader,
-    KTX2Loader: FakeKtxLoader,
-    MeshoptDecoder: {decodeGltfBuffer() {}},
-    viewerAssetUrl: (key) => `/local/${key}`,
-    URL: {revokeObjectURL: (url) => revokedUrls.push(url)},
-  };
-  harness.validation = {format: "glb", json, binByteLength: 4};
-  harness.requestFrame = (callback) => {
-    nextFrameId += 1;
-    frames.set(nextFrameId, callback);
-    return nextFrameId;
-  };
-  harness.cancelFrame = (id) => frames.delete(id);
-  harness.runFrame = (timestamp) => {
-    const entry = frames.entries().next().value;
-    assert.ok(entry, "a frame must be scheduled");
-    const [id, callback] = entry;
-    frames.delete(id);
-    callback(timestamp);
-  };
+  const document = {baseURI: "https://comfy.example/", defaultView: window, createElement: () => frame};
+  harness.host = {ownerDocument: document, appendChild() {}};
+  Object.assign(harness, {window, frame});
+  harness.message = (state, overrides = {}) => window.dispatch("message", {
+    source: frame.contentWindow, origin: window.location.origin,
+    data: {type: "lux3d-glb-frame", id: readConfig(frame.srcdoc).id, state}, ...overrides,
+  });
   return harness;
-}
-
-class FakeDocument {
-  constructor() {
-    this.body = new FakeElement(this, "body");
-  }
-
-  createElement(tagName) {
-    return new FakeElement(this, tagName);
-  }
-}
-
-class FakeElement {
-  constructor(ownerDocument, tagName) {
-    this.ownerDocument = ownerDocument;
-    this.tagName = tagName;
-    this.parentNode = null;
-    this.children = [];
-    this.tabIndex = -1;
-  }
-
-  appendChild(child) {
-    child.parentNode?.removeChild(child);
-    this.children.push(child);
-    child.parentNode = this;
-  }
-
-  removeChild(child) {
-    const index = this.children.indexOf(child);
-    if (index >= 0) this.children.splice(index, 1);
-    child.parentNode = null;
-  }
-
-  remove() {
-    this.parentNode?.removeChild(this);
-  }
 }

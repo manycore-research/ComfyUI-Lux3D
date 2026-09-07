@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass
+from itertools import combinations
 from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Tuple
 from urllib.parse import urlparse
 
@@ -18,6 +19,12 @@ class OpenAPIOperation:
 
 
 DOCUMENTED_OPERATIONS: Tuple[OpenAPIOperation, ...] = (
+    OpenAPIOperation(
+        "createMultimodalToImageTask",
+        "POST",
+        "/lux3d/v1/generate/multimodal-to-image/task/create",
+        "Lux3DOpenAPISingleImageGenerator",
+    ),
     OpenAPIOperation(
         "createImgTo3dTask",
         "POST",
@@ -79,7 +86,7 @@ IMPLEMENTED_OPERATIONS = tuple(
 
 GENERATION_VERSIONS = ("G1", "G1-Turbo")
 GENERATION_FORMATS = ("zip", "glb", "ply")
-EXPORT_FORMATS = ("usdz", "obj_zip", "fbx_zip")
+EXPORT_FORMATS = ("usdz", "obj_zip", "fbx_zip", "stl", "3mf")
 STYLES = (
     "photorealistic",
     "cartoon",
@@ -100,15 +107,10 @@ GENERATION_FORMAT_CHOICES = (
     "glb,ply",
     "zip,glb,ply",
 )
-EXPORT_FORMAT_CHOICES = (
-    "default",
-    "usdz",
-    "obj_zip",
-    "fbx_zip",
-    "usdz,obj_zip",
-    "usdz,fbx_zip",
-    "obj_zip,fbx_zip",
-    "usdz,obj_zip,fbx_zip",
+EXPORT_FORMAT_CHOICES = ("default",) + tuple(
+    ",".join(selection)
+    for selection_size in range(1, len(EXPORT_FORMATS) + 1)
+    for selection in combinations(EXPORT_FORMATS, selection_size)
 )
 
 TASK_STATUS_LABELS = {
@@ -300,8 +302,46 @@ def build_text_to_3d_payload(
     return payload
 
 
-def build_four_view_payload(image_url: str) -> Dict[str, Any]:
-    return {"img": validate_public_url(image_url, "image_url")}
+def _build_image_prompt_payload(image_url: Any, prompt: Any) -> Dict[str, Any]:
+    if image_url is None:
+        image_text = ""
+    elif isinstance(image_url, str):
+        image_text = image_url.strip()
+    else:
+        raise ValueError("image must be a public HTTP(S) URL or empty")
+
+    if prompt is None:
+        prompt_text = ""
+    elif isinstance(prompt, str):
+        prompt_text = prompt.strip()
+    else:
+        raise ValueError("prompt must be text or empty")
+
+    if not image_text and not prompt_text:
+        raise ValueError("provide at least one of image or prompt")
+
+    payload: Dict[str, Any] = {}
+    if image_text:
+        payload["img"] = validate_public_url(image_text, "image")
+    if prompt_text:
+        payload["prompt"] = prompt_text
+    return payload
+
+
+def build_four_view_payload(
+    image_url: Any = "", prompt: Any = ""
+) -> Dict[str, Any]:
+    """Build the multimodal four-view request body."""
+
+    return _build_image_prompt_payload(image_url, prompt)
+
+
+def build_multimodal_to_image_payload(
+    image_url: Any = "", prompt: Any = ""
+) -> Dict[str, Any]:
+    """Build the multimodal single-image request body."""
+
+    return _build_image_prompt_payload(image_url, prompt)
 
 
 def build_export_payload(model_url: str, output_format: Any) -> Dict[str, Any]:

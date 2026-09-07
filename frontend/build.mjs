@@ -35,6 +35,7 @@ const MIME_BY_EXTENSION = Object.freeze({
   ".txt": "text/plain; charset=utf-8",
   ".md": "text/markdown; charset=utf-8",
   ".wasm": "application/wasm",
+  ".hdr": "application/octet-stream",
 });
 
 export async function buildViewerDistribution(options = {}) {
@@ -57,9 +58,11 @@ export async function buildViewerDistribution(options = {}) {
     const stageBundles = join(stageRoot, "js/assets");
     await mkdir(stageViewerAssets, {recursive: true});
     await mkdir(stageBundles, {recursive: true});
-    await cp(
-      entryPoints.inputSources,
+    const inputSource = await readFile(entryPoints.inputSources, "utf8");
+    await writeFile(
       join(stageBundles, "lux3d-input-source-extension.mjs"),
+      normalizeTextLineEndings(inputSource),
+      "utf8",
     );
 
     const manifest = await emitViewerAssets(stageViewerAssets);
@@ -165,12 +168,40 @@ async function emitViewerAssets(outputDirectory) {
   const gaussianRoot = join(repositoryRoot, "node_modules/@mkkellogg/gaussian-splats-3d");
   const playwrightRoot = join(repositoryRoot, "node_modules/playwright");
   const apacheLicense = extractApacheTerms(await readFile(join(playwrightRoot, "LICENSE"), "utf8"));
+  const modelViewerRoot = join(repositoryRoot, "frontend/vendor/model-viewer");
+  const provenance = JSON.parse(await readFile(join(modelViewerRoot, "provenance.json"), "utf8"));
+  for (const [file, expected] of [
+    ["model-viewer.min.js", provenance.runtime.sha256],
+    ["environment.hdr", provenance.environment.sha256],
+  ]) {
+    if (sha256(await readFile(join(modelViewerRoot, file))) !== expected) {
+      throw new Error(`Vendored model-viewer asset does not match its provenance: ${file}`);
+    }
+  }
+  const frameBuild = await esbuild({
+    entryPoints: [join(repositoryRoot, "frontend/src/viewer/model-viewer-frame.js")],
+    bundle: true, format: "esm", platform: "browser", target: ["es2022"],
+    minify: true, write: false, legalComments: "none", charset: "ascii",
+  });
+  const meshoptBuild = await esbuild({
+    entryPoints: [join(threeRoot, "examples/jsm/libs/meshopt_decoder.module.js")],
+    bundle: true, format: "iife", globalName: "Lux3DMeshopt", platform: "browser",
+    target: ["es2022"], minify: true, write: false, legalComments: "none",
+    footer: {js: "globalThis.MeshoptDecoder = Lux3DMeshopt.MeshoptDecoder;"},
+  });
   const generatedAssets = new Map([
+    ["model-viewer/frame.mjs", frameBuild.outputFiles[0].contents],
+    ["meshopt/meshopt_decoder.js", meshoptBuild.outputFiles[0].contents],
     ["licenses/Apache-2.0.txt", Buffer.from(apacheLicense, "utf8")],
     ["licenses/meshoptimizer-MIT.txt", Buffer.from(meshoptimizerLicense(), "utf8")],
     ["licenses/THIRD_PARTY_NOTICES.txt", Buffer.from(thirdPartyNotices(), "utf8")],
   ]);
   const specs = [
+    assetSpec("model-viewer/model-viewer.min.js", "@google/model-viewer", "4.2.0", provenance.runtime.source, "Apache-2.0", join(modelViewerRoot, "model-viewer.min.js")),
+    assetSpec("model-viewer/environment.hdr", "lux3d-web", "local-model-viewer-preset-v1", provenance.environment.source, "NOASSERTION", join(modelViewerRoot, "environment.hdr")),
+    assetSpec("licenses/model-viewer-Apache-2.0.txt", "@google/model-viewer", "4.2.0", "LICENSE", "Apache-2.0", join(modelViewerRoot, "LICENSE")),
+    generatedSpec("model-viewer/frame.mjs", "ComfyUI-Lux3D", packageJson.version, "frontend/src/viewer/model-viewer-frame.js", "Project license"),
+    generatedSpec("meshopt/meshopt_decoder.js", "meshoptimizer via three", "0.22", "examples/jsm/libs/meshopt_decoder.module.js", "MIT"),
     assetSpec("draco/draco_wasm_wrapper.js", "three", "0.183.2", "examples/jsm/libs/draco/gltf/draco_wasm_wrapper.js", "Apache-2.0", join(threeRoot, "examples/jsm/libs/draco/gltf/draco_wasm_wrapper.js")),
     assetSpec("draco/draco_decoder.wasm", "three", "0.183.2", "examples/jsm/libs/draco/gltf/draco_decoder.wasm", "Apache-2.0", join(threeRoot, "examples/jsm/libs/draco/gltf/draco_decoder.wasm")),
     assetSpec("basis/basis_transcoder.js", "three", "0.183.2", "examples/jsm/libs/basis/basis_transcoder.js", "Apache-2.0", join(threeRoot, "examples/jsm/libs/basis/basis_transcoder.js")),
@@ -296,8 +327,9 @@ function assertThreeIsolation(controllerMetafile, glbMetafile, gaussianMetafile)
       || path.includes("node_modules/@mkkellogg/gaussian-splats-3d"))) {
     throw new Error("Controller bundle must not contain a Three or Gaussian runtime");
   }
-  if (!glbInputs.some((path) => path.endsWith("node_modules/three/build/three.module.js"))) {
-    throw new Error("GLB bundle did not resolve exclusively to Three 0.183.2");
+  if (glbInputs.some((path) => path.includes("node_modules/three")
+      || path.includes("node_modules/@mkkellogg/gaussian-splats-3d"))) {
+    throw new Error("GLB adapter must load its isolated model-viewer runtime from the asset manifest");
   }
   if (!gaussianInputs.some((path) => path.endsWith("node_modules/three/build/three.module.js"))) {
     throw new Error("Gaussian bundle did not resolve exclusively to Three 0.183.2");
@@ -419,7 +451,8 @@ function thirdPartyNotices() {
 
 Three.js 0.183.2 - MIT - https://github.com/mrdoob/three.js
 GaussianSplats3D 0.4.6 - MIT - https://github.com/mkkellogg/GaussianSplats3D
-@google/model-viewer 4.2.0 legacy environment scene - Apache-2.0 - https://github.com/google/model-viewer
+@google/model-viewer 4.2.0 bundled runtime (includes Three.js 0.182.0) - Apache-2.0 / MIT - https://github.com/google/model-viewer
+Lux3D environment HDR - same source as lux3d-web local-model-viewer-preset; see asset manifest for provenance
 Draco decoder distributed by Three.js 0.183.2 - Apache-2.0 - https://github.com/google/draco
 Basis Universal transcoder distributed by Three.js 0.183.2 - Apache-2.0 - https://github.com/BinomialLLC/basis_universal
 meshoptimizer decoder 0.22 distributed by Three.js 0.183.2 - MIT - https://github.com/zeux/meshoptimizer
@@ -434,6 +467,10 @@ function sha256(bytes) {
 
 function normalizeSlashes(path) {
   return path.replaceAll("\\", "/");
+}
+
+function normalizeTextLineEndings(source) {
+  return source.replace(/\r\n?/g, "\n");
 }
 
 if (process.argv[1] && pathToFileURL(resolve(process.argv[1])).href === import.meta.url) {

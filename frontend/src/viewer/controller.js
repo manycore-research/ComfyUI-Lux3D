@@ -290,7 +290,6 @@ export function createLux3DViewerController(options = {}) {
           viewport: readViewport(),
           reducedMotion: Boolean(getReducedMotion()),
           assetUrlResolver: options.assetUrlResolver,
-          ...(detected.format === "glb" ? {visualConfig: options.glbVisualConfig} : {}),
         });
         validateAdapter(builtAdapter);
       } catch (error) {

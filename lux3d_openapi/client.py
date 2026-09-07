@@ -132,6 +132,15 @@ class Lux3DOpenAPIClient:
             json_body=payload,
         )
 
+    def create_multimodal_to_image_task(
+        self, payload: Mapping[str, Any]
+    ) -> Dict[str, Any]:
+        return self._request(
+            "POST",
+            "/lux3d/v1/generate/multimodal-to-image/task/create",
+            json_body=payload,
+        )
+
     def create_multi_format_export_task(
         self, payload: Mapping[str, Any]
     ) -> Dict[str, Any]:

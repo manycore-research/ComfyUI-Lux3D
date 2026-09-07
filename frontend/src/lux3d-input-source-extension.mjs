@@ -49,7 +49,12 @@ const RULES = Object.freeze({
       Object.freeze({union: "image", url: "image_url", local: "image"}),
     ]),
     legacyTimeoutIndex: 1,
-    widgetOrder: Object.freeze(["base_api_path", "image"]),
+    widgetOrder: Object.freeze(["base_api_path", "image", "prompt"]),
+  }),
+  Lux3DOpenAPISingleImageGenerator: Object.freeze({
+    unionSocketType: "STRING,IMAGE",
+    unionWidgets: Object.freeze(["image"]),
+    widgetOrder: Object.freeze(["base_api_path", "image", "prompt"]),
   }),
   Lux3DOpenAPIMultiFormatExport: Object.freeze({
     unionSocketType: "STRING,LUX3D_MODEL_SOURCE",

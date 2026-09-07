@@ -101,15 +101,26 @@
       "sha256": "d1bc307ff896c7fc65e3ff4823cc478194f7a5bc6436f99534ebede4d9e2017a"
     },
     {
+      "logical_key": "licenses/model-viewer-Apache-2.0.txt",
+      "source_package": "@google/model-viewer",
+      "source_version": "4.2.0",
+      "source_path": "LICENSE",
+      "path": "licenses/model-viewer-Apache-2.0.txt",
+      "size": 11358,
+      "mime": "text/plain; charset=utf-8",
+      "license": "Apache-2.0",
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    },
+    {
       "logical_key": "licenses/THIRD_PARTY_NOTICES.txt",
       "source_package": "ComfyUI-Lux3D",
       "source_version": "1.0.0",
       "source_path": "frontend/build.mjs",
       "path": "licenses/THIRD_PARTY_NOTICES.txt",
-      "size": 669,
+      "size": 804,
       "mime": "text/plain; charset=utf-8",
       "license": "NOTICE",
-      "sha256": "01bd29a9ae6a8116efae855d566165703669d57db7207a27b1c1a8265269c29e"
+      "sha256": "8861f46fe00a545f78cb9cc11eaf0254dbeadc73187896283658c46c3dd12d29"
     },
     {
       "logical_key": "licenses/three-MIT.txt",
@@ -121,6 +132,50 @@
       "mime": "text/plain; charset=utf-8",
       "license": "MIT",
       "sha256": "8b378ebe60e2fe500158cb0ac71cb5e8b7d92953c2abcc63a0eb90499653b5bc"
+    },
+    {
+      "logical_key": "meshopt/meshopt_decoder.js",
+      "source_package": "meshoptimizer via three",
+      "source_version": "0.22",
+      "source_path": "examples/jsm/libs/meshopt_decoder.module.js",
+      "path": "meshopt/meshopt_decoder.js",
+      "size": 30148,
+      "mime": "text/javascript; charset=utf-8",
+      "license": "MIT",
+      "sha256": "0d9378ef698a6214c3b00838e948e12264113cb5571acdc4cc8d0086600db57f"
+    },
+    {
+      "logical_key": "model-viewer/environment.hdr",
+      "source_package": "lux3d-web",
+      "source_version": "local-model-viewer-preset-v1",
+      "source_path": "https://qhstaticssl.kujiale.com/application/octetstream/1788254878084/FE20AE1B81DBBBF0C95F792A3A041FC5.hdr",
+      "path": "model-viewer/environment.hdr",
+      "size": 2115692,
+      "mime": "application/octet-stream",
+      "license": "NOASSERTION",
+      "sha256": "e182257a317a8476b5cd05a1faa608d1504814ca7c634aa887757b7038c17e5d"
+    },
+    {
+      "logical_key": "model-viewer/frame.mjs",
+      "source_package": "ComfyUI-Lux3D",
+      "source_version": "1.0.0",
+      "source_path": "frontend/src/viewer/model-viewer-frame.js",
+      "path": "model-viewer/frame.mjs",
+      "size": 3817,
+      "mime": "text/javascript; charset=utf-8",
+      "license": "Project license",
+      "sha256": "826f289a9500448c825cc369763454d6a171505053899cfbd4d8b2ab1be3677f"
+    },
+    {
+      "logical_key": "model-viewer/model-viewer.min.js",
+      "source_package": "@google/model-viewer",
+      "source_version": "4.2.0",
+      "source_path": "https://cdn.jsdelivr.net/npm/@google/model-viewer@4.2.0/dist/model-viewer.min.js",
+      "path": "model-viewer/model-viewer.min.js",
+      "size": 1041839,
+      "mime": "text/javascript; charset=utf-8",
+      "license": "Apache-2.0",
+      "sha256": "17d80ab747f51ce00c6b8ed757847443f9e4fba575ebee599a422df30af09fcf"
     }
   ]
 }

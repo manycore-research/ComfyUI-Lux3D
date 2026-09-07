@@ -45,6 +45,8 @@ def wait_for_task_result(
     poll_timeout: float = POLL_TIMEOUT_SECONDS,
     expected_output_count: int | None = None,
     require_json_array_content: bool = False,
+    require_single_url_content: bool = False,
+    preserve_output_slots: bool = False,
 ) -> Tuple[Mapping[str, Any], List[str]]:
     """Poll ``get_task`` until success and return its final response + URLs.
 
@@ -64,6 +66,10 @@ def wait_for_task_result(
         isinstance(expected_output_count, bool) or expected_output_count < 1
     ):
         raise ValueError("expected_output_count must be at least one")
+    if require_json_array_content and require_single_url_content:
+        raise ValueError(
+            "JSON-array and single-URL output modes are mutually exclusive"
+        )
 
     deadline = time.monotonic() + float(poll_timeout)
     for attempt in range(int(max_attempts)):
@@ -138,6 +144,35 @@ def wait_for_task_result(
                         "must contain only URL strings"
                     )
                 raw_urls = parsed_content
+            elif require_single_url_content:
+                if len(outputs) != 1 or not isinstance(outputs[0], Mapping):
+                    raise RuntimeError(
+                        f"Lux3D task {normalized_task_id} must return one "
+                        "single-image output object containing a URL string"
+                    )
+                content = outputs[0].get("content")
+                if not isinstance(content, str) or not content.strip():
+                    raise RuntimeError(
+                        f"Lux3D task {normalized_task_id} single-image content "
+                        "must be a non-empty URL string"
+                    )
+                raw_urls = [content]
+            elif preserve_output_slots:
+                raw_urls = []
+                for output in outputs:
+                    if not isinstance(output, Mapping):
+                        raise ValueError("each task output must be an object")
+                    content = output.get("content")
+                    if content is None:
+                        raw_urls.append("")
+                    elif not isinstance(content, str):
+                        raise ValueError("task output content must be a string")
+                    elif content.strip().upper() == "NOT_REQUESTED":
+                        raw_urls.append("NOT_REQUESTED")
+                    elif not content.strip():
+                        raise ValueError("task output content must not be blank")
+                    else:
+                        raw_urls.append(content)
             else:
                 raw_urls = extract_output_contents(outputs)
                 raw_urls = [
@@ -145,12 +180,20 @@ def wait_for_task_result(
                     for value in raw_urls
                     if value.strip().upper() != "NOT_REQUESTED"
                 ]
-            if not raw_urls:
+            if not raw_urls or not any(
+                value and value.strip().upper() != "NOT_REQUESTED"
+                for value in raw_urls
+            ):
                 raise RuntimeError(
                     f"Lux3D task {normalized_task_id} succeeded without outputs"
                 )
             urls = [
-                validate_public_url(value, "task output") for value in raw_urls
+                (
+                    value
+                    if not value or value.strip().upper() == "NOT_REQUESTED"
+                    else validate_public_url(value, "task output")
+                )
+                for value in raw_urls
             ]
             if (
                 expected_output_count is not None

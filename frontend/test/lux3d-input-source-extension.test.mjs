@@ -8,12 +8,13 @@ import {
 } from "../src/lux3d-input-source-extension.mjs";
 
 
-test("all six public Lux3D nodes have input-source rules", () => {
+test("all seven public Lux3D nodes have input-source rules", () => {
   assert.deepEqual(Object.keys(LUX3D_INPUT_SOURCE_RULES).sort(), [
     "Lux3DMaterialTransfer",
     "Lux3DOpenAPIImageTo3D",
     "Lux3DOpenAPIImageToFourView",
     "Lux3DOpenAPIMultiFormatExport",
+    "Lux3DOpenAPISingleImageGenerator",
     "Lux3DOpenAPITextTo3D",
     "Lux3DViewer",
   ]);
@@ -82,6 +83,22 @@ test("all image-like URL/local sources use one union widget and socket", () => {
     LUX3D_INPUT_SOURCE_RULES.Lux3DOpenAPIImageToFourView.unionSocketType,
     "STRING,IMAGE",
   );
+  assert.deepEqual(
+    LUX3D_INPUT_SOURCE_RULES.Lux3DOpenAPIImageToFourView.widgetOrder,
+    ["base_api_path", "image", "prompt"],
+  );
+  assert.deepEqual(
+    LUX3D_INPUT_SOURCE_RULES.Lux3DOpenAPISingleImageGenerator.unionWidgets,
+    ["image"],
+  );
+  assert.equal(
+    LUX3D_INPUT_SOURCE_RULES.Lux3DOpenAPISingleImageGenerator.unionSocketType,
+    "STRING,IMAGE",
+  );
+  assert.deepEqual(
+    LUX3D_INPUT_SOURCE_RULES.Lux3DOpenAPISingleImageGenerator.widgetOrder,
+    ["base_api_path", "image", "prompt"],
+  );
 });
 
 test("brand-new nodes with inputs=[] receive one connectable socket per union widget", async () => {
@@ -94,6 +111,7 @@ test("brand-new nodes with inputs=[] receive one connectable socket per union wi
     ],
     ["Lux3DOpenAPITextTo3D", ["reference_image"], "STRING,IMAGE"],
     ["Lux3DOpenAPIImageToFourView", ["image"], "STRING,IMAGE"],
+    ["Lux3DOpenAPISingleImageGenerator", ["image"], "STRING,IMAGE"],
     ["Lux3DOpenAPIMultiFormatExport", ["model_url"], "STRING,LUX3D_MODEL_SOURCE"],
     ["Lux3DMaterialTransfer", ["image", "mesh_url"], {
       image: "STRING,IMAGE",
@@ -123,6 +141,54 @@ test("brand-new nodes with inputs=[] receive one connectable socket per union wi
       assert.equal(sockets[0].type, socketType, `${nodeName}.${field}`);
       assert.equal(sockets[0].widget?.name, field, `${nodeName}.${field}`);
     }
+  }
+});
+
+test("multimodal node links lock only image and re-enable it on disconnect", async () => {
+  const {extension} = setupExtension();
+  for (const nodeName of [
+    "Lux3DOpenAPISingleImageGenerator",
+    "Lux3DOpenAPIImageToFourView",
+  ]) {
+    class MultimodalNode extends FakeNode {
+      constructor() {
+        super({
+          widgets: [
+            widget("base_api_path", "https://api.aholo3d.cn"),
+            widget("image", "https://assets.example/source.png"),
+            widget("prompt", "keep the vase and change its color"),
+          ],
+          inputs: [],
+        });
+      }
+    }
+    await extension.beforeRegisterNodeDef(MultimodalNode, {name: nodeName});
+    const node = new MultimodalNode();
+    node.onNodeCreated();
+
+    assert.deepEqual(node.inputs.map(({name, type}) => ({name, type})), [
+      {name: "image", type: "STRING,IMAGE"},
+    ], nodeName);
+    node.inputs[0].link = 123;
+    node.onConnectionsChange();
+
+    assert.equal(node.find("image").value, "", nodeName);
+    assert.equal(node.find("image").disabled, true, nodeName);
+    assert.equal(
+      node.find("prompt").value,
+      "keep the vase and change its color",
+      nodeName,
+    );
+    assert.notEqual(node.find("prompt").disabled, true, nodeName);
+
+    node.inputs[0].link = null;
+    node.onConnectionsChange();
+    assert.equal(node.find("image").disabled, false, nodeName);
+    assert.equal(
+      node.find("prompt").value,
+      "keep the vase and change its color",
+      nodeName,
+    );
   }
 });
 
@@ -622,6 +688,35 @@ test("saved timeout values are removed without shifting old workflow widgets", a
   assert.equal(node.find("image_3").value, "");
   assert.equal(node.find("version").value, "G1-Turbo");
   assert.equal(node.find("face_count").value, 200000);
+
+  class FourViewNode extends FakeNode {
+    constructor() {
+      super({
+        widgets: [
+          widget("base_api_path", "misaligned"),
+          widget("image", "misaligned"),
+          widget("prompt", ""),
+        ],
+      });
+    }
+  }
+  await extension.beforeRegisterNodeDef(FourViewNode, {
+    name: "Lux3DOpenAPIImageToFourView",
+  });
+  const fourView = new FourViewNode();
+  fourView.onConfigure({
+    widgets_values: [
+      "intl",
+      30,
+      "https://assets.example/legacy-four-view.png",
+    ],
+  });
+  assert.equal(fourView.find("base_api_path").value, "https://api.aholo3d.com");
+  assert.equal(
+    fourView.find("image").value,
+    "https://assets.example/legacy-four-view.png",
+  );
+  assert.equal(fourView.find("prompt").value, "");
 });
 
 test("dual-field Image to 3D workflows preserve all eight saved URL widgets", async () => {

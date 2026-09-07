@@ -269,14 +269,22 @@ Rapidly digitize furniture and create realistic 3D assets for interior planning.
 
 ### Lux3D Multi-View Generator
 
-- Generates four multi-view images from one public image URL, upstream `STRING` URL, or ComfyUI `IMAGE`
-- Returns `task_id` plus four URL outputs named `image_1` through `image_4`
+- Accepts an optional public image URL, upstream `STRING` URL, or ComfyUI `IMAGE`, plus an optional text prompt; at least one is required
+- Supports image-only, text-only, and image-plus-text generation
+- Returns `task_id` plus `image_1` through `image_4` in `FRONT_THREE_QUARTER`, `OPPOSITE_THREE_QUARTER`, `SIDE`, and `BACK` order
+
+### Lux3D Single Image Generator
+
+- Generates one new image from an optional public image URL, upstream `STRING` URL, or ComfyUI `IMAGE`, plus an optional multiline prompt; at least one is required
+- Supports image-only, text-only, and image-plus-text generation; image-only input is regenerated rather than passed through
+- Creates and polls the task internally, then returns `task_id` and `image_url`
 
 ### Lux3D Multi-Format Export
 
-- Exports a remote or ComfyUI-local `.glb` / `.zip` model to USDZ, OBJ ZIP, and FBX ZIP
+- Exports a remote or ComfyUI-local `.glb` / `.zip` model to any combination of USDZ, OBJ ZIP, FBX ZIP, STL, and 3MF
 - Uploads local models through Asset/OUS before task submission
-- Uses stable `task_id`, `glb`, `usdz`, `obj_zip`, and `fbx_zip` output sockets
+- Maps the service's fixed result slots by position instead of guessing formats from filenames
+- Uses the backward-compatible output order `task_id`, `glb`, `usdz`, `obj_zip`, `fbx_zip`, `stl`, `3mf`, and `lux3d_zip`
 
 ### Lux3D Material Redraw
 
@@ -336,7 +344,7 @@ If you have any questions, contact us at lux3d@qunhemail.com.
 
 ### Recommended Basic Workflows
 
-The current release provides six nodes, which can be combined as needed.
+The current release provides seven nodes, which can be combined as needed.
 
 #### Lux3D Image to 3D
 
@@ -385,9 +393,17 @@ The current release provides six nodes, which can be combined as needed.
 
 1. Add `Lux3D Multi-View Generator` from `Lux3D/Generate`.
 
-2. Enter a public HTTP(S) URL in `image`, connect an upstream `STRING` URL, or connect one `IMAGE`.
+2. Optionally enter a public HTTP(S) URL in `image`, connect an upstream `STRING` URL, or connect one `IMAGE`. Optionally enter a multiline `prompt`. At least one of `image` and `prompt` is required, so the node supports image-only, text-only, and image-plus-text generation.
 
-3. Select `base_api_path` and run the workflow. The node returns `task_id` and four image URLs named `image_1` through `image_4`.
+3. Select `base_api_path` and run the workflow. The node returns `task_id` and four image URLs in a stable order: `image_1` = `FRONT_THREE_QUARTER`, `image_2` = `OPPOSITE_THREE_QUARTER`, `image_3` = `SIDE`, and `image_4` = `BACK`.
+
+#### Lux3D Single Image Generator
+
+1. Add `Lux3D Single Image Generator` from `Lux3D/Generate`.
+
+2. Optionally enter a public HTTP(S) URL in `image`, connect an upstream `STRING` URL, or connect one `IMAGE`. Optionally enter a multiline `prompt`. At least one of `image` and `prompt` is required.
+
+3. Select `base_api_path` and run the workflow. The node creates and polls the task internally, then returns `task_id` and `image_url`. Image-only input still produces a newly generated image; the source URL is not passed through as the result.
 
 #### Lux3D Multi-Format Export
 
@@ -397,7 +413,9 @@ The current release provides six nodes, which can be combined as needed.
 
 3. Select the export formats. A GLB input requires at least one explicit format; a ZIP input may use `default`.
 
-4. Run the workflow. The node returns stable `task_id`, `glb`, `usdz`, `obj_zip`, and `fbx_zip` output sockets.
+4. Run the workflow. The node returns `task_id`, `glb`, `usdz`, `obj_zip`, `fbx_zip`, `stl`, `3mf`, and `lux3d_zip`, in that order. The first five sockets retain their historical positions; unrequested or unavailable results are empty strings.
+
+5. For a ZIP input, `lux3d_zip` returns the source Lux3D ZIP and `glb` returns the default GLB export. For a GLB input, `glb` returns the original model URL and `lux3d_zip` is empty.
 
 #### Lux3D Material Redraw
 
@@ -425,21 +443,23 @@ The current release provides six nodes, which can be combined as needed.
 
 ## Node Reference
 
-The current release registers six nodes. Generation, export, and material-redraw nodes create asynchronous tasks internally and poll until completion, with up to 60 checks at 15-second intervals (about 15 minutes).
+The current release registers seven nodes. Generation, export, and material-redraw nodes create asynchronous tasks internally and poll until completion, with up to 60 checks at 15-second intervals (about 15 minutes).
 
 Common conventions:
 
-- `base_api_path` accepts only `https://api.aholo3d.cn` (China) or `https://api.aholo3d.com` (international). The China endpoint is the default; do not add a trailing slash.
+- `base_api_path` accepts `https://api.aholo3d.cn` (China) or `https://api.aholo3d.com` (international). Do not add a trailing slash.
 - Nodes other than `Lux3D Viewer` no longer expose an API-key input. Set `LUX3D_API_KEY_CN` or `LUX3D_API_KEY_INTL` in the ComfyUI server environment to match `base_api_path`.
-- Image fields typed as `STRING / IMAGE` accept a public HTTP(S) URL, an upstream `STRING` URL, or a connected ComfyUI `IMAGE` containing exactly one image. Local images are uploaded before the Lux3D task is submitted.
+- Image fields typed as `STRING / IMAGE` accept a public HTTP(S) URL, an upstream `STRING` URL, or a connected ComfyUI `IMAGE` containing exactly one image. Local images are uploaded through Asset/OUS before the Lux3D task is submitted; nodes use the resulting asset URL and do not expose Base64 data URLs.
 - Model fields with local-file support provide a picker for the ComfyUI `input` directory and also accept relative files from `output` or `temp` (marked with ` [output]` or ` [temp]`). Local models used by Lux3D tasks are uploaded first.
-- Multi-format results use stable output sockets. A format that was not requested or returned is represented by an empty string.
+- The multi-format service returns seven fixed slots in `zipUrl`, `glbUrl`, `usdzUrl`, `objZipUrl`, `fbxZipUrl`, `stlUrl`, `threeMfUrl` order. The plugin maps these slots by position rather than inferring formats from filenames; a format that was not requested or returned is represented by an empty string.
 
 ### Lux3D Viewer
 
 **Category:** `Lux3D`
 
 Previews a GLB model or PLY Gaussian-splat file in the ComfyUI canvas. Remote URLs pass through unchanged. Local files are not uploaded; they are converted to a same-origin ComfyUI `/view` URL.
+
+GLB preview uses the same `model-viewer` 4.2.0 runtime and preset as the Web GLB Viewer: black background, the same HDR environment, exposure `0.95`, `auto` tone mapping, a `30°` field of view, and a `125%` initial camera distance. Shadows and auto-rotation are disabled; orbit, zoom, pan, and model animation remain enabled. Runtime, HDR, and decoders are bundled locally. Restart ComfyUI and refresh the browser after updating the plugin's viewer assets.
 
 #### Inputs
 
@@ -464,7 +484,7 @@ Creates an image-to-3D task from 1–8 images. Public URLs, upstream `STRING` UR
 
 | Input | Type | Description |
 | --- | --- | --- |
-| base_api_path | STRING | Lux3D API endpoint; defaults to `https://api.aholo3d.cn` |
+| base_api_path | STRING | Lux3D API endpoint: `https://api.aholo3d.cn` (China) or `https://api.aholo3d.com` (international) |
 | image_1 … image_8 | STRING / IMAGE | Each slot may be empty, a public HTTP(S) image URL, an upstream `STRING` URL, or one connected `IMAGE`; at least one of the eight slots is required |
 | version | Enum | `G1` / `G1-Turbo`; defaults to `G1-Turbo` |
 | face_count | INT | Target face count; defaults to `200000`. `0` omits the field; a nonzero value must be `10000`–`300000` |
@@ -491,7 +511,7 @@ Creates a text-to-3D task from a prompt and one optional reference image.
 
 | Input | Type | Description |
 | --- | --- | --- |
-| base_api_path | STRING | Lux3D API endpoint; defaults to `https://api.aholo3d.cn` |
+| base_api_path | STRING | Lux3D API endpoint: `https://api.aholo3d.cn` (China) or `https://api.aholo3d.com` (international) |
 | prompt | STRING | Non-empty text describing the object to generate |
 | style | Enum | `photorealistic` (default), `cartoon`, `anime`, `hand_painted`, `cyberpunk`, `fantasy`, or `glass` |
 | reference_image | STRING / IMAGE | Optional public HTTP(S) reference-image URL, upstream `STRING` URL, or one local `IMAGE` |
@@ -514,48 +534,77 @@ Creates a text-to-3D task from a prompt and one optional reference image.
 
 **Category:** `Lux3D/Generate`
 
-Generates four multi-view images from a single object image.
+Generates four multi-view images from an optional object image and/or a text prompt. Image-only, text-only, and image-plus-text requests are supported.
 
 #### Inputs
 
 | Input | Type | Description |
 | --- | --- | --- |
-| base_api_path | STRING | Lux3D API endpoint; defaults to `https://api.aholo3d.cn` |
-| image | STRING / IMAGE | Required public HTTP(S) image URL, upstream `STRING` URL, or one local `IMAGE` |
+| base_api_path | STRING | Lux3D API endpoint: `https://api.aholo3d.cn` (China) or `https://api.aholo3d.com` (international) |
+| image | STRING / IMAGE | Optional public HTTP(S) image URL, upstream `STRING` URL, or one local `IMAGE`; local input is uploaded through Asset/OUS |
+| prompt | STRING | Optional multiline generation prompt; at least one of `image` and `prompt` is required |
 
 #### Outputs
 
 | Output | Type | Description |
 | --- | --- | --- |
 | task_id | STRING | Lux3D task ID |
-| image_1 | STRING | URL of the first multi-view image |
-| image_2 | STRING | URL of the second multi-view image |
-| image_3 | STRING | URL of the third multi-view image |
-| image_4 | STRING | URL of the fourth multi-view image |
+| image_1 | STRING | `FRONT_THREE_QUARTER` image URL |
+| image_2 | STRING | `OPPOSITE_THREE_QUARTER` image URL |
+| image_3 | STRING | `SIDE` image URL |
+| image_4 | STRING | `BACK` image URL |
+
+### Lux3D Single Image Generator
+
+**Registered node key:** `Lux3DOpenAPISingleImageGenerator`
+
+**Category:** `Lux3D/Generate`
+
+Generates one new image from an optional image and/or a text prompt. It creates and polls the OpenAPI task internally. Image-only input is regenerated rather than returned unchanged.
+
+#### Inputs
+
+| Input | Type | Description |
+| --- | --- | --- |
+| base_api_path | STRING | Lux3D API endpoint: `https://api.aholo3d.cn` (China) or `https://api.aholo3d.com` (international) |
+| image | STRING / IMAGE | Optional public HTTP(S) image URL, upstream `STRING` URL, or one local `IMAGE`; local input is uploaded through Asset/OUS |
+| prompt | STRING | Optional multiline generation prompt; at least one of `image` and `prompt` is required |
+
+#### Outputs
+
+| Output | Type | Description |
+| --- | --- | --- |
+| task_id | STRING | Lux3D task ID |
+| image_url | STRING | URL of the newly generated image; never a Base64 data URL |
 
 ### Lux3D Multi-Format Export
 
 **Category:** `Lux3D/Export`
 
-Exports a remote or ComfyUI-local GLB / Lux3D ZIP model to one or more target formats. Local files are uploaded to Lux3D first.
+Exports a remote or ComfyUI-local GLB / Lux3D ZIP model to one or more target formats. Local files are uploaded to Lux3D first. A ZIP input returns the source ZIP through `lux3d_zip` and its default GLB export through `glb`. A GLB input returns the original model URL through `glb`, requires at least one explicit target format, and leaves `lux3d_zip` empty.
 
 #### Inputs
 
 | Input | Type | Description |
 | --- | --- | --- |
-| base_api_path | STRING | Lux3D API endpoint; defaults to `https://api.aholo3d.cn` |
+| base_api_path | STRING | Lux3D API endpoint: `https://api.aholo3d.cn` (China) or `https://api.aholo3d.com` (international) |
 | model_url | STRING / model source | Public HTTP(S) `.glb` / `.zip` URL, upstream STRING output, or a local ComfyUI `.glb` / `.zip` file |
-| output_format | Enum | `default`, `usdz`, `obj_zip`, `fbx_zip`, and every non-duplicate combination; a GLB input requires at least one explicit export format, so `default` applies only to ZIP input |
+| output_format | Enum | `default`; any one of `usdz`, `obj_zip`, `fbx_zip`, `stl`, or `3mf`; or any non-duplicate combination of those five formats. A GLB input requires at least one explicit export format, so `default` applies only to ZIP input |
 
 #### Outputs
 
 | Output | Type | Description |
 | --- | --- | --- |
 | task_id | STRING | Lux3D task ID |
-| glb | STRING | GLB model URL, when returned by the service |
+| glb | STRING | Default GLB export for ZIP input; original model URL for GLB input |
 | usdz | STRING | USDZ file URL |
 | obj_zip | STRING | OBJ ZIP file URL |
 | fbx_zip | STRING | FBX ZIP file URL |
+| stl | STRING | STL file URL |
+| 3mf | STRING | 3MF file URL |
+| lux3d_zip | STRING | Source Lux3D ZIP URL for ZIP input; empty for GLB input |
+
+The output socket order is `task_id`, `glb`, `usdz`, `obj_zip`, `fbx_zip`, `stl`, `3mf`, `lux3d_zip`; the first five positions are unchanged for compatibility with existing workflows. The service response itself has seven fixed positions—`zipUrl`, `glbUrl`, `usdzUrl`, `objZipUrl`, `fbxZipUrl`, `stlUrl`, and `threeMfUrl`—which the plugin maps directly without relying on URL filenames or extensions.
 
 ### Lux3D Material Redraw
 
@@ -569,7 +618,7 @@ Redraws the material of an existing GLB from one reference image using the fixed
 | --- | --- | --- |
 | image | STRING / IMAGE | Required public HTTP(S) reference-image URL, upstream `STRING` URL, or one local `IMAGE` |
 | mesh_url | STRING / model source | Public HTTP(S) `.glb` URL, upstream STRING output, or a local ComfyUI `.glb` file |
-| base_api_path | STRING | Lux3D API endpoint; defaults to `https://api.aholo3d.cn` |
+| base_api_path | STRING | Lux3D API endpoint: `https://api.aholo3d.cn` (China) or `https://api.aholo3d.com` (international) |
 
 #### Outputs
 
@@ -587,8 +636,8 @@ Redraws the material of an existing GLB from one reference image using the fixed
 
 ```text
 comfyui-lux3d/
-├── __init__.py               # Registers the current six nodes and frontend directory
-├── lux3d_openapi/            # OpenAPI client, contracts, polling, and four task nodes
+├── __init__.py               # Registers the current seven nodes and frontend directory
+├── lux3d_openapi/            # OpenAPI client, contracts, polling, and five task nodes
 ├── lux3d_material.py         # Lux3D Material Redraw node
 ├── lux3d_viewer.py           # Lux3D Viewer node
 ├── viewer_asset_routes.py    # Viewer static-asset routes

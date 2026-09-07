@@ -21,13 +21,6 @@ const viewerConfig = Object.freeze({
   fetchTimeoutMs: 120_000,
   maxResidentViewers: 2,
   residentLimitBehavior: "reject",
-  glbVisualConfig: Object.freeze({
-    environment: "legacy",
-    exposure: 0.95,
-    toneMapping: "Neutral",
-    clearColor: 0x000000,
-    clearAlpha: 1.0,
-  }),
 });
 
 try {

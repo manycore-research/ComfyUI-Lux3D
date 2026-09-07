@@ -12,6 +12,7 @@ EXPECTED_NODE_KEYS = {
     "Lux3DViewer",
     "Lux3DOpenAPIImageTo3D",
     "Lux3DOpenAPITextTo3D",
+    "Lux3DOpenAPISingleImageGenerator",
     "Lux3DOpenAPIImageToFourView",
     "Lux3DOpenAPIMultiFormatExport",
 }
@@ -20,6 +21,7 @@ EXPECTED_DISPLAY_NAMES = {
     "Lux3DViewer": "Lux3D Viewer",
     "Lux3DOpenAPIImageTo3D": "Lux3D Image to 3D",
     "Lux3DOpenAPITextTo3D": "Lux3D Text to 3D",
+    "Lux3DOpenAPISingleImageGenerator": "Lux3D Single Image Generator",
     "Lux3DOpenAPIImageToFourView": "Lux3D Multi-View Generator",
     "Lux3DOpenAPIMultiFormatExport": "Lux3D Multi-Format Export",
 }

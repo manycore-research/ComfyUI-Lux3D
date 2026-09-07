@@ -90,6 +90,21 @@ class ViewerAssetRouteTest(unittest.TestCase):
             "text/javascript; charset=utf-8",
         )
 
+    def test_model_viewer_runtime_and_hdr_are_served_from_the_manifest(self):
+        for key, mime in (
+            ("model-viewer/model-viewer.min.js", "text/javascript; charset=utf-8"),
+            ("model-viewer/frame.mjs", "text/javascript; charset=utf-8"),
+            ("model-viewer/environment.hdr", "application/octet-stream"),
+            ("meshopt/meshopt_decoder.js", "text/javascript; charset=utf-8"),
+        ):
+            with self.subTest(asset=key):
+                response = self.call(key)
+                self.assertEqual(response.status, 200)
+                self.assertEqual(response.headers["Content-Type"], mime)
+                self.assertEqual(
+                    hashlib.sha256(response.body).hexdigest(), self.assets[key]["sha256"]
+                )
+
     def test_head_has_get_headers_and_no_body(self):
         key = "basis/basis_transcoder.wasm"
         get_response = self.call(key)

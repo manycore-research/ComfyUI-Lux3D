@@ -19,6 +19,7 @@ from .contracts import (
     build_export_payload,
     build_four_view_payload,
     build_image_to_3d_payload,
+    build_multimodal_to_image_payload,
     build_text_to_3d_payload,
     parse_create_task_id,
     validate_public_url,
@@ -109,6 +110,11 @@ def _validate_image_or_url(
 ) -> Tuple[str, Any]:
     """Classify and validate a union input without performing an upload."""
 
+    if value is None:
+        if allow_empty:
+            return "empty", ""
+        raise ValueError(f"{field_name} must be a public HTTP(S) URL or IMAGE")
+
     if isinstance(value, str):
         url = value.strip()
         if not url:
@@ -139,6 +145,33 @@ def _resolve_image_or_url(
     )[0]
 
 
+def _resolve_optional_image_and_prompt(
+    base_api_path: str,
+    image: Any,
+    prompt: Any,
+) -> Tuple[str, str]:
+    """Validate a multimodal image/prompt pair before any asset upload."""
+
+    image_kind, image_value = _validate_image_or_url(
+        image, "image", allow_empty=True
+    )
+    if prompt is None:
+        prompt_value = ""
+    elif isinstance(prompt, str):
+        prompt_value = prompt.strip()
+    else:
+        raise ValueError("prompt must be text or empty")
+    if image_kind == "empty" and not prompt_value:
+        raise ValueError("provide at least one of image or prompt")
+
+    return (
+        _resolve_image_or_url(
+            base_api_path, image_kind, image_value, "image"
+        ),
+        prompt_value,
+    )
+
+
 class _BaseOpenAPINode:
     OUTPUT_NODE = True
 
@@ -158,6 +191,8 @@ class _BaseOpenAPINode:
         *,
         expected_output_count: Optional[int] = None,
         require_json_array_content: bool = False,
+        require_single_url_content: bool = False,
+        preserve_output_slots: bool = False,
     ) -> Tuple[str, list[str]]:
         task_id = parse_create_task_id(create_response)
         _, urls = wait_for_task_result(
@@ -165,6 +200,8 @@ class _BaseOpenAPINode:
             task_id,
             expected_output_count=expected_output_count,
             require_json_array_content=require_json_array_content,
+            require_single_url_content=require_single_url_content,
+            preserve_output_slots=preserve_output_slots,
         )
         return task_id, urls
 
@@ -323,6 +360,62 @@ class Lux3DOpenAPITextTo3D(_BaseOpenAPINode):
         return task_id, *map_generation_outputs(urls)
 
 
+class Lux3DOpenAPISingleImageGenerator(_BaseOpenAPINode):
+    """POST /lux3d/v1/generate/multimodal-to-image/task/create."""
+
+    OPERATION_ID = "createMultimodalToImageTask"
+
+    @classmethod
+    def INPUT_TYPES(cls) -> Dict[str, Any]:
+        required = _api_inputs()
+        optional = {
+            "image": _image_or_url_input(
+                "Optional public HTTP(S) URL or connected IMAGE/STRING; "
+                "provide image, prompt, or both."
+            ),
+            "prompt": (
+                "STRING",
+                {
+                    "default": "",
+                    "multiline": True,
+                    "tooltip": (
+                        "Optional generation or redraw instructions; "
+                        "provide image, prompt, or both."
+                    ),
+                },
+            ),
+        }
+        return {"required": required, "optional": optional}
+
+    RETURN_TYPES = ("STRING", "STRING")
+    RETURN_NAMES = ("task_id", "image_url")
+    FUNCTION = "execute"
+    CATEGORY = "Lux3D/Generate"
+
+    def execute(
+        self,
+        base_api_path: str,
+        image: Any = None,
+        prompt: str = "",
+    ) -> Tuple[str, str]:
+        resolved_image_url, prompt_value = _resolve_optional_image_and_prompt(
+            base_api_path, image, prompt
+        )
+        client = self._client(base_api_path)
+        response = client.create_multimodal_to_image_task(
+            build_multimodal_to_image_payload(
+                resolved_image_url, prompt_value
+            )
+        )
+        task_id, urls = self._complete_task(
+            client,
+            response,
+            expected_output_count=1,
+            require_single_url_content=True,
+        )
+        return task_id, urls[0]
+
+
 class Lux3DOpenAPIImageToFourView(_BaseOpenAPINode):
     """POST /lux3d/v1/generate/image-to-four-view/task/create."""
 
@@ -331,10 +424,24 @@ class Lux3DOpenAPIImageToFourView(_BaseOpenAPINode):
     @classmethod
     def INPUT_TYPES(cls) -> Dict[str, Any]:
         required = _api_inputs()
-        required["image"] = _image_or_url_input(
-            "Required public HTTP(S) URL or connected IMAGE/STRING."
-        )
-        return {"required": required}
+        optional = {
+            "image": _image_or_url_input(
+                "Optional public HTTP(S) URL or connected IMAGE/STRING; "
+                "provide image, prompt, or both."
+            ),
+            "prompt": (
+                "STRING",
+                {
+                    "default": "",
+                    "multiline": True,
+                    "tooltip": (
+                        "Optional four-view generation or redraw instructions; "
+                        "provide image, prompt, or both."
+                    ),
+                },
+            ),
+        }
+        return {"required": required, "optional": optional}
 
     RETURN_TYPES = ("STRING", "STRING", "STRING", "STRING", "STRING")
     RETURN_NAMES = ("task_id", "image_1", "image_2", "image_3", "image_4")
@@ -344,17 +451,15 @@ class Lux3DOpenAPIImageToFourView(_BaseOpenAPINode):
     def execute(
         self,
         base_api_path: str,
-        image: Any,
+        image: Any = None,
+        prompt: str = "",
     ) -> Tuple[str, str, str, str, str]:
-        image_kind, image_value = _validate_image_or_url(
-            image, "image", allow_empty=False
-        )
-        resolved_image_url = _resolve_image_or_url(
-            base_api_path, image_kind, image_value, "image"
+        resolved_image_url, prompt_value = _resolve_optional_image_and_prompt(
+            base_api_path, image, prompt
         )
         client = self._client(base_api_path)
         response = client.create_image_to_four_view_task(
-            build_four_view_payload(resolved_image_url)
+            build_four_view_payload(resolved_image_url, prompt_value)
         )
         task_id, urls = self._complete_task(
             client,
@@ -391,8 +496,26 @@ class Lux3DOpenAPIMultiFormatExport(_BaseOpenAPINode):
         )
         return {"required": required}
 
-    RETURN_TYPES = ("STRING", "STRING", "STRING", "STRING", "STRING")
-    RETURN_NAMES = ("task_id", "glb", "usdz", "obj_zip", "fbx_zip")
+    RETURN_TYPES = (
+        "STRING",
+        "STRING",
+        "STRING",
+        "STRING",
+        "STRING",
+        "STRING",
+        "STRING",
+        "STRING",
+    )
+    RETURN_NAMES = (
+        "task_id",
+        "glb",
+        "usdz",
+        "obj_zip",
+        "fbx_zip",
+        "stl",
+        "3mf",
+        "lux3d_zip",
+    )
     FUNCTION = "execute"
     CATEGORY = "Lux3D/Export"
 
@@ -401,7 +524,7 @@ class Lux3DOpenAPIMultiFormatExport(_BaseOpenAPINode):
         base_api_path: str,
         model_url: str,
         output_format: str,
-    ) -> Tuple[str, str, str, str, str]:
+    ) -> Tuple[str, str, str, str, str, str, str, str]:
         resolved_model_url = resolve_single_url_or_local_file(
             base_api_path,
             HTTP_TIMEOUT_SECONDS,
@@ -412,5 +535,10 @@ class Lux3DOpenAPIMultiFormatExport(_BaseOpenAPINode):
         payload = build_export_payload(resolved_model_url, output_format)
         client = self._client(base_api_path)
         response = client.create_multi_format_export_task(payload)
-        task_id, urls = self._complete_task(client, response)
-        return task_id, *map_export_outputs(urls, payload.get("outputFormat"))
+        task_id, slots = self._complete_task(
+            client,
+            response,
+            expected_output_count=7,
+            preserve_output_slots=True,
+        )
+        return task_id, *map_export_outputs(slots)

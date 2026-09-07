@@ -2,5 +2,8 @@
 # In particular, Windows checkouts must not rewrite LF to CRLF after the
 # manifest has recorded file sizes and SHA-256 values.
 viewer_assets/** binary
+frontend/vendor/model-viewer/model-viewer.min.js binary
+frontend/vendor/model-viewer/environment.hdr binary
+frontend/vendor/model-viewer/LICENSE -text
 frontend/src/generated/viewer-assets.js binary
 js/assets/*.mjs binary -whitespace

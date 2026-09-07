@@ -32,16 +32,7 @@ test("builds isolated self-contained controller, GLB and Gaussian bundles", asyn
       "",
     ].join("\n"));
     await writeFile(entryPoints.glb, [
-      "import * as THREE from \"three\";",
-      "import {DRACOLoader} from \"three/examples/jsm/loaders/DRACOLoader.js\";",
-      "import {GLTFLoader} from \"three/examples/jsm/loaders/GLTFLoader.js\";",
-      "import {KTX2Loader} from \"three/examples/jsm/loaders/KTX2Loader.js\";",
-      "import {MeshoptDecoder} from \"three/examples/jsm/libs/meshopt_decoder.module.js\";",
-      "export const THREE_REVISION = THREE.REVISION;",
-      "export const API_TYPES = [",
-      "  typeof DRACOLoader, typeof GLTFLoader, typeof KTX2Loader,",
-      "  typeof MeshoptDecoder.decodeGltfBuffer,",
-      "];",
+      "export const ENGINE = \"model-viewer\";",
       "",
     ].join("\n"));
     await writeFile(entryPoints.gaussian, [
@@ -67,9 +58,8 @@ test("builds isolated self-contained controller, GLB and Gaussian bundles", asyn
     const glb = await importFresh(result.bundles.glb);
     const gaussian = await importFresh(result.bundles.gaussian);
     assert.equal(typeof controller.registerLux3DViewerExtension, "function");
-    assert.equal(glb.THREE_REVISION, "183");
+    assert.equal(glb.ENGINE, "model-viewer");
     assert.equal(gaussian.THREE_REVISION, "183");
-    assert.deepEqual(glb.API_TYPES, ["function", "function", "function", "function"]);
     assert.deepEqual(gaussian.API_TYPES, ["function", "function"]);
 
     const controllerSource = await readFile(result.bundles.controller, "utf8");
@@ -105,6 +95,10 @@ test("builds isolated self-contained controller, GLB and Gaussian bundles", asyn
       "draco/draco_decoder.wasm",
       "basis/basis_transcoder.js",
       "basis/basis_transcoder.wasm",
+      "meshopt/meshopt_decoder.js",
+      "model-viewer/model-viewer.min.js",
+      "model-viewer/frame.mjs",
+      "model-viewer/environment.hdr",
     ]) {
       assert.equal(keys.has(key), true);
     }
@@ -112,7 +106,7 @@ test("builds isolated self-contained controller, GLB and Gaussian bundles", asyn
       join(outputRoot, "viewer_assets/licenses/THIRD_PARTY_NOTICES.txt"),
       "utf8",
     );
-    assert.match(thirdPartyNotices, /@google\/model-viewer 4\.2\.0 legacy environment scene - Apache-2\.0/);
+    assert.match(thirdPartyNotices, /@google\/model-viewer 4\.2\.0 bundled runtime/);
 
     const generatedSource = await readFile(result.generatedModule, "utf8");
     const generated = await import(

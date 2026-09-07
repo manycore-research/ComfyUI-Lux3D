@@ -2,9 +2,8 @@
 
 from __future__ import annotations
 
-import re
 from pathlib import PurePosixPath
-from typing import Dict, Iterable, Optional, Sequence, Tuple
+from typing import Dict, Iterable, Sequence, Tuple
 from urllib.parse import unquote, urlsplit
 
 
@@ -59,85 +58,43 @@ def map_generation_outputs(urls: Iterable[str]) -> Tuple[str, str, str]:
     return slots["lux3d_zip"], slots["glb"], slots["ply"]
 
 
-def _export_zip_kind(filename: str) -> Optional[str]:
-    """Classify an export ZIP when its filename explicitly names OBJ or FBX."""
-
-    stem = filename[:-4]  # The caller has already established the .zip suffix.
-    tokens = set(filter(None, re.split(r"[^a-z0-9]+", stem)))
-    matches = [kind for kind in ("obj", "fbx") if kind in tokens]
-    if len(matches) > 1:
-        raise Lux3DOutputProtocolError(
-            f"Lux3D export task returned an ambiguous ZIP filename: {filename}"
-        )
-    return f"{matches[0]}_zip" if matches else None
-
-
 def map_export_outputs(
-    urls: Iterable[str], requested_formats: Optional[Sequence[str]] = None
-) -> Tuple[str, str, str, str]:
-    """Return export artifacts as ``(glb, usdz, obj_zip, fbx_zip)``.
+    fixed_slots: Sequence[str],
+) -> Tuple[str, str, str, str, str, str, str]:
+    """Map the service's fixed seven export slots to stable node outputs.
 
-    Export ZIPs sometimes have an explicit ``obj`` / ``fbx`` token in their
-    filename and sometimes use a generic ``.zip`` filename. Explicit names are
-    authoritative. Remaining generic ZIPs are assigned in the caller's
-    ``outputFormat`` request order, matching the ordered-output fallback used
-    by the Lux3D client contract. This lets OBJ ZIP and FBX ZIP be returned
-    together even when both signed URLs end in a generic filename.
+    The OpenAPI contract returns ``zipUrl, glbUrl, usdzUrl, objZipUrl,
+    fbxZipUrl, stlUrl, threeMfUrl`` in that exact order.  Values are therefore
+    never classified from URL suffixes: the source ZIP and OBJ/FBX ZIP exports
+    may all use indistinguishable generic filenames.
+
+    The node keeps its historic first four artifact outputs unchanged and
+    appends STL, 3MF, and the source Lux3D ZIP for workflow compatibility.
     """
 
-    slots = {"glb": "", "usdz": "", "obj_zip": "", "fbx_zip": ""}
-    zip_outputs = []
-    for url in urls:
-        filename = _url_filename(url)
-        if filename.endswith(".glb"):
-            output_kind = "glb"
-        elif filename.endswith(".usdz"):
-            output_kind = "usdz"
-        elif filename.endswith(".zip"):
-            output_kind = _export_zip_kind(filename)
-            zip_outputs.append((url, output_kind))
-            continue
-        else:
-            raise Lux3DOutputProtocolError(
-                "Lux3D export task returned an output URL with an unsupported "
-                f"path suffix: {filename or '<empty filename>'}"
-            )
-        _set_unique(slots, output_kind, url, task_kind="export")
+    slots = list(fixed_slots)
+    if len(slots) != 7:
+        raise Lux3DOutputProtocolError(
+            "Lux3D export task must return exactly seven fixed output slots"
+        )
 
-    requested_zip_kinds = {
-        value
-        for value in (requested_formats or ())
-        if value in ("obj_zip", "fbx_zip")
-    }
-    generic_urls = []
-    for url, output_kind in zip_outputs:
-        if output_kind is None:
-            generic_urls.append(url)
-            continue
-        if output_kind not in requested_zip_kinds:
-            raise Lux3DOutputProtocolError(
-                f"Lux3D export task returned unrequested {output_kind} output"
-            )
-        _set_unique(slots, output_kind, url, task_kind="export")
-
-    if generic_urls:
-        remaining_kinds = [
-            kind
-            for kind in (requested_formats or ())
-            if kind in requested_zip_kinds and not slots[kind]
-        ]
-        if len(generic_urls) != len(remaining_kinds):
-            raise Lux3DOutputProtocolError(
-                "Lux3D export task returned ambiguous generic ZIP outputs; "
-                "their count does not match the remaining requested ZIP formats"
-            )
-        for output_kind, url in zip(remaining_kinds, generic_urls):
-            _set_unique(slots, output_kind, url, task_kind="export")
+    normalized = [
+        "" if not value or value.strip().upper() == "NOT_REQUESTED" else value
+        for value in slots
+    ]
+    lux3d_zip, glb, usdz, obj_zip, fbx_zip, stl, three_mf = normalized
+    if not glb:
+        raise Lux3DOutputProtocolError(
+            "Lux3D export task returned an empty required glbUrl slot"
+        )
     return (
-        slots["glb"],
-        slots["usdz"],
-        slots["obj_zip"],
-        slots["fbx_zip"],
+        glb,
+        usdz,
+        obj_zip,
+        fbx_zip,
+        stl,
+        three_mf,
+        lux3d_zip,
     )
 
 

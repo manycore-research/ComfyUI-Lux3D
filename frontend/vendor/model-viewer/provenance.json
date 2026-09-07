@@ -1,0 +1,13 @@
+{
+  "runtime": {
+    "package": "@google/model-viewer",
+    "version": "4.2.0",
+    "source": "https://cdn.jsdelivr.net/npm/@google/model-viewer@4.2.0/dist/model-viewer.min.js",
+    "license": "Apache-2.0",
+    "sha256": "17d80ab747f51ce00c6b8ed757847443f9e4fba575ebee599a422df30af09fcf"
+  },
+  "environment": {
+    "source": "https://qhstaticssl.kujiale.com/application/octetstream/1788254878084/FE20AE1B81DBBBF0C95F792A3A041FC5.hdr",
+    "sha256": "e182257a317a8476b5cd05a1faa608d1504814ca7c634aa887757b7038c17e5d"
+  }
+}

@@ -10,6 +10,7 @@ from .contracts import (
 from .nodes import (
     Lux3DOpenAPIImageTo3D,
     Lux3DOpenAPIImageToFourView,
+    Lux3DOpenAPISingleImageGenerator,
     Lux3DOpenAPIMultiFormatExport,
     Lux3DOpenAPITextTo3D,
 )
@@ -21,6 +22,7 @@ OPERATION_NODE_MAPPINGS = {
 }
 
 NODE_CLASS_MAPPINGS = {
+    "Lux3DOpenAPISingleImageGenerator": Lux3DOpenAPISingleImageGenerator,
     "Lux3DOpenAPIImageTo3D": Lux3DOpenAPIImageTo3D,
     "Lux3DOpenAPITextTo3D": Lux3DOpenAPITextTo3D,
     "Lux3DOpenAPIImageToFourView": Lux3DOpenAPIImageToFourView,
@@ -28,6 +30,7 @@ NODE_CLASS_MAPPINGS = {
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
+    "Lux3DOpenAPISingleImageGenerator": "Lux3D Single Image Generator",
     "Lux3DOpenAPIImageTo3D": "Lux3D Image to 3D",
     "Lux3DOpenAPITextTo3D": "Lux3D Text to 3D",
     "Lux3DOpenAPIImageToFourView": "Lux3D Multi-View Generator",

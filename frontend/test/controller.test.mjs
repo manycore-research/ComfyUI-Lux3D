@@ -26,7 +26,6 @@ test("first visibility loads once, then ready and suspended reuse the same adapt
   assert.equal(fixture.fetchCalls.length, 1);
   assert.deepEqual(fixture.factoryOptions.viewport, {width: 300, height: 300, dpr: 1.25});
   assert.strictEqual(fixture.factoryOptions.validation.json.asset.version, "2.0");
-  assert.strictEqual(fixture.factoryOptions.visualConfig, fixture.visualConfig);
   assert.equal(fixture.adapter.calls.resize.length, 1);
 
   await fixture.controller.setVisible(false);
@@ -502,7 +501,6 @@ function createControllerFixture(overrides = {}) {
     pool,
     responseBytes: bytes,
     url: "https://assets.example/model.glb?signature=SECRET",
-    visualConfig: Object.freeze({exposure: 1}),
     factoryOptions: null,
     glbModuleCalls: 0,
     gaussianModuleCalls: 0,
@@ -543,7 +541,6 @@ function createControllerFixture(overrides = {}) {
     },
     getDevicePixelRatio: () => 1.25,
     getReducedMotion: () => true,
-    glbVisualConfig: fixture.visualConfig,
     disposeHostBoundary: overrides.disposeHostBoundary,
   };
   if (!overrides.useDefaultUi) controllerOptions.ui = {setState() {}, setSourceLink() {}};

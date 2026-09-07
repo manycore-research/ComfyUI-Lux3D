@@ -21,7 +21,6 @@ test("chains Comfy hooks, budgets a clipped 300px viewport, and supports safe lo
       fetchTimeoutMs: 5000,
       maxResidentViewers: 2,
       residentLimitBehavior: "reject",
-      glbVisualConfig: {exposure: 1},
     },
     controllerFactory: (options) => {
       controllerOptions = options;
@@ -57,7 +56,6 @@ test("chains Comfy hooks, budgets a clipped 300px viewport, and supports safe lo
   assert.equal(node.size[1], 360);
   assert.strictEqual(controllerOptions.loadGlbAdapterModule, glbLoader);
   assert.strictEqual(controllerOptions.loadGaussianPlyAdapterModule, gaussianLoader);
-  assert.deepEqual(controllerOptions.glbVisualConfig, {exposure: 1});
 
   node.widgets[0].options.onDraw();
   node.widgets[0].options.onDraw();
@@ -199,7 +197,6 @@ test("model URL edits clear stale content immediately and debounce one safe remo
       fetchTimeoutMs: 5000,
       maxResidentViewers: 2,
       residentLimitBehavior: "reject",
-      glbVisualConfig: {exposure: 1},
     },
     controllerFactory: () => controller,
     setTimeoutImpl,
@@ -290,7 +287,6 @@ test("DOM draws observe direct widget edits once and accept authoritative local 
       fetchTimeoutMs: 5000,
       maxResidentViewers: 2,
       residentLimitBehavior: "reject",
-      glbVisualConfig: {exposure: 1},
     },
     controllerFactory: () => controller,
     setTimeoutImpl,
@@ -372,10 +368,7 @@ test("thin Comfy entry only resolves local lazy bundles relative to import.meta.
   assert.match(source, /fetchTimeoutMs:\s*120_000/);
   assert.match(source, /maxResidentViewers:\s*2/);
   assert.match(source, /residentLimitBehavior:\s*"reject"/);
-  assert.match(source, /environment:\s*"legacy"/);
-  assert.match(source, /exposure:\s*0\.95/);
-  assert.match(source, /toneMapping:\s*"Neutral"/);
-  assert.match(source, /clearColor:\s*0x000000/);
+  assert.doesNotMatch(source, /glbVisualConfig|environment:\s*"legacy"/);
   assert.match(source, /assetBaseUrl:\s*globalThis\.document\?\.baseURI/);
   assert.doesNotMatch(source, /__LUX3D_VIEWER_CONFIG__/);
   assert.doesNotMatch(source, /iframe|postMessage|createGlbAdapter|createGaussianPlyAdapter/);

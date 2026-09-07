@@ -100,6 +100,7 @@ class Lux3DTransportContractTest(unittest.TestCase):
             json_response(create_response),
             json_response(create_response),
             json_response(create_response),
+            json_response(create_response),
             json_response(task_response),
             json_response(list_response),
         )
@@ -112,6 +113,12 @@ class Lux3DTransportContractTest(unittest.TestCase):
         self.assertEqual(
             client.create_text_to_3d_task(
                 {"prompt": "a chair", "version": "G1"}
+            ),
+            create_response,
+        )
+        self.assertEqual(
+            client.create_multimodal_to_image_task(
+                {"img": IMAGE_URL, "prompt": "show the front"}
             ),
             create_response,
         )
@@ -137,6 +144,10 @@ class Lux3DTransportContractTest(unittest.TestCase):
         expected = (
             ("POST", "/lux3d/v1/generate/img-to-3d/task/create"),
             ("POST", "/lux3d/v1/generate/text-to-3d/task/create"),
+            (
+                "POST",
+                "/lux3d/v1/generate/multimodal-to-image/task/create",
+            ),
             ("POST", "/lux3d/v1/generate/image-to-four-view/task/create"),
             ("POST", "/lux3d/v1/generate/material-transfer/task/create"),
             ("POST", "/lux3d/v1/multi-format-export/task/create"),
@@ -154,9 +165,9 @@ class Lux3DTransportContractTest(unittest.TestCase):
                 )
                 self.assertEqual(call["timeout"], 30)
 
-        self.assertEqual(query_params(session.calls[5]), {"taskid": "1256173"})
+        self.assertEqual(query_params(session.calls[6]), {"taskid": "1256173"})
         self.assertEqual(
-            query_params(session.calls[6]), {"page": "1", "pagesize": "20"}
+            query_params(session.calls[7]), {"page": "1", "pagesize": "20"}
         )
 
     def test_cn_and_intl_regions_have_distinct_documented_roots(self):
@@ -385,21 +396,46 @@ class Lux3DRequestContractTest(unittest.TestCase):
                         "default",
                     )
 
-    def test_four_view_payload_contains_only_one_img_url(self):
-        self.assertEqual(
-            contracts.build_four_view_payload(IMAGE_URL), {"img": IMAGE_URL}
-        )
-        for value in ("", "image.png", "data:image/png;base64,AAAA"):
-            with self.subTest(value=value):
-                with self.assertRaises(ValueError):
-                    contracts.build_four_view_payload(value)
+    def test_multimodal_payloads_support_image_text_and_combined_modes(self):
+        for builder in (
+            contracts.build_multimodal_to_image_payload,
+            contracts.build_four_view_payload,
+        ):
+            with self.subTest(builder=builder.__name__, mode="image"):
+                self.assertEqual(builder(IMAGE_URL, ""), {"img": IMAGE_URL})
+            with self.subTest(builder=builder.__name__, mode="text"):
+                self.assertEqual(
+                    builder("", "  a ceramic chair  "),
+                    {"prompt": "a ceramic chair"},
+                )
+            with self.subTest(builder=builder.__name__, mode="image+text"):
+                self.assertEqual(
+                    builder(IMAGE_URL, "  change the material  "),
+                    {"img": IMAGE_URL, "prompt": "change the material"},
+                )
+
+    def test_multimodal_payloads_reject_two_empty_inputs_and_non_public_urls(self):
+        for builder in (
+            contracts.build_multimodal_to_image_payload,
+            contracts.build_four_view_payload,
+        ):
+            for image, prompt in (("", ""), ("  ", "\n"), (None, None)):
+                with self.subTest(
+                    builder=builder.__name__, image=image, prompt=prompt
+                ):
+                    with self.assertRaisesRegex(ValueError, "at least one"):
+                        builder(image, prompt)
+            for image in ("image.png", "data:image/png;base64,AAAA"):
+                with self.subTest(builder=builder.__name__, image=image):
+                    with self.assertRaises(ValueError):
+                        builder(image, "valid prompt")
 
     def test_multi_format_export_glb_requires_formats_but_zip_may_be_empty(self):
         self.assertEqual(
-            contracts.build_export_payload(MODEL_GLB_URL, "usdz,obj_zip"),
+            contracts.build_export_payload(MODEL_GLB_URL, "usdz,obj_zip,stl,3mf"),
             {
                 "modelUrl": MODEL_GLB_URL,
-                "outputFormat": ["usdz", "obj_zip"],
+                "outputFormat": ["usdz", "obj_zip", "stl", "3mf"],
             },
         )
         self.assertEqual(
@@ -701,16 +737,55 @@ class Lux3DTaskPollingContractTest(unittest.TestCase):
         _, urls = task_polling.wait_for_task_result(client, 507)
         self.assertEqual(urls, ["https://assets.example/result.glb"])
 
+    def test_fixed_output_mode_preserves_null_and_not_requested_slots(self):
+        client = Mock()
+        source_zip = "https://assets.example/download.zip?token=source"
+        glb = "https://assets.example/model.glb"
+        client.get_task.return_value = self.task_response(
+            508,
+            3,
+            [
+                {"content": source_zip},
+                {"content": glb},
+                {"content": None},
+                {"content": "NOT_REQUESTED"},
+                {"content": "https://assets.example/download.zip?token=fbx"},
+                {"content": "NOT_REQUESTED"},
+                {"content": "NOT_REQUESTED"},
+            ],
+        )
+
+        _, slots = task_polling.wait_for_task_result(
+            client,
+            508,
+            expected_output_count=7,
+            preserve_output_slots=True,
+        )
+
+        self.assertEqual(
+            slots,
+            [
+                source_zip,
+                glb,
+                "",
+                "NOT_REQUESTED",
+                "https://assets.example/download.zip?token=fbx",
+                "NOT_REQUESTED",
+                "NOT_REQUESTED",
+            ],
+        )
+
 
 class Lux3DRegistryContractTest(unittest.TestCase):
     EXPECTED_OPERATION_TO_NODE = {
+        "createMultimodalToImageTask": "Lux3DOpenAPISingleImageGenerator",
         "createImgTo3dTask": "Lux3DOpenAPIImageTo3D",
         "createTextTo3dTask": "Lux3DOpenAPITextTo3D",
         "createImageToFourViewTask": "Lux3DOpenAPIImageToFourView",
         "createMultiFormatExportTask": "Lux3DOpenAPIMultiFormatExport",
     }
 
-    def test_registry_contains_only_the_four_exposed_create_operations(self):
+    def test_registry_contains_only_the_five_exposed_create_operations(self):
         documented = set(registry.DOCUMENTED_OPERATION_IDS)
         excluded = set(registry.EXCLUDED_OPERATION_IDS)
         self.assertEqual(
@@ -750,6 +825,9 @@ class Lux3DRegistryContractTest(unittest.TestCase):
         self.assertEqual(
             registry.NODE_DISPLAY_NAME_MAPPINGS,
             {
+                "Lux3DOpenAPISingleImageGenerator": (
+                    "Lux3D Single Image Generator"
+                ),
                 "Lux3DOpenAPIImageTo3D": "Lux3D Image to 3D",
                 "Lux3DOpenAPITextTo3D": "Lux3D Text to 3D",
                 "Lux3DOpenAPIImageToFourView": "Lux3D Multi-View Generator",
@@ -801,7 +879,13 @@ class Lux3DNodeExecutionContractTest(unittest.TestCase):
                 "default",
             )
 
-    def _execute_export_with_outputs(self, outputs):
+    def _execute_export_with_outputs(
+        self,
+        outputs,
+        *,
+        model_url=MODEL_GLB_URL,
+        output_format="usdz,obj_zip,fbx_zip,stl,3mf",
+    ):
         node = nodes.Lux3DOpenAPIMultiFormatExport()
         client = Mock()
         client.create_multi_format_export_task.return_value = {
@@ -817,12 +901,16 @@ class Lux3DNodeExecutionContractTest(unittest.TestCase):
         with patch.object(node, "_client", return_value=client):
             return node.execute(
                 "https://api.aholo3d.cn",
-                MODEL_GLB_URL,
-                "usdz,obj_zip,fbx_zip",
+                model_url,
+                output_format,
             )
 
     def test_create_nodes_expose_only_typed_result_outputs(self):
         expected = {
+            nodes.Lux3DOpenAPISingleImageGenerator: (
+                "task_id",
+                "image_url",
+            ),
             nodes.Lux3DOpenAPIImageTo3D: (
                 "task_id",
                 "lux3d_zip",
@@ -848,6 +936,9 @@ class Lux3DNodeExecutionContractTest(unittest.TestCase):
                 "usdz",
                 "obj_zip",
                 "fbx_zip",
+                "stl",
+                "3mf",
+                "lux3d_zip",
             ),
         }
         for node_class, return_names in expected.items():
@@ -859,7 +950,7 @@ class Lux3DNodeExecutionContractTest(unittest.TestCase):
                 )
                 self.assertNotIn("response_json", node_class.RETURN_NAMES)
 
-    def test_four_create_nodes_poll_until_success_and_return_typed_outputs(self):
+    def test_five_create_nodes_poll_until_success_and_return_typed_outputs(self):
         cases = []
 
         image_node = nodes.Lux3DOpenAPIImageTo3D()
@@ -977,6 +1068,44 @@ class Lux3DNodeExecutionContractTest(unittest.TestCase):
             )
         )
 
+        multimodal_node = nodes.Lux3DOpenAPISingleImageGenerator()
+        multimodal_client = Mock()
+        multimodal_client.create_multimodal_to_image_task.return_value = {
+            "d": 105,
+            "m": None,
+            "c": None,
+        }
+        multimodal_image = "https://assets.example/multimodal-result.png"
+        multimodal_final = {
+            "d": {
+                "taskId": 105,
+                "status": 3,
+                "outputs": [{"content": multimodal_image}],
+            },
+            "m": None,
+            "c": None,
+        }
+        multimodal_client.get_task.side_effect = [
+            {"d": {"taskId": 105, "status": 0, "outputs": []}},
+            {"d": {"taskId": 105, "status": 1, "outputs": []}},
+            multimodal_final,
+        ]
+        cases.append(
+            (
+                multimodal_node,
+                multimodal_client,
+                lambda: multimodal_node.execute(
+                    "https://api.aholo3d.cn",
+                    IMAGE_URL,
+                    "change the chair color",
+                ),
+                multimodal_client.create_multimodal_to_image_task,
+                {"img": IMAGE_URL, "prompt": "change the chair color"},
+                ("105", multimodal_image),
+                "https://api.aholo3d.cn",
+            )
+        )
+
         four_view_node = nodes.Lux3DOpenAPIImageToFourView()
         four_view_client = Mock()
         four_view_client.create_image_to_four_view_task.return_value = {
@@ -1028,14 +1157,20 @@ class Lux3DNodeExecutionContractTest(unittest.TestCase):
         export_usdz = "https://assets.example/export-result.usdz?token=usdz"
         export_obj = "https://assets.example/chair_obj.zip?token=obj"
         export_fbx = "https://assets.example/chair_fbx.zip?token=fbx"
+        export_stl = "https://assets.example/export-result.stl?token=stl"
+        export_3mf = "https://assets.example/export-result.3mf?token=3mf"
         export_final = {
             "d": {
                 "taskId": 104,
                 "status": 3,
                 "outputs": [
-                    {"content": export_fbx},
+                    {"content": None},
+                    {"content": MODEL_GLB_URL},
                     {"content": export_usdz},
                     {"content": export_obj},
+                    {"content": export_fbx},
+                    {"content": export_stl},
+                    {"content": export_3mf},
                 ],
             },
             "m": None,
@@ -1053,14 +1188,29 @@ class Lux3DNodeExecutionContractTest(unittest.TestCase):
                 lambda: export_node.execute(
                     "https://api.aholo3d.cn",
                     MODEL_GLB_URL,
-                    "usdz,obj_zip,fbx_zip",
+                    "usdz,obj_zip,fbx_zip,stl,3mf",
                 ),
                 export_client.create_multi_format_export_task,
                 {
                     "modelUrl": MODEL_GLB_URL,
-                    "outputFormat": ["usdz", "obj_zip", "fbx_zip"],
+                    "outputFormat": [
+                        "usdz",
+                        "obj_zip",
+                        "fbx_zip",
+                        "stl",
+                        "3mf",
+                    ],
                 },
-                ("104", "", export_usdz, export_obj, export_fbx),
+                (
+                    "104",
+                    MODEL_GLB_URL,
+                    export_usdz,
+                    export_obj,
+                    export_fbx,
+                    export_stl,
+                    export_3mf,
+                    "",
+                ),
                 "https://api.aholo3d.cn",
             )
         )
@@ -1090,7 +1240,7 @@ class Lux3DNodeExecutionContractTest(unittest.TestCase):
                 ])
                 self.assertEqual(sleep.call_args_list, [call(15.0), call(15.0)])
 
-    def test_export_glb_only_fills_unreturned_format_slots_with_empty_strings(self):
+    def test_export_zip_input_returns_source_zip_and_default_glb(self):
         glb = "https://assets.example/converted.glb?download=1"
         node = nodes.Lux3DOpenAPIMultiFormatExport()
         client = Mock()
@@ -1099,7 +1249,15 @@ class Lux3DNodeExecutionContractTest(unittest.TestCase):
             "d": {
                 "taskId": 105,
                 "status": 3,
-                "outputs": [{"content": glb}],
+                "outputs": [
+                    {"content": MODEL_ZIP_URL},
+                    {"content": glb},
+                    {"content": "NOT_REQUESTED"},
+                    {"content": "NOT_REQUESTED"},
+                    {"content": "NOT_REQUESTED"},
+                    {"content": "NOT_REQUESTED"},
+                    {"content": "NOT_REQUESTED"},
+                ],
             }
         }
         with patch.object(node, "_client", return_value=client):
@@ -1108,7 +1266,7 @@ class Lux3DNodeExecutionContractTest(unittest.TestCase):
                 MODEL_ZIP_URL,
                 "default",
             )
-        self.assertEqual(result, ("105", glb, "", "", ""))
+        self.assertEqual(result, ("105", glb, "", "", "", "", "", MODEL_ZIP_URL))
 
     def test_generation_duplicate_or_unknown_output_format_is_rejected(self):
         invalid_outputs = (
@@ -1124,41 +1282,53 @@ class Lux3DNodeExecutionContractTest(unittest.TestCase):
             ):
                 self._execute_image_to_3d_with_outputs(outputs)
 
-    def test_export_duplicate_or_unknown_output_format_is_rejected(self):
-        invalid_outputs = (
-            [
-                {"content": "https://assets.example/first.usdz"},
-                {"content": "https://assets.example/second.usdz?token=2"},
-            ],
-            [{"content": "https://assets.example/unlabelled.zip?token=zip"}],
-            [{"content": "https://assets.example/cloud.ply"}],
-        )
-        for outputs in invalid_outputs:
-            with self.subTest(outputs=outputs), self.assertRaises(
-                (RuntimeError, ValueError)
+    def test_export_rejects_non_seven_slot_responses(self):
+        glb = {"content": MODEL_GLB_URL}
+        for outputs in ([glb] * 6, [glb] * 8):
+            with self.subTest(slot_count=len(outputs)), self.assertRaisesRegex(
+                RuntimeError, "expected 7"
             ):
                 self._execute_export_with_outputs(outputs)
 
-    def test_export_one_generic_zip_uses_the_only_unfilled_requested_zip_slot(self):
-        obj_zip = "https://assets.example/chair_obj.zip?token=obj"
-        generic_fbx_zip = "https://assets.example/download.zip?token=fbx"
+    def test_export_fixed_slots_distinguish_source_and_generic_export_zips(self):
+        source_zip = "https://assets.example/download.zip?token=source"
+        obj_zip = "https://assets.example/download.zip?token=obj"
+        fbx_zip = "https://assets.example/download.zip?token=fbx"
+        glb = "https://assets.example/model.glb"
+        slots = [
+            {"content": source_zip},
+            {"content": glb},
+            {"content": "NOT_REQUESTED"},
+            {"content": obj_zip},
+            {"content": fbx_zip},
+            {"content": "NOT_REQUESTED"},
+            {"content": "NOT_REQUESTED"},
+        ]
         self.assertEqual(
-            self._execute_export_with_outputs([
-                {"content": generic_fbx_zip},
-                {"content": obj_zip},
-            ]),
-            ("902", "", "", obj_zip, generic_fbx_zip),
+            self._execute_export_with_outputs(
+                slots,
+                model_url=MODEL_ZIP_URL,
+                output_format="obj_zip,fbx_zip",
+            ),
+            ("902", glb, "", obj_zip, fbx_zip, "", "", source_zip),
         )
 
-    def test_export_two_generic_zips_follow_requested_obj_fbx_order(self):
-        generic_obj_zip = "https://assets.example/download.zip?token=obj"
-        generic_fbx_zip = "https://assets.example/download.zip?token=fbx"
+    def test_export_glb_input_preserves_empty_zip_and_not_requested_slots(self):
+        usdz = "https://assets.example/result.usdz"
+        slots = [
+            {"content": None},
+            {"content": MODEL_GLB_URL},
+            {"content": usdz},
+            {"content": "NOT_REQUESTED"},
+            {"content": "NOT_REQUESTED"},
+            {"content": "NOT_REQUESTED"},
+            {"content": "NOT_REQUESTED"},
+        ]
         self.assertEqual(
-            self._execute_export_with_outputs([
-                {"content": generic_obj_zip},
-                {"content": generic_fbx_zip},
-            ]),
-            ("902", "", "", generic_obj_zip, generic_fbx_zip),
+            self._execute_export_with_outputs(
+                slots, output_format="usdz"
+            ),
+            ("902", MODEL_GLB_URL, usdz, "", "", "", "", ""),
         )
 
     def test_nodes_load_api_key_from_server_environment_only(self):
@@ -1262,14 +1432,32 @@ class Lux3DNodeExecutionContractTest(unittest.TestCase):
         self.assertEqual(text_options["default"], "")
         self.assertFalse(text_options["multiline"])
 
-        four_inputs = nodes.Lux3DOpenAPIImageToFourView.INPUT_TYPES()
-        self.assertNotIn("image_url", four_inputs["required"])
-        self.assertNotIn("optional", four_inputs)
-        four_type, four_options = four_inputs["required"]["image"]
-        self.assertEqual(four_type, "STRING,IMAGE")
-        self.assertEqual(four_options["widgetType"], "STRING")
-        self.assertEqual(four_options["default"], "")
-        self.assertFalse(four_options["multiline"])
+        for node_class in (
+            nodes.Lux3DOpenAPISingleImageGenerator,
+            nodes.Lux3DOpenAPIImageToFourView,
+        ):
+            with self.subTest(node=node_class.__name__):
+                multimodal_inputs = node_class.INPUT_TYPES()
+                required = multimodal_inputs["required"]
+                optional = multimodal_inputs["optional"]
+                self.assertEqual(set(required), {"base_api_path"})
+                self.assertEqual(set(optional), {"image", "prompt"})
+                self.assertNotIn("image_url", required)
+                self.assertNotIn("image_url", optional)
+                image_type, image_options = optional["image"]
+                self.assertEqual(image_type, "STRING,IMAGE")
+                self.assertEqual(image_options["widgetType"], "STRING")
+                self.assertEqual(image_options["default"], "")
+                self.assertFalse(image_options["multiline"])
+                prompt_type, prompt_options = optional["prompt"]
+                self.assertEqual(prompt_type, "STRING")
+                self.assertEqual(prompt_options["default"], "")
+                self.assertTrue(prompt_options["multiline"])
+                execute_parameters = inspect.signature(
+                    node_class.execute
+                ).parameters
+                self.assertIsNone(execute_parameters["image"].default)
+                self.assertEqual(execute_parameters["prompt"].default, "")
 
         export_inputs = nodes.Lux3DOpenAPIMultiFormatExport.INPUT_TYPES()
         export_model_type, export_model_options = export_inputs["required"][
@@ -1283,6 +1471,180 @@ class Lux3DNodeExecutionContractTest(unittest.TestCase):
             "model_file",
             inspect.signature(nodes.Lux3DOpenAPIMultiFormatExport.execute).parameters,
         )
+
+    def test_multimodal_image_node_supports_all_modes_and_uploads_only_local_image(self):
+        local_image = np.zeros((1, 2, 3, 3), dtype=np.float32)
+        uploaded_url = "https://assets.example/uploaded-reference.png"
+        cases = (
+            (
+                "image",
+                IMAGE_URL,
+                "",
+                {"img": IMAGE_URL},
+                False,
+            ),
+            (
+                "text",
+                "",
+                "  make a blue ceramic vase  ",
+                {"prompt": "make a blue ceramic vase"},
+                False,
+            ),
+            (
+                "image+text",
+                local_image,
+                "  change it to wood  ",
+                {"img": uploaded_url, "prompt": "change it to wood"},
+                True,
+            ),
+        )
+        for index, (mode, image, prompt, expected_payload, uploads) in enumerate(
+            cases, start=301
+        ):
+            with self.subTest(mode=mode):
+                result_url = f"https://assets.example/generated-{index}.png"
+                client = Mock()
+                client.create_multimodal_to_image_task.return_value = {
+                    "d": index
+                }
+                client.get_task.return_value = {
+                    "d": {
+                        "taskId": index,
+                        "status": 3,
+                        "outputs": [{"content": result_url}],
+                    }
+                }
+                node = nodes.Lux3DOpenAPISingleImageGenerator()
+                with patch.object(
+                    nodes, "upload_image_batch", return_value=[uploaded_url]
+                ) as upload, patch.object(
+                    node, "_client", return_value=client
+                ):
+                    result = node.execute(
+                        "https://api.aholo3d.cn", image, prompt
+                    )
+
+                self.assertEqual(result, (str(index), result_url))
+                client.create_multimodal_to_image_task.assert_called_once_with(
+                    expected_payload
+                )
+                client.get_task.assert_called_once_with(str(index))
+                if uploads:
+                    upload.assert_called_once_with(
+                        "https://api.aholo3d.cn",
+                        30,
+                        local_image,
+                        "image",
+                        min_count=1,
+                        max_count=1,
+                    )
+                else:
+                    upload.assert_not_called()
+
+    def test_multimodal_image_node_requires_exactly_one_result_url(self):
+        invalid_outputs = (
+            [
+                {"content": "https://assets.example/one.png"},
+                {"content": "https://assets.example/two.png"},
+            ],
+            [
+                {"content": "https://assets.example/one.png"},
+                {"content": None},
+            ],
+            [
+                {"content": "NOT_REQUESTED"},
+                {"content": "https://assets.example/one.png"},
+            ],
+            [
+                {
+                    "content": json.dumps(
+                        ["https://assets.example/one.png"]
+                    )
+                }
+            ],
+        )
+        for outputs in invalid_outputs:
+            with self.subTest(outputs=outputs):
+                client = Mock()
+                client.create_multimodal_to_image_task.return_value = {"d": 304}
+                client.get_task.return_value = {
+                    "d": {
+                        "taskId": 304,
+                        "status": 3,
+                        "outputs": outputs,
+                    }
+                }
+                node = nodes.Lux3DOpenAPISingleImageGenerator()
+                with patch.object(
+                    node, "_client", return_value=client
+                ), patch.object(nodes, "upload_image_batch") as upload:
+                    with self.assertRaises((RuntimeError, ValueError)):
+                        node.execute("https://api.aholo3d.cn", IMAGE_URL, "")
+                upload.assert_not_called()
+
+    def test_four_view_node_supports_image_text_and_combined_modes(self):
+        view_urls = [
+            f"https://assets.example/four-view-{index}.png"
+            for index in range(4)
+        ]
+        cases = (
+            ("image", IMAGE_URL, "", {"img": IMAGE_URL}),
+            (
+                "text",
+                "",
+                "  make four views of a lamp  ",
+                {"prompt": "make four views of a lamp"},
+            ),
+            (
+                "image+text",
+                IMAGE_URL,
+                "  preserve the silhouette  ",
+                {"img": IMAGE_URL, "prompt": "preserve the silhouette"},
+            ),
+        )
+        for task_id, (mode, image, prompt, expected_payload) in enumerate(
+            cases, start=401
+        ):
+            with self.subTest(mode=mode):
+                client = Mock()
+                client.create_image_to_four_view_task.return_value = {
+                    "d": task_id
+                }
+                client.get_task.return_value = {
+                    "d": {
+                        "taskId": task_id,
+                        "status": 3,
+                        "outputs": [{"content": json.dumps(view_urls)}],
+                    }
+                }
+                node = nodes.Lux3DOpenAPIImageToFourView()
+                with patch.object(
+                    node, "_client", return_value=client
+                ), patch.object(nodes, "upload_image_batch") as upload:
+                    result = node.execute(
+                        "https://api.aholo3d.cn", image, prompt
+                    )
+
+                self.assertEqual(result, (str(task_id), *view_urls))
+                client.create_image_to_four_view_task.assert_called_once_with(
+                    expected_payload
+                )
+                upload.assert_not_called()
+
+    def test_multimodal_nodes_reject_two_empty_inputs_before_upload_or_create(self):
+        for node_class in (
+            nodes.Lux3DOpenAPISingleImageGenerator,
+            nodes.Lux3DOpenAPIImageToFourView,
+        ):
+            with self.subTest(node=node_class.__name__):
+                node = node_class()
+                with patch.object(
+                    nodes, "upload_image_batch"
+                ) as upload, patch.object(node, "_client") as client_factory:
+                    with self.assertRaisesRegex(ValueError, "at least one"):
+                        node.execute("https://api.aholo3d.cn", "  ", "\n")
+                upload.assert_not_called()
+                client_factory.assert_not_called()
 
     def test_local_image_inputs_are_uploaded_before_payload_submission(self):
         local_urls = [
@@ -1442,7 +1804,15 @@ class Lux3DNodeExecutionContractTest(unittest.TestCase):
             "d": {
                 "taskId": 204,
                 "status": 3,
-                "outputs": [{"content": "https://assets.example/model.usdz"}],
+                "outputs": [
+                    {"content": None},
+                    {"content": uploaded},
+                    {"content": "https://assets.example/model.usdz"},
+                    {"content": "NOT_REQUESTED"},
+                    {"content": "NOT_REQUESTED"},
+                    {"content": "NOT_REQUESTED"},
+                    {"content": "NOT_REQUESTED"},
+                ],
             },
         }
         node = nodes.Lux3DOpenAPIMultiFormatExport()

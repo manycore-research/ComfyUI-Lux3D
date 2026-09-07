@@ -269,14 +269,22 @@
 
 ### Lux3D Multi-View Generator（多视图生成）
 
-- 根据一个公开图片 URL、上游 `STRING` URL 或单张 ComfyUI `IMAGE` 生成 4 张多视角图片
-- 分别输出 `task_id` 和 `image_1`～`image_4` URL
+- 支持可选的公开图片 URL、上游 `STRING` URL 或单张 ComfyUI `IMAGE`，并支持可选文本 prompt；图片与 prompt 至少提供一个
+- 支持纯图、纯文和图文组合生成
+- 分别输出 `task_id`，以及按 `FRONT_THREE_QUARTER`、`OPPOSITE_THREE_QUARTER`、`SIDE`、`BACK` 排列的 `image_1`～`image_4` URL
+
+### Lux3D Single Image Generator（单图生成）
+
+- 根据可选的公开图片 URL、上游 `STRING` URL 或单张 ComfyUI `IMAGE`，以及可选的多行 prompt 生成一张新图片；图片与 prompt 至少提供一个
+- 支持纯图、纯文和图文组合生成；纯图输入也会重新生成，不会直接透传原图
+- 节点内部创建并轮询任务，完成后返回 `task_id` 和 `image_url`
 
 ### Lux3D Multi-Format Export（多格式导出）
 
-- 将远程或 ComfyUI 本地 `.glb` / `.zip` 模型导出为 USDZ、OBJ ZIP 和 FBX ZIP
+- 将远程或 ComfyUI 本地 `.glb` / `.zip` 模型导出为 USDZ、OBJ ZIP、FBX ZIP、STL、3MF 的任意组合
 - 本地模型会通过 Asset/OUS 上传后再提交导出任务
-- 使用固定输出插槽返回 `task_id`、`glb`、`usdz`、`obj_zip` 和 `fbx_zip`
+- 按服务端固定结果槽位映射，不再根据文件名猜测格式
+- 使用向后兼容的输出顺序：`task_id`、`glb`、`usdz`、`obj_zip`、`fbx_zip`、`stl`、`3mf`、`lux3d_zip`
 
 ### Lux3D Material Redraw（材质重绘）
 
@@ -336,7 +344,7 @@ comfy node install lux3d
 
 ### 基础工作流推荐
 
-当前共提供 6 个节点，以下用法可按需组合。
+当前共提供 7 个节点，以下用法可按需组合。
 
 #### Lux3D Image to 3D（图生3D）
 
@@ -385,9 +393,17 @@ comfy node install lux3d
 
 1. 在 `Lux3D/Generate` 分类下添加 `Lux3D Multi-View Generator`。
 
-2. 在 `image` 填写公开 HTTP(S) URL、连接上游 `STRING` URL，或连接一张 `IMAGE`。
+2. 可在 `image` 填写公开 HTTP(S) URL、连接上游 `STRING` URL 或连接一张 `IMAGE`，也可填写多行 `prompt`。`image` 与 `prompt` 至少提供一个，因此支持纯图、纯文和图文组合生成。
 
-3. 选择 `base_api_path` 并运行工作流。节点返回 `task_id` 和 4 个图片 URL：`image_1`～`image_4`。
+3. 选择 `base_api_path` 并运行工作流。节点返回 `task_id` 和顺序固定的 4 个图片 URL：`image_1` = `FRONT_THREE_QUARTER`、`image_2` = `OPPOSITE_THREE_QUARTER`、`image_3` = `SIDE`、`image_4` = `BACK`。
+
+#### Lux3D Single Image Generator（单图生成）
+
+1. 在 `Lux3D/Generate` 分类下添加 `Lux3D Single Image Generator`。
+
+2. 可在 `image` 填写公开 HTTP(S) URL、连接上游 `STRING` URL 或连接一张 `IMAGE`，也可填写多行 `prompt`。`image` 与 `prompt` 至少提供一个。
+
+3. 选择 `base_api_path` 并运行工作流。节点在内部创建并轮询任务，完成后返回 `task_id` 和 `image_url`。只提供图片时仍会生成一张新图，不会把原图 URL 直接作为结果透传。
 
 #### Lux3D Multi-Format Export（多格式导出）
 
@@ -397,7 +413,9 @@ comfy node install lux3d
 
 3. 选择导出格式。GLB 输入必须显式选择至少一种格式；ZIP 输入可以使用 `default`。
 
-4. 运行工作流。节点通过固定插槽返回 `task_id`、`glb`、`usdz`、`obj_zip` 和 `fbx_zip`。
+4. 运行工作流。节点依次返回 `task_id`、`glb`、`usdz`、`obj_zip`、`fbx_zip`、`stl`、`3mf` 和 `lux3d_zip`。前 5 个插槽保留历史位置；未请求或未返回的结果为空字符串。
+
+5. 输入 ZIP 时，`lux3d_zip` 回传源 Lux3D ZIP，`glb` 返回默认导出的 GLB；输入 GLB 时，`glb` 回传原模型 URL，`lux3d_zip` 为空。
 
 #### Lux3D Material Redraw（材质重绘）
 
@@ -425,21 +443,23 @@ comfy node install lux3d
 
 ## 节点说明
 
-当前版本共注册 6 个节点。生成、导出和材质重绘节点会在内部创建异步任务并轮询到任务结束，最多查询 60 次、间隔 15 秒（约 15 分钟）。
+当前版本共注册 7 个节点。生成、导出和材质重绘节点会在内部创建异步任务并轮询到任务结束，最多查询 60 次、间隔 15 秒（约 15 分钟）。
 
 通用约定：
 
-- `base_api_path` 只接受 `https://api.aholo3d.cn`（国内）或 `https://api.aholo3d.com`（国际），默认使用国内地址，末尾不要添加 `/`。
+- `base_api_path` 可使用 `https://api.aholo3d.cn`（国内）或 `https://api.aholo3d.com`（国际），末尾不要添加 `/`。
 - 除 `Lux3D Viewer` 外，节点不再提供 API Key 输入框。请根据 `base_api_path` 在 ComfyUI 服务端环境中设置 `LUX3D_API_KEY_CN` 或 `LUX3D_API_KEY_INTL`。
-- 接受 `STRING / IMAGE` 的图像参数既可以填写公开 HTTP(S) URL、连接上游 `STRING` URL，也可以连接包含一张图片的 ComfyUI `IMAGE`；本地图像会先上传，再提交给 Lux3D。
+- 接受 `STRING / IMAGE` 的图像参数既可以填写公开 HTTP(S) URL、连接上游 `STRING` URL，也可以连接包含一张图片的 ComfyUI `IMAGE`；本地图像会先通过 Asset/OUS 上传，再将资产 URL 提交给 Lux3D，节点不会暴露 Base64 data URL。
 - 支持本地模型的参数可通过节点上的文件选择按钮从 ComfyUI `input` 目录选择，也接受 `output` / `temp` 目录中的相对路径（分别以 ` [output]` / ` [temp]` 标记）。需要提交给 Lux3D 的本地模型会先上传。
-- 多格式输出使用固定插槽；未请求或服务端未返回的格式对应空字符串。
+- 多格式导出服务固定返回 `zipUrl`、`glbUrl`、`usdzUrl`、`objZipUrl`、`fbxZipUrl`、`stlUrl`、`threeMfUrl` 七个槽位。插件按槽位位置映射，不再根据文件名猜测格式；未请求或服务端未返回的格式对应空字符串。
 
 ### Lux3D Viewer
 
 **分类：** `Lux3D`
 
 在 ComfyUI 画布内预览 GLB 模型或 PLY 高斯泼溅文件。远程 URL 会直接透传；本地文件不会上传，而是转换为 ComfyUI 同源 `/view` URL。
+
+GLB 预览使用与 Web GLB Viewer 相同的 `model-viewer` 4.2.0 运行时及预设：黑色背景、同一张 HDR 环境贴图、曝光 `0.95`、`auto` 色调映射、`30°` 视角和 `125%` 初始相机距离。关闭阴影和自动旋转，保留旋转、缩放、平移及模型动画。运行时、HDR 和解码器均随插件本地打包。更新 Viewer 资源后，请重启 ComfyUI 并刷新浏览器。
 
 #### 输入参数
 
@@ -464,7 +484,7 @@ comfy node install lux3d
 
 | 参数名 | 类型 | 描述 |
 | --- | --- | --- |
-| base_api_path | STRING | Lux3D API 地址；默认 `https://api.aholo3d.cn` |
+| base_api_path | STRING | Lux3D API 地址：`https://api.aholo3d.cn`（国内）或 `https://api.aholo3d.com`（国际） |
 | image_1 … image_8 | STRING / IMAGE | 每个槽可留空、填写公开 HTTP(S) 图片 URL、连接上游 `STRING` URL，或连接一张 `IMAGE`；8 个槽中至少提供一个 |
 | version | 枚举 | `G1` / `G1-Turbo`，默认 `G1-Turbo` |
 | face_count | INT | 目标面数，默认 `200000`；`0` 表示不提交该字段，非零值必须为 `10000`–`300000` |
@@ -491,7 +511,7 @@ comfy node install lux3d
 
 | 参数名 | 类型 | 描述 |
 | --- | --- | --- |
-| base_api_path | STRING | Lux3D API 地址；默认 `https://api.aholo3d.cn` |
+| base_api_path | STRING | Lux3D API 地址：`https://api.aholo3d.cn`（国内）或 `https://api.aholo3d.com`（国际） |
 | prompt | STRING | 描述要生成物体的文本，不可为空 |
 | style | 枚举 | `photorealistic`（默认）、`cartoon`、`anime`、`hand_painted`、`cyberpunk`、`fantasy` 或 `glass` |
 | reference_image | STRING / IMAGE | 可选；公开 HTTP(S) 参考图 URL、上游 `STRING` URL 或一张本地 `IMAGE` |
@@ -514,48 +534,77 @@ comfy node install lux3d
 
 **分类：** `Lux3D/Generate`
 
-根据单张物体图片生成 4 张多视角图片。
+根据可选的物体图片和/或文本 prompt 生成 4 张多视角图片，支持纯图、纯文和图文组合请求。
 
 #### 输入参数
 
 | 参数名 | 类型 | 描述 |
 | --- | --- | --- |
-| base_api_path | STRING | Lux3D API 地址；默认 `https://api.aholo3d.cn` |
-| image | STRING / IMAGE | 必填；公开 HTTP(S) 图片 URL、上游 `STRING` URL 或一张本地 `IMAGE` |
+| base_api_path | STRING | Lux3D API 地址：`https://api.aholo3d.cn`（国内）或 `https://api.aholo3d.com`（国际） |
+| image | STRING / IMAGE | 可选；公开 HTTP(S) 图片 URL、上游 `STRING` URL 或一张本地 `IMAGE`；本地输入通过 Asset/OUS 上传 |
+| prompt | STRING | 可选多行生成提示词；`image` 与 `prompt` 至少提供一个 |
 
 #### 输出说明
 
 | 输出名 | 类型 | 描述 |
 | --- | --- | --- |
 | task_id | STRING | Lux3D 任务 ID |
-| image_1 | STRING | 第 1 张多视角图片 URL |
-| image_2 | STRING | 第 2 张多视角图片 URL |
-| image_3 | STRING | 第 3 张多视角图片 URL |
-| image_4 | STRING | 第 4 张多视角图片 URL |
+| image_1 | STRING | `FRONT_THREE_QUARTER` 图片 URL |
+| image_2 | STRING | `OPPOSITE_THREE_QUARTER` 图片 URL |
+| image_3 | STRING | `SIDE` 图片 URL |
+| image_4 | STRING | `BACK` 图片 URL |
+
+### Lux3D Single Image Generator（单图生成）
+
+**注册节点 Key：** `Lux3DOpenAPISingleImageGenerator`
+
+**分类：** `Lux3D/Generate`
+
+根据可选图片和/或文本 prompt 生成一张新图片。节点在内部创建并轮询 OpenAPI 任务；仅提供图片时也会重新生成，不会原样返回输入图片。
+
+#### 输入参数
+
+| 参数名 | 类型 | 描述 |
+| --- | --- | --- |
+| base_api_path | STRING | Lux3D API 地址：`https://api.aholo3d.cn`（国内）或 `https://api.aholo3d.com`（国际） |
+| image | STRING / IMAGE | 可选；公开 HTTP(S) 图片 URL、上游 `STRING` URL 或一张本地 `IMAGE`；本地输入通过 Asset/OUS 上传 |
+| prompt | STRING | 可选多行生成提示词；`image` 与 `prompt` 至少提供一个 |
+
+#### 输出说明
+
+| 输出名 | 类型 | 描述 |
+| --- | --- | --- |
+| task_id | STRING | Lux3D 任务 ID |
+| image_url | STRING | 新生成图片的 URL，不会返回 Base64 data URL |
 
 ### Lux3D Multi-Format Export
 
 **分类：** `Lux3D/Export`
 
-将远程或 ComfyUI 本地的 GLB / Lux3D ZIP 模型导出为一种或多种目标格式。本地文件会先上传到 Lux3D。
+将远程或 ComfyUI 本地的 GLB / Lux3D ZIP 模型导出为一种或多种目标格式。本地文件会先上传到 Lux3D。输入 ZIP 时，`lux3d_zip` 回传源 ZIP，`glb` 返回默认导出的 GLB；输入 GLB 时，`glb` 回传原模型 URL、必须显式选择至少一种目标格式，且 `lux3d_zip` 为空。
 
 #### 输入参数
 
 | 参数名 | 类型 | 描述 |
 | --- | --- | --- |
-| base_api_path | STRING | Lux3D API 地址；默认 `https://api.aholo3d.cn` |
+| base_api_path | STRING | Lux3D API 地址：`https://api.aholo3d.cn`（国内）或 `https://api.aholo3d.com`（国际） |
 | model_url | STRING / 模型源 | 公开 HTTP(S) `.glb` / `.zip` URL、上游 STRING 输出，或 ComfyUI 本地 `.glb` / `.zip` 文件 |
-| output_format | 枚举 | `default`、`usdz`、`obj_zip`、`fbx_zip` 及所有不重复组合；GLB 输入必须显式选择至少一种导出格式，`default` 仅适用于 ZIP 输入 |
+| output_format | 枚举 | `default`；`usdz`、`obj_zip`、`fbx_zip`、`stl`、`3mf` 中的任意一种；或这 5 种格式的任意不重复组合。GLB 输入必须显式选择至少一种导出格式，因此 `default` 仅适用于 ZIP 输入 |
 
 #### 输出说明
 
 | 输出名 | 类型 | 描述 |
 | --- | --- | --- |
 | task_id | STRING | Lux3D 任务 ID |
-| glb | STRING | GLB 模型 URL（服务端返回时提供） |
+| glb | STRING | ZIP 输入的默认 GLB 导出；GLB 输入的原模型 URL |
 | usdz | STRING | USDZ 文件 URL |
 | obj_zip | STRING | OBJ ZIP 文件 URL |
 | fbx_zip | STRING | FBX ZIP 文件 URL |
+| stl | STRING | STL 文件 URL |
+| 3mf | STRING | 3MF 文件 URL |
+| lux3d_zip | STRING | ZIP 输入的源 Lux3D ZIP URL；GLB 输入时为空 |
+
+节点输出插槽顺序为 `task_id`、`glb`、`usdz`、`obj_zip`、`fbx_zip`、`stl`、`3mf`、`lux3d_zip`；为兼容已有工作流，前 5 个位置保持不变。服务端响应本身固定为 `zipUrl`、`glbUrl`、`usdzUrl`、`objZipUrl`、`fbxZipUrl`、`stlUrl`、`threeMfUrl` 七个位置，插件直接按位置映射，不依赖 URL 文件名或扩展名。
 
 ### Lux3D Material Redraw
 
@@ -569,7 +618,7 @@ comfy node install lux3d
 | --- | --- | --- |
 | image | STRING / IMAGE | 必填；公开 HTTP(S) 参考图 URL、上游 `STRING` URL 或一张本地 `IMAGE` |
 | mesh_url | STRING / 模型源 | 公开 HTTP(S) `.glb` URL、上游 STRING 输出，或 ComfyUI 本地 `.glb` 文件 |
-| base_api_path | STRING | Lux3D API 地址；默认 `https://api.aholo3d.cn` |
+| base_api_path | STRING | Lux3D API 地址：`https://api.aholo3d.cn`（国内）或 `https://api.aholo3d.com`（国际） |
 
 #### 输出说明
 
@@ -587,8 +636,8 @@ comfy node install lux3d
 
 ```text
 comfyui-lux3d/
-├── __init__.py               # 注册当前 6 个节点和前端目录
-├── lux3d_openapi/            # OpenAPI 客户端、契约、任务轮询和 4 个任务节点
+├── __init__.py               # 注册当前 7 个节点和前端目录
+├── lux3d_openapi/            # OpenAPI 客户端、契约、任务轮询和 5 个任务节点
 ├── lux3d_material.py         # Lux3D Material Redraw 节点
 ├── lux3d_viewer.py           # Lux3D Viewer 节点
 ├── viewer_asset_routes.py    # Viewer 静态资源路由

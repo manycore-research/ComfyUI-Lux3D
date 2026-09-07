@@ -23,6 +23,7 @@ _MIME_BY_SUFFIX = {
     ".md": "text/markdown; charset=utf-8",
     ".txt": "text/plain; charset=utf-8",
     ".wasm": "application/wasm",
+    ".hdr": "application/octet-stream",
 }
 
 
