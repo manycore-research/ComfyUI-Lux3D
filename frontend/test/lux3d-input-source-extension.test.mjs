@@ -654,7 +654,7 @@ test("legacy region aliases are displayed as full base API URLs", async () => {
 
   node.find("base_api_path").value = "intl";
   node.find("base_api_path").callback("intl");
-  assert.equal(node.find("base_api_path").value, "https://api.aholo3d.com");
+  assert.equal(node.find("base_api_path").value, "https://api.aholo.ai");
 });
 
 test("saved timeout values are removed without shifting old workflow widgets", async () => {
@@ -711,7 +711,7 @@ test("saved timeout values are removed without shifting old workflow widgets", a
       "https://assets.example/legacy-four-view.png",
     ],
   });
-  assert.equal(fourView.find("base_api_path").value, "https://api.aholo3d.com");
+  assert.equal(fourView.find("base_api_path").value, "https://api.aholo.ai");
   assert.equal(
     fourView.find("image").value,
     "https://assets.example/legacy-four-view.png",

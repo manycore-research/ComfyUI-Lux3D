@@ -338,7 +338,7 @@ comfy node install lux3d
 ### Getting an API key
 
 - China service: [https://labs.aholo3d.cn/api-keys](https://labs.aholo3d.cn/api-keys)
-- International service: [https://labs.aholo3d.com/api-keys](https://labs.aholo3d.com/api-keys)
+- International service: [https://labs.aholo.ai/api-keys](https://labs.aholo.ai/api-keys)
 
 If you have any questions, contact us at lux3d@qunhemail.com.
 
@@ -447,7 +447,7 @@ The current release registers seven nodes. Generation, export, and material-redr
 
 Common conventions:
 
-- `base_api_path` accepts `https://api.aholo3d.cn` (China) or `https://api.aholo3d.com` (international). Do not add a trailing slash.
+- `base_api_path` accepts `https://api.aholo3d.cn` (China) or `https://api.aholo.ai` (international). Do not add a trailing slash.
 - Nodes other than `Lux3D Viewer` no longer expose an API-key input. Set `LUX3D_API_KEY_CN` or `LUX3D_API_KEY_INTL` in the ComfyUI server environment to match `base_api_path`.
 - Image fields typed as `STRING / IMAGE` accept a public HTTP(S) URL, an upstream `STRING` URL, or a connected ComfyUI `IMAGE` containing exactly one image. Local images are uploaded through Asset/OUS before the Lux3D task is submitted; nodes use the resulting asset URL and do not expose Base64 data URLs.
 - Model fields with local-file support provide a picker for the ComfyUI `input` directory and also accept relative files from `output` or `temp` (marked with ` [output]` or ` [temp]`). Local models used by Lux3D tasks are uploaded first.
@@ -484,7 +484,7 @@ Creates an image-to-3D task from 1–8 images. Public URLs, upstream `STRING` UR
 
 | Input | Type | Description |
 | --- | --- | --- |
-| base_api_path | STRING | Lux3D API endpoint: `https://api.aholo3d.cn` (China) or `https://api.aholo3d.com` (international) |
+| base_api_path | STRING | Lux3D API endpoint: `https://api.aholo3d.cn` (China) or `https://api.aholo.ai` (international) |
 | image_1 … image_8 | STRING / IMAGE | Each slot may be empty, a public HTTP(S) image URL, an upstream `STRING` URL, or one connected `IMAGE`; at least one of the eight slots is required |
 | version | Enum | `G1` / `G1-Turbo`; defaults to `G1-Turbo` |
 | face_count | INT | Target face count; defaults to `200000`. `0` omits the field; a nonzero value must be `10000`–`300000` |
@@ -511,7 +511,7 @@ Creates a text-to-3D task from a prompt and one optional reference image.
 
 | Input | Type | Description |
 | --- | --- | --- |
-| base_api_path | STRING | Lux3D API endpoint: `https://api.aholo3d.cn` (China) or `https://api.aholo3d.com` (international) |
+| base_api_path | STRING | Lux3D API endpoint: `https://api.aholo3d.cn` (China) or `https://api.aholo.ai` (international) |
 | prompt | STRING | Non-empty text describing the object to generate |
 | style | Enum | `photorealistic` (default), `cartoon`, `anime`, `hand_painted`, `cyberpunk`, `fantasy`, or `glass` |
 | reference_image | STRING / IMAGE | Optional public HTTP(S) reference-image URL, upstream `STRING` URL, or one local `IMAGE` |
@@ -540,7 +540,7 @@ Generates four multi-view images from an optional object image and/or a text pro
 
 | Input | Type | Description |
 | --- | --- | --- |
-| base_api_path | STRING | Lux3D API endpoint: `https://api.aholo3d.cn` (China) or `https://api.aholo3d.com` (international) |
+| base_api_path | STRING | Lux3D API endpoint: `https://api.aholo3d.cn` (China) or `https://api.aholo.ai` (international) |
 | image | STRING / IMAGE | Optional public HTTP(S) image URL, upstream `STRING` URL, or one local `IMAGE`; local input is uploaded through Asset/OUS |
 | prompt | STRING | Optional multiline generation prompt; at least one of `image` and `prompt` is required |
 
@@ -566,7 +566,7 @@ Generates one new image from an optional image and/or a text prompt. It creates 
 
 | Input | Type | Description |
 | --- | --- | --- |
-| base_api_path | STRING | Lux3D API endpoint: `https://api.aholo3d.cn` (China) or `https://api.aholo3d.com` (international) |
+| base_api_path | STRING | Lux3D API endpoint: `https://api.aholo3d.cn` (China) or `https://api.aholo.ai` (international) |
 | image | STRING / IMAGE | Optional public HTTP(S) image URL, upstream `STRING` URL, or one local `IMAGE`; local input is uploaded through Asset/OUS |
 | prompt | STRING | Optional multiline generation prompt; at least one of `image` and `prompt` is required |
 
@@ -587,7 +587,7 @@ Exports a remote or ComfyUI-local GLB / Lux3D ZIP model to one or more target fo
 
 | Input | Type | Description |
 | --- | --- | --- |
-| base_api_path | STRING | Lux3D API endpoint: `https://api.aholo3d.cn` (China) or `https://api.aholo3d.com` (international) |
+| base_api_path | STRING | Lux3D API endpoint: `https://api.aholo3d.cn` (China) or `https://api.aholo.ai` (international) |
 | model_url | STRING / model source | Public HTTP(S) `.glb` / `.zip` URL, upstream STRING output, or a local ComfyUI `.glb` / `.zip` file |
 | output_format | Enum | `default`; any one of `usdz`, `obj_zip`, `fbx_zip`, `stl`, or `3mf`; or any non-duplicate combination of those five formats. A GLB input requires at least one explicit export format, so `default` applies only to ZIP input |
 
@@ -618,7 +618,7 @@ Redraws the material of an existing GLB from one reference image using the fixed
 | --- | --- | --- |
 | image | STRING / IMAGE | Required public HTTP(S) reference-image URL, upstream `STRING` URL, or one local `IMAGE` |
 | mesh_url | STRING / model source | Public HTTP(S) `.glb` URL, upstream STRING output, or a local ComfyUI `.glb` file |
-| base_api_path | STRING | Lux3D API endpoint: `https://api.aholo3d.cn` (China) or `https://api.aholo3d.com` (international) |
+| base_api_path | STRING | Lux3D API endpoint: `https://api.aholo3d.cn` (China) or `https://api.aholo.ai` (international) |
 
 #### Outputs
 
@@ -667,7 +667,7 @@ The currently registered nodes do not read `config.txt` or expose an API-key inp
 | `base_api_path` | Environment variable |
 | --- | --- |
 | `https://api.aholo3d.cn` | `LUX3D_API_KEY_CN` |
-| `https://api.aholo3d.com` | `LUX3D_API_KEY_INTL` |
+| `https://api.aholo.ai` | `LUX3D_API_KEY_INTL` |
 
 PowerShell example:
 

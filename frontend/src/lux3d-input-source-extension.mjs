@@ -126,7 +126,7 @@ const REMOVED_PUBLIC_FIELDS = Object.freeze([
 
 const LEGACY_BASE_API_PATHS = Object.freeze({
   cn: "https://api.aholo3d.cn",
-  intl: "https://api.aholo3d.com",
+  intl: "https://api.aholo.ai",
 });
 
 export function registerLux3DInputSourceExtension({

@@ -338,7 +338,7 @@ comfy node install lux3d
 ### 获取 API Key
 
 - 国内服务：[https://labs.aholo3d.cn/api-keys](https://labs.aholo3d.cn/api-keys)
-- 国际服务：[https://labs.aholo3d.com/api-keys](https://labs.aholo3d.com/api-keys)
+- 国际服务：[https://labs.aholo.ai/api-keys](https://labs.aholo.ai/api-keys)
 
 如有任何问题，请联系我们lux3d@qunhemail.com，我们将尽快回复。
 
@@ -447,7 +447,7 @@ comfy node install lux3d
 
 通用约定：
 
-- `base_api_path` 可使用 `https://api.aholo3d.cn`（国内）或 `https://api.aholo3d.com`（国际），末尾不要添加 `/`。
+- `base_api_path` 可使用 `https://api.aholo3d.cn`（国内）或 `https://api.aholo.ai`（国际），末尾不要添加 `/`。
 - 除 `Lux3D Viewer` 外，节点不再提供 API Key 输入框。请根据 `base_api_path` 在 ComfyUI 服务端环境中设置 `LUX3D_API_KEY_CN` 或 `LUX3D_API_KEY_INTL`。
 - 接受 `STRING / IMAGE` 的图像参数既可以填写公开 HTTP(S) URL、连接上游 `STRING` URL，也可以连接包含一张图片的 ComfyUI `IMAGE`；本地图像会先通过 Asset/OUS 上传，再将资产 URL 提交给 Lux3D，节点不会暴露 Base64 data URL。
 - 支持本地模型的参数可通过节点上的文件选择按钮从 ComfyUI `input` 目录选择，也接受 `output` / `temp` 目录中的相对路径（分别以 ` [output]` / ` [temp]` 标记）。需要提交给 Lux3D 的本地模型会先上传。
@@ -484,7 +484,7 @@ GLB 预览使用与 Web GLB Viewer 相同的 `model-viewer` 4.2.0 运行时及�
 
 | 参数名 | 类型 | 描述 |
 | --- | --- | --- |
-| base_api_path | STRING | Lux3D API 地址：`https://api.aholo3d.cn`（国内）或 `https://api.aholo3d.com`（国际） |
+| base_api_path | STRING | Lux3D API 地址：`https://api.aholo3d.cn`（国内）或 `https://api.aholo.ai`（国际） |
 | image_1 … image_8 | STRING / IMAGE | 每个槽可留空、填写公开 HTTP(S) 图片 URL、连接上游 `STRING` URL，或连接一张 `IMAGE`；8 个槽中至少提供一个 |
 | version | 枚举 | `G1` / `G1-Turbo`，默认 `G1-Turbo` |
 | face_count | INT | 目标面数，默认 `200000`；`0` 表示不提交该字段，非零值必须为 `10000`–`300000` |
@@ -511,7 +511,7 @@ GLB 预览使用与 Web GLB Viewer 相同的 `model-viewer` 4.2.0 运行时及�
 
 | 参数名 | 类型 | 描述 |
 | --- | --- | --- |
-| base_api_path | STRING | Lux3D API 地址：`https://api.aholo3d.cn`（国内）或 `https://api.aholo3d.com`（国际） |
+| base_api_path | STRING | Lux3D API 地址：`https://api.aholo3d.cn`（国内）或 `https://api.aholo.ai`（国际） |
 | prompt | STRING | 描述要生成物体的文本，不可为空 |
 | style | 枚举 | `photorealistic`（默认）、`cartoon`、`anime`、`hand_painted`、`cyberpunk`、`fantasy` 或 `glass` |
 | reference_image | STRING / IMAGE | 可选；公开 HTTP(S) 参考图 URL、上游 `STRING` URL 或一张本地 `IMAGE` |
@@ -540,7 +540,7 @@ GLB 预览使用与 Web GLB Viewer 相同的 `model-viewer` 4.2.0 运行时及�
 
 | 参数名 | 类型 | 描述 |
 | --- | --- | --- |
-| base_api_path | STRING | Lux3D API 地址：`https://api.aholo3d.cn`（国内）或 `https://api.aholo3d.com`（国际） |
+| base_api_path | STRING | Lux3D API 地址：`https://api.aholo3d.cn`（国内）或 `https://api.aholo.ai`（国际） |
 | image | STRING / IMAGE | 可选；公开 HTTP(S) 图片 URL、上游 `STRING` URL 或一张本地 `IMAGE`；本地输入通过 Asset/OUS 上传 |
 | prompt | STRING | 可选多行生成提示词；`image` 与 `prompt` 至少提供一个 |
 
@@ -566,7 +566,7 @@ GLB 预览使用与 Web GLB Viewer 相同的 `model-viewer` 4.2.0 运行时及�
 
 | 参数名 | 类型 | 描述 |
 | --- | --- | --- |
-| base_api_path | STRING | Lux3D API 地址：`https://api.aholo3d.cn`（国内）或 `https://api.aholo3d.com`（国际） |
+| base_api_path | STRING | Lux3D API 地址：`https://api.aholo3d.cn`（国内）或 `https://api.aholo.ai`（国际） |
 | image | STRING / IMAGE | 可选；公开 HTTP(S) 图片 URL、上游 `STRING` URL 或一张本地 `IMAGE`；本地输入通过 Asset/OUS 上传 |
 | prompt | STRING | 可选多行生成提示词；`image` 与 `prompt` 至少提供一个 |
 
@@ -587,7 +587,7 @@ GLB 预览使用与 Web GLB Viewer 相同的 `model-viewer` 4.2.0 运行时及�
 
 | 参数名 | 类型 | 描述 |
 | --- | --- | --- |
-| base_api_path | STRING | Lux3D API 地址：`https://api.aholo3d.cn`（国内）或 `https://api.aholo3d.com`（国际） |
+| base_api_path | STRING | Lux3D API 地址：`https://api.aholo3d.cn`（国内）或 `https://api.aholo.ai`（国际） |
 | model_url | STRING / 模型源 | 公开 HTTP(S) `.glb` / `.zip` URL、上游 STRING 输出，或 ComfyUI 本地 `.glb` / `.zip` 文件 |
 | output_format | 枚举 | `default`；`usdz`、`obj_zip`、`fbx_zip`、`stl`、`3mf` 中的任意一种；或这 5 种格式的任意不重复组合。GLB 输入必须显式选择至少一种导出格式，因此 `default` 仅适用于 ZIP 输入 |
 
@@ -618,7 +618,7 @@ GLB 预览使用与 Web GLB Viewer 相同的 `model-viewer` 4.2.0 运行时及�
 | --- | --- | --- |
 | image | STRING / IMAGE | 必填；公开 HTTP(S) 参考图 URL、上游 `STRING` URL 或一张本地 `IMAGE` |
 | mesh_url | STRING / 模型源 | 公开 HTTP(S) `.glb` URL、上游 STRING 输出，或 ComfyUI 本地 `.glb` 文件 |
-| base_api_path | STRING | Lux3D API 地址：`https://api.aholo3d.cn`（国内）或 `https://api.aholo3d.com`（国际） |
+| base_api_path | STRING | Lux3D API 地址：`https://api.aholo3d.cn`（国内）或 `https://api.aholo.ai`（国际） |
 
 #### 输出说明
 
@@ -667,7 +667,7 @@ comfyui-lux3d/
 | `base_api_path` | 环境变量 |
 | --- | --- |
 | `https://api.aholo3d.cn` | `LUX3D_API_KEY_CN` |
-| `https://api.aholo3d.com` | `LUX3D_API_KEY_INTL` |
+| `https://api.aholo.ai` | `LUX3D_API_KEY_INTL` |
 
 PowerShell 示例：
 

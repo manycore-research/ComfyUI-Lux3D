@@ -6,10 +6,12 @@ from typing import Any, Dict, Mapping, Optional
 
 import requests
 
+from .config import api_config
+
 
 REGION_BASE_URLS = {
     "cn": "https://api.aholo3d.cn",
-    "intl": "https://api.aholo3d.com/global",
+    "intl": "https://api.aholo.ai/global",
 }
 
 
@@ -24,6 +26,7 @@ class Lux3DOpenAPIClient:
         region: str = "cn",
         timeout: int = 30,
         session: Optional[requests.Session] = None,
+        base_api_path: Optional[str] = None,
     ) -> None:
         if not isinstance(api_key, str) or not api_key.strip():
             raise ValueError("api_key cannot be empty")
@@ -34,7 +37,13 @@ class Lux3DOpenAPIClient:
 
         self._api_key = api_key.strip()
         self.region = region
-        self.base_url = REGION_BASE_URLS[region]
+        if base_api_path is None:
+            self.base_url = REGION_BASE_URLS[region]
+        else:
+            configured_region, _ = api_config(base_api_path)
+            if configured_region != region:
+                raise ValueError("base_api_path does not match region")
+            self.base_url = base_api_path + ("/global" if region == "intl" else "")
         self.timeout = int(timeout)
         self.session = session or requests.Session()
 
