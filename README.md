@@ -8,7 +8,7 @@
 
 [English](README.md) / [中文](README_CN.md)
 
-🌐 Official Website: [Lux3D China](https://www.luxreal.com/lux3d/home) | [Lux3D Global](https://lux3d.aholo.ai/lux3d/home)
+🌐 Official Website: [Lux3D China](https://lux3d.aholo3d.cn/lux3d/home) | [Lux3D Global](https://lux3d.aholo.ai/lux3d/home)
 </div>
 
 A ComfyUI extension that turns text descriptions or 2D images into 3D models in your workflow.
@@ -331,7 +331,7 @@ comfy node install lux3d
 3. Configure the API key in the server environment that starts ComfyUI. Set `LUX3D_API_KEY_CN` for the China service or `LUX3D_API_KEY_INTL` for the international service. If you use only one region, set only its variable.
 4. Restart ComfyUI.
 
-🚀 Want a quick preview first? Try the official site: [Lux3D China](https://www.luxreal.com/lux3d/home) | [Lux3D Global](https://lux3d.aholo.ai/lux3d/home)
+🚀 Want a quick preview first? Try the official site: [Lux3D China](https://lux3d.aholo3d.cn/lux3d/home) | [Lux3D Global](https://lux3d.aholo.ai/lux3d/home)
 
 ## Usage
 

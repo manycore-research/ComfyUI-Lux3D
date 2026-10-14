@@ -8,7 +8,7 @@
 
 [中文](README_CN.md)/[English](README.md)
 
-🌐 官方网站：[Lux3D 国内站](https://www.luxreal.com/lux3d/home) | [Lux3D 国际站](https://lux3d.aholo.ai/lux3d/home)
+🌐 官方网站：[Lux3D 国内站](https://lux3d.aholo3d.cn/lux3d/home) | [Lux3D 国际站](https://lux3d.aholo.ai/lux3d/home)
 </div>
 
 一个ComfyUI插件，用于在你的工作流中将文本描述或2D图片转换为3D模型。
@@ -331,7 +331,7 @@ comfy node install lux3d
 3. 在启动 ComfyUI 的服务端环境中配置 API Key。国内服务设置 `LUX3D_API_KEY_CN`，国际服务设置 `LUX3D_API_KEY_INTL`；只使用其中一个区域时，只需设置对应变量。
 4. 重启ComfyUI。
 
-🚀 想先看看效果？直接上官网快速体验：[Lux3D 国内站](https://www.luxreal.com/lux3d/home) | [Lux3D 国际站](https://lux3d.aholo.ai/lux3d/home)
+🚀 想先看看效果？直接上官网快速体验：[Lux3D 国内站](https://lux3d.aholo3d.cn/lux3d/home) | [Lux3D 国际站](https://lux3d.aholo.ai/lux3d/home)
 
 ## 使用说明
 
