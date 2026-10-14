@@ -1,3 +1,4 @@
+import os
 import importlib.util
 import inspect
 from pathlib import Path
@@ -135,7 +136,7 @@ class Lux3DMaterialTransferTest(unittest.TestCase):
     def test_url_mesh_uses_asset_flow_and_accepts_null_success_codes(self):
         self.assertEqual(self.node.redraw_material(self.image, MESH, CN), (RESULT,))
         self.resolve_key.assert_called_once_with(CN)
-        self.client_class.assert_called_once_with(KEY, region="cn", timeout=30)
+        self.client_class.assert_called_once_with(KEY, region="cn", timeout=30, base_api_path=CN)
         self.upload_image.assert_called_once_with(
             CN, 30, self.image, "image", min_count=1, max_count=1,
             explicit_api_key=KEY,
@@ -163,7 +164,7 @@ class Lux3DMaterialTransferTest(unittest.TestCase):
             result = self.node.redraw_material(self.image, "lux3d/source.glb", INTL)
         self.assertEqual(result, (RESULT,))
         self.resolve_key.assert_called_once_with(INTL)
-        self.client_class.assert_called_once_with(KEY, region="intl", timeout=30)
+        self.client_class.assert_called_once_with(KEY, region="intl", timeout=30, base_api_path=INTL)
         payload = self.client.create_material_transfer_task.call_args.args[0]
         self.assertEqual(payload["meshUrl"], uploaded)
 
@@ -192,7 +193,7 @@ class Lux3DMaterialTransferTest(unittest.TestCase):
         ):
             self.assertEqual(self.node.redraw_material(self.image, MESH, INTL), (RESULT,))
         self.resolve_key.assert_called_once_with(INTL)
-        self.client_class.assert_called_once_with(KEY, region="intl", timeout=30)
+        self.client_class.assert_called_once_with(KEY, region="intl", timeout=30, base_api_path=INTL)
 
         for data in ({"status": 4}, {"status": 6}, {"status": True}, {"status": 99}):
             with self.subTest(data=data):
@@ -218,6 +219,38 @@ class Lux3DMaterialTransferTest(unittest.TestCase):
         for task_id in (None, "", " ", True, {}, []):
             with self.subTest(task_id=task_id), self.assertRaises(RuntimeError):
                 self.node._task_id({"c": None, "d": task_id})
+
+
+
+
+class MaterialRequestOriginTest(unittest.TestCase):
+    def test_creation_and_query_keep_selected_origin(self):
+        module = load_module()
+        for origin, region in ((CN, "cn"), (INTL, "intl"),
+                               ("https://api.aholo3d.com", "intl")):
+            with self.subTest(origin=origin):
+                created = Mock(status_code=200)
+                created.json.return_value = {"d": 1256173, "c": "0"}
+                completed = Mock(status_code=200)
+                completed.json.return_value = {
+                    "d": {"taskId": 1256173, "status": 3, "outputs": [{"content": RESULT}]}, "c": "0"
+                }
+                session = Mock()
+                session.request.side_effect = [created, completed]
+                request_module = module.Lux3DOpenAPIClient.__init__.__globals__["requests"]
+                with patch.dict(os.environ, {"LUX3D_API_KEY_CN": KEY,
+                                             "LUX3D_API_KEY_INTL": KEY}), \
+                     patch.object(request_module, "Session", return_value=session):
+                    result = module.Lux3DMaterialTransfer().redraw_material(
+                        REFERENCE, MESH, origin
+                    )
+                self.assertEqual(result, (RESULT,))
+                prefix = "/global" if region == "intl" else ""
+                urls = [call.args[1] for call in session.request.call_args_list]
+                self.assertEqual(urls, [
+                    origin + prefix + "/lux3d/v1/generate/material-transfer/task/create",
+                    origin + prefix + "/lux3d/v1/generate/task/get",
+                ])
 
 
 if __name__ == "__main__":
