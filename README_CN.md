@@ -8,7 +8,7 @@
 
 [中文](README_CN.md)/[English](README.md)
 
-🌐 官方网站：[Lux3D 国内站](https://www.luxreal.com/lux3d/home) | [Lux3D 国际站](https://www.luxreal.ai/lux3d/home)
+🌐 官方网站：[Lux3D 国内站](https://www.luxreal.com/lux3d/home) | [Lux3D 国际站](https://lux3d.aholo.ai/lux3d/home)
 </div>
 
 一个ComfyUI插件，用于在你的工作流中将文本描述或2D图片转换为3D模型。
@@ -331,7 +331,7 @@ comfy node install lux3d
 3. 在启动 ComfyUI 的服务端环境中配置 API Key。国内服务设置 `LUX3D_API_KEY_CN`，国际服务设置 `LUX3D_API_KEY_INTL`；只使用其中一个区域时，只需设置对应变量。
 4. 重启ComfyUI。
 
-🚀 想先看看效果？直接上官网快速体验：[Lux3D 国内站](https://www.luxreal.com/lux3d/home) | [Lux3D 国际站](https://www.luxreal.ai/lux3d/home)
+🚀 想先看看效果？直接上官网快速体验：[Lux3D 国内站](https://www.luxreal.com/lux3d/home) | [Lux3D 国际站](https://lux3d.aholo.ai/lux3d/home)
 
 ## 使用说明
 
@@ -668,6 +668,8 @@ comfyui-lux3d/
 | --- | --- |
 | `https://api.aholo3d.cn` | `LUX3D_API_KEY_CN` |
 | `https://api.aholo.ai` | `LUX3D_API_KEY_INTL` |
+
+已保存工作流若显式填写 `https://api.aholo3d.com`，上传凭证、生成和任务查询仍使用该旧域及 `LUX3D_API_KEY_INTL`。升级插件不会重写已保存的工作流地址。迁移时，请将各相关节点的 `base_api_path` 改为 `https://api.aholo.ai` 并保存工作流；客户端会添加 `/global`，输入框中不要填写该路径。旧 API 的可用性和兼容期限由网关维护方确定；客户端接受旧地址不代表旧入口会一直可用。
 
 PowerShell 示例：
 

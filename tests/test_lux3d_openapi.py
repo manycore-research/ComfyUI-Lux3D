@@ -92,14 +92,25 @@ class ApiDomainMigrationTest(unittest.TestCase):
 class ExplicitApiOriginTest(unittest.TestCase):
     def test_node_requests_keep_the_selected_origin(self):
         for origin in ("https://api.aholo.ai", "https://api.aholo3d.com", "https://api.aholo3d.cn"):
-            session = RecordingSession(json_response({"d": 123}), json_response({"d": {"status": 1}}))
+            session = RecordingSession(
+                json_response({"ousToken": OUS_TOKEN, "globalDomain": "https://ous.example", "blockSize": 8}),
+                json_response({"d": 123}),
+                json_response({"d": {"status": 1}}),
+            )
             with patch.dict(os.environ, {"LUX3D_API_KEY_INTL": API_KEY, "LUX3D_API_KEY_CN": API_KEY}), patch("lux3d_openapi.client.requests.Session", return_value=session):
+                local_assets._asset_uploader(origin, 30).get_upload_token()
                 client = nodes._BaseOpenAPINode._client(origin)
                 client.create_img_to_3d_task({"img": IMAGE_URL, "version": "G1"})
                 client.get_task("123")
             prefix = "" if origin.endswith(".cn") else "/global"
-            self.assertEqual(origin + prefix + "/lux3d/v1/generate/img-to-3d/task/create", session.calls[0]["url"])
-            self.assertEqual(origin + prefix + "/lux3d/v1/generate/task/get", session.calls[1]["url"])
+            self.assertEqual(origin + prefix + "/asset/v1/token", session.calls[0]["url"])
+            self.assertEqual(origin + prefix + "/lux3d/v1/generate/img-to-3d/task/create", session.calls[1]["url"])
+            self.assertEqual(origin + prefix + "/lux3d/v1/generate/task/get", session.calls[2]["url"])
+
+    def test_upload_rejects_region_mismatch_and_unapproved_origin(self):
+        for origin in ("https://api.aholo3d.cn", "https://api.aholo.ai.example.com"):
+            with self.subTest(origin=origin), self.assertRaises(ValueError):
+                Lux3DAssetUploader(API_KEY, region="intl", base_api_path=origin)
 
 
 class Lux3DTransportContractTest(unittest.TestCase):

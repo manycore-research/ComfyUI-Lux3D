@@ -8,7 +8,7 @@
 
 [English](README.md) / [中文](README_CN.md)
 
-🌐 Official Website: [Lux3D China](https://www.luxreal.com/lux3d/home) | [Lux3D Global](https://www.luxreal.ai/lux3d/home)
+🌐 Official Website: [Lux3D China](https://www.luxreal.com/lux3d/home) | [Lux3D Global](https://lux3d.aholo.ai/lux3d/home)
 </div>
 
 A ComfyUI extension that turns text descriptions or 2D images into 3D models in your workflow.
@@ -331,7 +331,7 @@ comfy node install lux3d
 3. Configure the API key in the server environment that starts ComfyUI. Set `LUX3D_API_KEY_CN` for the China service or `LUX3D_API_KEY_INTL` for the international service. If you use only one region, set only its variable.
 4. Restart ComfyUI.
 
-🚀 Want a quick preview first? Try the official site: [Lux3D China](https://www.luxreal.com/lux3d/home) | [Lux3D Global](https://www.luxreal.ai/lux3d/home)
+🚀 Want a quick preview first? Try the official site: [Lux3D China](https://www.luxreal.com/lux3d/home) | [Lux3D Global](https://lux3d.aholo.ai/lux3d/home)
 
 ## Usage
 
@@ -668,6 +668,8 @@ The currently registered nodes do not read `config.txt` or expose an API-key inp
 | --- | --- |
 | `https://api.aholo3d.cn` | `LUX3D_API_KEY_CN` |
 | `https://api.aholo.ai` | `LUX3D_API_KEY_INTL` |
+
+Existing workflows that explicitly store `https://api.aholo3d.com` continue to use that origin for upload credentials, generation, and task queries, with `LUX3D_API_KEY_INTL`. Updating the extension does not rewrite saved workflow addresses. To migrate, change each affected node's `base_api_path` to `https://api.aholo.ai` and save the workflow. The client adds `/global`; do not enter it in the field. Legacy API availability and its compatibility period depend on the gateway operator; accepting the old address does not guarantee it will remain available.
 
 PowerShell example:
 

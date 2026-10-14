@@ -180,6 +180,7 @@ def _asset_uploader(
         resolve_api_key(base_api_path, explicit_api_key),
         region=region,
         timeout=timeout,
+        base_api_path=base_api_path,
     )
 
 
