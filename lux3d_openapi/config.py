@@ -10,6 +10,7 @@ DEFAULT_BASE_API_PATH = "https://api.aholo3d.cn"
 
 API_CONFIG_BY_BASE_API_PATH = {
     "https://api.aholo3d.cn": ("cn", "LUX3D_API_KEY_CN"),
+    "https://api.aholo.ai": ("intl", "LUX3D_API_KEY_INTL"),
     "https://api.aholo3d.com": ("intl", "LUX3D_API_KEY_INTL"),
 }
 

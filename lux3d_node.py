@@ -340,6 +340,10 @@ class Lux3DMaterialTransfer(BaseLux3DNode):
             "/lux3d/v1/generate/material-transfer/task/create",
             "/lux3d/v1/generate/task/get",
         ),
+        "https://api.aholo.ai": (
+            "/global/lux3d/v1/generate/material-transfer/task/create",
+            "/global/lux3d/v1/generate/task/get",
+        ),
         "https://api.aholo3d.com": (
             "/global/lux3d/v1/generate/material-transfer/task/create",
             "/global/lux3d/v1/generate/task/get",

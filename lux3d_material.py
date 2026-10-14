@@ -176,7 +176,9 @@ class Lux3DMaterialTransfer:
                 explicit_api_key=api_key,
             )
 
-            client = Lux3DOpenAPIClient(api_key, region=region, timeout=30)
+            client = Lux3DOpenAPIClient(
+                api_key, region=region, timeout=30, base_api_path=base_api_path
+            )
             response = client.create_material_transfer_task(
                 {
                     "img": reference_url,

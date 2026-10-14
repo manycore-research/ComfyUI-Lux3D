@@ -81,6 +81,38 @@ def query_params(call):
     return {key: values[-1] for key, values in parsed.items()}
 
 
+class ApiDomainMigrationTest(unittest.TestCase):
+    def test_saved_old_workflow_and_new_origin_use_international_credentials(self):
+        for origin in ("https://api.aholo.ai", "https://api.aholo3d.com"):
+            self.assertEqual(("intl", "LUX3D_API_KEY_INTL"), nodes._api_config(origin))
+        with self.assertRaises(ValueError):
+            nodes._api_config("https://api.aholo.ai.example.com")
+
+
+class ExplicitApiOriginTest(unittest.TestCase):
+    def test_node_requests_keep_the_selected_origin(self):
+        for origin in ("https://api.aholo.ai", "https://api.aholo3d.com", "https://api.aholo3d.cn"):
+            session = RecordingSession(
+                json_response({"ousToken": OUS_TOKEN, "globalDomain": "https://ous.example", "blockSize": 8}),
+                json_response({"d": 123}),
+                json_response({"d": {"status": 1}}),
+            )
+            with patch.dict(os.environ, {"LUX3D_API_KEY_INTL": API_KEY, "LUX3D_API_KEY_CN": API_KEY}), patch("lux3d_openapi.client.requests.Session", return_value=session):
+                local_assets._asset_uploader(origin, 30).get_upload_token()
+                client = nodes._BaseOpenAPINode._client(origin)
+                client.create_img_to_3d_task({"img": IMAGE_URL, "version": "G1"})
+                client.get_task("123")
+            prefix = "" if origin.endswith(".cn") else "/global"
+            self.assertEqual(origin + prefix + "/asset/v1/token", session.calls[0]["url"])
+            self.assertEqual(origin + prefix + "/lux3d/v1/generate/img-to-3d/task/create", session.calls[1]["url"])
+            self.assertEqual(origin + prefix + "/lux3d/v1/generate/task/get", session.calls[2]["url"])
+
+    def test_upload_rejects_region_mismatch_and_unapproved_origin(self):
+        for origin in ("https://api.aholo3d.cn", "https://api.aholo.ai.example.com"):
+            with self.subTest(origin=origin), self.assertRaises(ValueError):
+                Lux3DAssetUploader(API_KEY, region="intl", base_api_path=origin)
+
+
 class Lux3DTransportContractTest(unittest.TestCase):
     def test_all_client_methods_use_the_documented_http_method_and_path(self):
         create_response = {"d": 1256173, "m": None, "c": None}
@@ -180,7 +212,7 @@ class Lux3DTransportContractTest(unittest.TestCase):
             ("cn", "https://api.aholo3d.cn/lux3d/v1/generate/task/get"),
             (
                 "intl",
-                "https://api.aholo3d.com/global/lux3d/v1/generate/task/get",
+                "https://api.aholo.ai/global/lux3d/v1/generate/task/get",
             ),
         )
         for region, expected_url in cases:
@@ -1044,7 +1076,7 @@ class Lux3DNodeExecutionContractTest(unittest.TestCase):
                 text_node,
                 text_client,
                 lambda: text_node.execute(
-                    "https://api.aholo3d.com",
+                    "https://api.aholo.ai",
                     "a chair",
                     "cartoon",
                     REFERENCE_URL,
@@ -1064,7 +1096,7 @@ class Lux3DNodeExecutionContractTest(unittest.TestCase):
                     "outputFormat": ["glb"],
                 },
                 ("102", "", text_glb, ""),
-                "https://api.aholo3d.com",
+                "https://api.aholo.ai",
             )
         )
 
@@ -1351,7 +1383,7 @@ class Lux3DNodeExecutionContractTest(unittest.TestCase):
             os.environ, {"LUX3D_API_KEY_INTL": API_KEY}, clear=False
         ):
             self.assertEqual(
-                nodes._resolve_api_key("https://api.aholo3d.com"), API_KEY
+                nodes._resolve_api_key("https://api.aholo.ai"), API_KEY
             )
         with patch.dict(os.environ, {}, clear=True):
             with self.assertRaises(ValueError):
@@ -1365,7 +1397,7 @@ class Lux3DNodeExecutionContractTest(unittest.TestCase):
                 "cn",
             ),
             (
-                "https://api.aholo3d.com",
+                "https://api.aholo.ai",
                 "LUX3D_API_KEY_INTL",
                 "intl",
             ),
@@ -1380,6 +1412,7 @@ class Lux3DNodeExecutionContractTest(unittest.TestCase):
                     API_KEY,
                     region=expected_region,
                     timeout=30,
+                    base_api_path=base_api_path,
                 )
 
     def test_base_api_path_rejects_aliases_and_unknown_values(self):
@@ -1390,7 +1423,7 @@ class Lux3DNodeExecutionContractTest(unittest.TestCase):
             "cn",
             "intl",
             "https://api.aholo3d.cn/",
-            "https://api.aholo3d.com/global",
+            "https://api.aholo.ai/global",
             "https://api.example.com",
         ):
             with self.subTest(value=value):
@@ -2009,7 +2042,7 @@ class Lux3DAssetUploadContractTest(unittest.TestCase):
         self.uploader(session, region="intl").get_upload_token()
         self.assertEqual(
             session.calls[0]["url"],
-            "https://api.aholo3d.com/global/asset/v1/token",
+            "https://api.aholo.ai/global/asset/v1/token",
         )
 
     def test_small_file_uses_single_multipart_upload_then_status(self):

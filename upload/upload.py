@@ -245,6 +245,7 @@ def fetch_token_and_domain(base_api_path: Optional[str] = None, guid: Optional[s
 
 _V1_TOKEN_PATHS = {
     "https://api.aholo3d.cn": "/asset/v1/token",
+    "https://api.aholo.ai": "/global/asset/v1/token",
     "https://api.aholo3d.com": "/global/asset/v1/token",
 }
 

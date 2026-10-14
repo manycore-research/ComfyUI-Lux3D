@@ -14,6 +14,7 @@ from urllib.parse import urlparse
 import requests
 
 from .client import Lux3DAPIError, REGION_BASE_URLS
+from .config import api_config
 
 
 SUCCESS_STATUS = 5
@@ -31,6 +32,7 @@ class Lux3DAssetUploader:
         poll_interval: float = 0.5,
         max_wait_seconds: int = 120,
         session: Optional[requests.Session] = None,
+        base_api_path: Optional[str] = None,
     ) -> None:
         if not isinstance(api_key, str) or not api_key.strip():
             raise ValueError("api_key cannot be empty")
@@ -49,6 +51,11 @@ class Lux3DAssetUploader:
         self._api_key = api_key.strip()
         self.region = region
         self.api_base_url = REGION_BASE_URLS[region]
+        if base_api_path is not None:
+            configured_region, _ = api_config(base_api_path)
+            if configured_region != region:
+                raise ValueError("base_api_path does not match region")
+            self.api_base_url = base_api_path + ("/global" if region == "intl" else "")
         self.timeout = int(timeout)
         self.poll_interval = float(poll_interval)
         self.max_wait_seconds = int(max_wait_seconds)
