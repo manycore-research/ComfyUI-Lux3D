@@ -8,6 +8,11 @@ from pathlib import Path
 REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 ROUTE_PATH = "/comfyui-lux3d/viewer-assets/v1/{manifest_digest}/{asset:.+}"
 EXPECTED_NODE_KEYS = {
+    "Lux3DOpenAPIPartSplit",
+    "Lux3DOpenAPIRetopology",
+    "Lux3DOpenAPIArticulation",
+    "Lux3DOpenAPIAutoRig",
+    "Lux3DOpenAPIAnimationRetarget",
     "Lux3DMaterialTransfer",
     "Lux3DViewer",
     "Lux3DOpenAPIImageTo3D",
@@ -17,6 +22,11 @@ EXPECTED_NODE_KEYS = {
     "Lux3DOpenAPIMultiFormatExport",
 }
 EXPECTED_DISPLAY_NAMES = {
+    "Lux3DOpenAPIPartSplit": "Lux3D Mesh Segmentation",
+    "Lux3DOpenAPIRetopology": "Lux3D Retopology",
+    "Lux3DOpenAPIArticulation": "Lux3D Articulation",
+    "Lux3DOpenAPIAutoRig": "Lux3D Humanoid Rigging",
+    "Lux3DOpenAPIAnimationRetarget": "Lux3D Humanoid Animation",
     "Lux3DMaterialTransfer": "Lux3D Material Redraw",
     "Lux3DViewer": "Lux3D Viewer",
     "Lux3DOpenAPIImageTo3D": "Lux3D Image to 3D",

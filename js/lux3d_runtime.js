@@ -26,6 +26,14 @@ const viewerConfig = Object.freeze({
 try {
   const {registerLux3DInputSourceExtension} = await import(inputSourcesBundleUrl.href);
   registerLux3DInputSourceExtension({app, api});
+  const resultsUrl = new URL("./assets/lux3d-postprocess-extension.mjs", import.meta.url);
+  resultsUrl.searchParams.set("v", cacheToken);
+  const {registerLux3DPostprocessExtension} = await import(resultsUrl.href);
+  registerLux3DPostprocessExtension({app, api});
+  const localizationUrl = new URL("./assets/lux3d-localization-extension.mjs", import.meta.url);
+  localizationUrl.searchParams.set("v", cacheToken);
+  const {registerLux3DLocalizationExtension} = await import(localizationUrl.href);
+  registerLux3DLocalizationExtension({app, api});
   const {registerLux3DViewerExtension} = await import(controllerBundleUrl.href);
   registerLux3DViewerExtension({
     app,

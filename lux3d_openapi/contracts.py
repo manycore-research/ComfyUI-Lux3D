@@ -19,6 +19,11 @@ class OpenAPIOperation:
 
 
 DOCUMENTED_OPERATIONS: Tuple[OpenAPIOperation, ...] = (
+    OpenAPIOperation("createPartSplitTask", "POST", "/lux3d/v1/part-split/task/create", "Lux3DOpenAPIPartSplit"),
+    OpenAPIOperation("createMeshRetopologyTask", "POST", "/lux3d/v1/mesh-retopology/task/create", "Lux3DOpenAPIRetopology"),
+    OpenAPIOperation("createArticulationTask", "POST", "/lux3d/v1/articulation-animation/task/create", "Lux3DOpenAPIArticulation"),
+    OpenAPIOperation("createRigTask", "POST", "/lux3d/v1/animations/rig/task/create", "Lux3DOpenAPIAutoRig"),
+    OpenAPIOperation("createRetargetTask", "POST", "/lux3d/v1/animations/retarget/task/create", "Lux3DOpenAPIAnimationRetarget"),
     OpenAPIOperation(
         "createMultimodalToImageTask",
         "POST",

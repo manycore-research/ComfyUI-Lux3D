@@ -133,6 +133,7 @@ class Lux3DTransportContractTest(unittest.TestCase):
             json_response(create_response),
             json_response(create_response),
             json_response(create_response),
+            json_response(create_response),
             json_response(task_response),
             json_response(list_response),
         )
@@ -168,6 +169,12 @@ class Lux3DTransportContractTest(unittest.TestCase):
             client.create_multi_format_export_task({"modelUrl": MODEL_ZIP_URL}),
             create_response,
         )
+        self.assertEqual(
+            client.create_mesh_retopology_task(
+                {"modelUrl": MODEL_GLB_URL, "faceLimit": 5000}
+            ),
+            create_response,
+        )
         self.assertEqual(client.get_task("1256173"), task_response)
         self.assertEqual(
             client.list_tasks({"page": 1, "pagesize": 20}), list_response
@@ -183,6 +190,7 @@ class Lux3DTransportContractTest(unittest.TestCase):
             ("POST", "/lux3d/v1/generate/image-to-four-view/task/create"),
             ("POST", "/lux3d/v1/generate/material-transfer/task/create"),
             ("POST", "/lux3d/v1/multi-format-export/task/create"),
+            ("POST", "/lux3d/v1/mesh-retopology/task/create"),
             ("GET", "/lux3d/v1/generate/task/get"),
             ("GET", "/lux3d/v1/generate/task/list"),
         )
@@ -197,9 +205,13 @@ class Lux3DTransportContractTest(unittest.TestCase):
                 )
                 self.assertEqual(call["timeout"], 30)
 
-        self.assertEqual(query_params(session.calls[6]), {"taskid": "1256173"})
+        self.assertEqual(query_params(session.calls[7]), {"taskid": "1256173"})
         self.assertEqual(
-            query_params(session.calls[7]), {"page": "1", "pagesize": "20"}
+            query_params(session.calls[8]), {"page": "1", "pagesize": "20"}
+        )
+        self.assertEqual(
+            session.calls[6]["json"],
+            {"modelUrl": MODEL_GLB_URL, "faceLimit": 5000},
         )
 
     def test_cn_and_intl_regions_have_distinct_documented_roots(self):
@@ -807,9 +819,71 @@ class Lux3DTaskPollingContractTest(unittest.TestCase):
             ],
         )
 
+    def test_fixed_output_mode_preserves_string_null_and_none_slots(self):
+        client = Mock()
+        glb = "https://assets.example/model.glb"
+        obj_zip = "https://assets.example/model.obj.zip"
+        client.get_task.return_value = self.task_response(
+            509,
+            3,
+            [
+                {"content": "null"},
+                {"content": glb},
+                {"content": " NuLl "},
+                {"content": obj_zip},
+                {"content": " NoNe "},
+                {"content": None},
+                {"content": " not_requested "},
+            ],
+        )
+
+        _, slots = task_polling.wait_for_task_result(
+            client, 509, expected_output_count=7, preserve_output_slots=True
+        )
+
+        self.assertEqual(slots, ["", glb, "", obj_zip, "", "", "NOT_REQUESTED"])
+
+    def test_fixed_output_mode_rejects_only_empty_placeholders(self):
+        for placeholder in (None, "null", "NULL", " NoNe ", "NOT_REQUESTED"):
+            with self.subTest(placeholder=placeholder):
+                client = Mock()
+                client.get_task.return_value = self.task_response(
+                    510, 3, [{"content": placeholder}] * 7
+                )
+                with self.assertRaisesRegex(RuntimeError, "succeeded without outputs"):
+                    task_polling.wait_for_task_result(
+                        client, 510, expected_output_count=7, preserve_output_slots=True
+                    )
+
+    def test_fixed_output_mode_still_rejects_invalid_optional_outputs(self):
+        for invalid in (
+            False, 0, [], {}, "", " ", "null.glb", "none?file=result.zip",
+            "file:///private/result.zip", "ftp://assets.example/result.zip",
+        ):
+            with self.subTest(content=invalid):
+                client = Mock()
+                client.get_task.return_value = self.task_response(
+                    511,
+                    3,
+                    [
+                        {"content": invalid},
+                        {"content": MODEL_GLB_URL},
+                        *[{"content": "NOT_REQUESTED"}] * 5,
+                    ],
+                )
+                with self.assertRaises(ValueError):
+                    task_polling.wait_for_task_result(
+                        client, 511, expected_output_count=7, preserve_output_slots=True
+                    )
+
 
 class Lux3DRegistryContractTest(unittest.TestCase):
     EXPECTED_OPERATION_TO_NODE = {
+        "createPartSplitTask": "Lux3DOpenAPIPartSplit",
+        "createMeshRetopologyTask": "Lux3DOpenAPIRetopology",
+        "createArticulationTask": "Lux3DOpenAPIArticulation",
+        "createRigTask": "Lux3DOpenAPIAutoRig",
+        "createRetargetTask": "Lux3DOpenAPIAnimationRetarget",
         "createMultimodalToImageTask": "Lux3DOpenAPISingleImageGenerator",
         "createImgTo3dTask": "Lux3DOpenAPIImageTo3D",
         "createTextTo3dTask": "Lux3DOpenAPITextTo3D",
@@ -817,7 +891,7 @@ class Lux3DRegistryContractTest(unittest.TestCase):
         "createMultiFormatExportTask": "Lux3DOpenAPIMultiFormatExport",
     }
 
-    def test_registry_contains_only_the_five_exposed_create_operations(self):
+    def test_registry_contains_only_the_ten_exposed_create_operations(self):
         documented = set(registry.DOCUMENTED_OPERATION_IDS)
         excluded = set(registry.EXCLUDED_OPERATION_IDS)
         self.assertEqual(
@@ -857,6 +931,11 @@ class Lux3DRegistryContractTest(unittest.TestCase):
         self.assertEqual(
             registry.NODE_DISPLAY_NAME_MAPPINGS,
             {
+                "Lux3DOpenAPIPartSplit": "Lux3D Mesh Segmentation",
+                "Lux3DOpenAPIRetopology": "Lux3D Retopology",
+                "Lux3DOpenAPIArticulation": "Lux3D Articulation",
+                "Lux3DOpenAPIAutoRig": "Lux3D Humanoid Rigging",
+                "Lux3DOpenAPIAnimationRetarget": "Lux3D Humanoid Animation",
                 "Lux3DOpenAPISingleImageGenerator": (
                     "Lux3D Single Image Generator"
                 ),
@@ -1363,7 +1442,44 @@ class Lux3DNodeExecutionContractTest(unittest.TestCase):
             ("902", MODEL_GLB_URL, usdz, "", "", "", "", ""),
         )
 
-    def test_nodes_load_api_key_from_server_environment_only(self):
+    def test_export_glb_input_accepts_string_null_source_zip(self):
+        usdz = "https://assets.example/result.usdz"
+        obj_zip = "https://assets.example/result.obj.zip"
+        fbx_zip = "https://assets.example/result.fbx.zip"
+        for empty_zip in (
+            None, "null", "NULL", " NuLl ", "none", "NONE", " NoNe ",
+            "NOT_REQUESTED", " not_requested ",
+        ):
+            with self.subTest(zip_url=empty_zip):
+                slots = [
+                    {"content": value}
+                    for value in (
+                        empty_zip, MODEL_GLB_URL, usdz, obj_zip, fbx_zip,
+                        "NOT_REQUESTED", "NOT_REQUESTED",
+                    )
+                ]
+                self.assertEqual(
+                    self._execute_export_with_outputs(
+                        slots, output_format="usdz,obj_zip,fbx_zip"
+                    ),
+                    ("902", MODEL_GLB_URL, usdz, obj_zip, fbx_zip, "", "", ""),
+                )
+
+    def test_export_still_requires_glb_with_empty_string_placeholders(self):
+        for empty_glb in (None, "null", " NoNe ", "NOT_REQUESTED"):
+            with self.subTest(glb_url=empty_glb):
+                slots = [
+                    {"content": value}
+                    for value in (
+                        None, empty_glb, "https://assets.example/result.usdz",
+                        "NOT_REQUESTED", "NOT_REQUESTED", "NOT_REQUESTED",
+                        "NOT_REQUESTED",
+                    )
+                ]
+                with self.assertRaisesRegex(RuntimeError, "empty required glbUrl"):
+                    self._execute_export_with_outputs(slots, output_format="usdz")
+
+    def test_nodes_load_api_key_from_server_environment(self):
         for node_class in registry.NODE_CLASS_MAPPINGS.values():
             with self.subTest(node=node_class.__name__):
                 inputs = node_class.INPUT_TYPES()
@@ -1385,7 +1501,7 @@ class Lux3DNodeExecutionContractTest(unittest.TestCase):
             self.assertEqual(
                 nodes._resolve_api_key("https://api.aholo.ai"), API_KEY
             )
-        with patch.dict(os.environ, {}, clear=True):
+        with patch.dict(os.environ, {}, clear=True), patch("lux3d_openapi.config.sys.platform", "linux"):
             with self.assertRaises(ValueError):
                 nodes._resolve_api_key("https://api.aholo3d.cn")
 

@@ -161,10 +161,10 @@
       "source_version": "1.0.0",
       "source_path": "frontend/src/viewer/model-viewer-frame.js",
       "path": "model-viewer/frame.mjs",
-      "size": 3817,
+      "size": 4375,
       "mime": "text/javascript; charset=utf-8",
       "license": "Project license",
-      "sha256": "826f289a9500448c825cc369763454d6a171505053899cfbd4d8b2ab1be3677f"
+      "sha256": "60acea38bc73ca8525be1b6600a77c7fab8641b5984fbc00cd877573a4a3b78c"
     },
     {
       "logical_key": "model-viewer/model-viewer.min.js",

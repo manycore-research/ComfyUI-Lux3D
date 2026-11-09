@@ -1,0 +1,566 @@
+{
+  "Lux3DViewer": {
+    "display_name": "Lux3D 模型预览",
+    "description": "在画布内预览 GLB 模型、模型动画或 PLY 高斯泼溅文件。",
+    "inputs": {
+      "model_url": {
+        "name": "模型地址",
+        "tooltip": "公开 GLB/PLY URL、上游模型地址，或本地 GLB/PLY 文件；本地预览不会上传到 Lux3D。"
+      },
+      "base_api_path": {
+        "name": "API 地址",
+        "tooltip": "用于区域地址校验；预览本身不会请求 Lux3D API，不需要 API Key。"
+      },
+      "Choose local GLB / PLY": {
+        "name": "选择本地 GLB / PLY"
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "模型地址"
+      }
+    }
+  },
+  "Lux3DMaterialTransfer": {
+    "display_name": "Lux3D 模型材质重绘",
+    "description": "根据参考图片重绘已有 GLB 模型的材质。",
+    "inputs": {
+      "image": {
+        "name": "材质参考图",
+        "tooltip": "公开图片 URL、上游字符串地址或包含一张图片的 IMAGE 输入；本地图片会先上传。"
+      },
+      "mesh_url": {
+        "name": "模型地址",
+        "tooltip": "填写公开 GLB URL、连接上游模型地址，或选择 ComfyUI 本地 GLB。"
+      },
+      "base_api_path": {
+        "name": "API 地址",
+        "tooltip": "国内使用 https://api.aholo3d.cn，国际使用 https://api.aholo.ai；请在服务端配置对应区域的 API Key。"
+      },
+      "Choose local GLB": {
+        "name": "选择本地 GLB"
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "GLB"
+      }
+    }
+  },
+  "Lux3DOpenAPIImageTo3D": {
+    "display_name": "Lux3D 图生 3D",
+    "description": "使用 1–8 张图片生成 3D 模型，支持公开图片 URL 和本地 IMAGE 输入。",
+    "inputs": {
+      "base_api_path": {
+        "name": "API 地址",
+        "tooltip": "国内使用 https://api.aholo3d.cn，国际使用 https://api.aholo.ai；请在服务端配置对应区域的 API Key。"
+      },
+      "image_1": {
+        "name": "图片 1",
+        "tooltip": "公开图片 URL、上游字符串地址或包含一张图片的 IMAGE 输入；8 个图片槽中至少提供一个。"
+      },
+      "image_2": {
+        "name": "图片 2",
+        "tooltip": "公开图片 URL、上游字符串地址或包含一张图片的 IMAGE 输入；8 个图片槽中至少提供一个。"
+      },
+      "image_3": {
+        "name": "图片 3",
+        "tooltip": "公开图片 URL、上游字符串地址或包含一张图片的 IMAGE 输入；8 个图片槽中至少提供一个。"
+      },
+      "image_4": {
+        "name": "图片 4",
+        "tooltip": "公开图片 URL、上游字符串地址或包含一张图片的 IMAGE 输入；8 个图片槽中至少提供一个。"
+      },
+      "image_5": {
+        "name": "图片 5",
+        "tooltip": "公开图片 URL、上游字符串地址或包含一张图片的 IMAGE 输入；8 个图片槽中至少提供一个。"
+      },
+      "image_6": {
+        "name": "图片 6",
+        "tooltip": "公开图片 URL、上游字符串地址或包含一张图片的 IMAGE 输入；8 个图片槽中至少提供一个。"
+      },
+      "image_7": {
+        "name": "图片 7",
+        "tooltip": "公开图片 URL、上游字符串地址或包含一张图片的 IMAGE 输入；8 个图片槽中至少提供一个。"
+      },
+      "image_8": {
+        "name": "图片 8",
+        "tooltip": "公开图片 URL、上游字符串地址或包含一张图片的 IMAGE 输入；8 个图片槽中至少提供一个。"
+      },
+      "version": {
+        "name": "生成版本"
+      },
+      "face_count": {
+        "name": "目标面数",
+        "tooltip": "默认 200000；填写 0 时不提交面数字段，非零值允许 10000–300000。"
+      },
+      "output_format": {
+        "name": "输出格式",
+        "tooltip": "选择需要的结果格式；G1 固定返回 ZIP 和 GLB，并可追加 PLY；G1-Turbo 按所选组合输出。",
+        "options": {
+          "default": "默认",
+          "zip": "ZIP",
+          "glb": "GLB",
+          "ply": "PLY",
+          "zip,glb": "ZIP + GLB",
+          "zip,ply": "ZIP + PLY",
+          "glb,ply": "GLB + PLY",
+          "zip,glb,ply": "ZIP + GLB + PLY"
+        }
+      },
+      "enable_pbr": {
+        "name": "启用 PBR",
+        "tooltip": "仅 G1-Turbo 的网格输出支持；仅输出 PLY 时使用默认。",
+        "options": {
+          "default": "默认",
+          "true": "开启",
+          "false": "关闭"
+        }
+      },
+      "ai_predict_size": {
+        "name": "尺寸预测",
+        "tooltip": "是否根据输入预测模型尺寸；默认时不提交此字段。",
+        "options": {
+          "default": "默认",
+          "true": "开启",
+          "false": "关闭"
+        }
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "任务 ID"
+      },
+      "1": {
+        "name": "Lux3D ZIP"
+      },
+      "2": {
+        "name": "GLB"
+      },
+      "3": {
+        "name": "PLY"
+      }
+    }
+  },
+  "Lux3DOpenAPITextTo3D": {
+    "display_name": "Lux3D 文生 3D",
+    "description": "根据文本提示词和可选参考图生成 3D 模型。",
+    "inputs": {
+      "base_api_path": {
+        "name": "API 地址",
+        "tooltip": "国内使用 https://api.aholo3d.cn，国际使用 https://api.aholo.ai；请在服务端配置对应区域的 API Key。"
+      },
+      "prompt": {
+        "name": "提示词",
+        "tooltip": "填写描述主体、材质、风格和关键细节的提示词。"
+      },
+      "style": {
+        "name": "风格",
+        "tooltip": "选择模型的视觉风格；界面显示中文，提交时保留对应的英文标识。",
+        "options": {
+          "photorealistic": "写实",
+          "cartoon": "卡通",
+          "anime": "二次元",
+          "hand_painted": "手绘",
+          "cyberpunk": "赛博朋克",
+          "fantasy": "魔幻",
+          "glass": "玻璃质感"
+        }
+      },
+      "reference_image": {
+        "name": "参考图",
+        "tooltip": "可选参考图：公开图片 URL、上游字符串地址或包含一张图片的 IMAGE 输入。"
+      },
+      "version": {
+        "name": "生成版本"
+      },
+      "face_count": {
+        "name": "目标面数",
+        "tooltip": "默认 200000；填写 0 时不提交面数字段，非零值允许 10000–300000。"
+      },
+      "output_format": {
+        "name": "输出格式",
+        "tooltip": "选择需要的结果格式；G1 固定返回 ZIP 和 GLB，并可追加 PLY；G1-Turbo 按所选组合输出。",
+        "options": {
+          "default": "默认",
+          "zip": "ZIP",
+          "glb": "GLB",
+          "ply": "PLY",
+          "zip,glb": "ZIP + GLB",
+          "zip,ply": "ZIP + PLY",
+          "glb,ply": "GLB + PLY",
+          "zip,glb,ply": "ZIP + GLB + PLY"
+        }
+      },
+      "enable_pbr": {
+        "name": "启用 PBR",
+        "tooltip": "仅 G1-Turbo 的网格输出支持；仅输出 PLY 时使用默认。",
+        "options": {
+          "default": "默认",
+          "true": "开启",
+          "false": "关闭"
+        }
+      },
+      "ai_predict_size": {
+        "name": "尺寸预测",
+        "tooltip": "是否根据输入预测模型尺寸；默认时不提交此字段。",
+        "options": {
+          "default": "默认",
+          "true": "开启",
+          "false": "关闭"
+        }
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "任务 ID"
+      },
+      "1": {
+        "name": "Lux3D ZIP"
+      },
+      "2": {
+        "name": "GLB"
+      },
+      "3": {
+        "name": "PLY"
+      }
+    }
+  },
+  "Lux3DOpenAPISingleImageGenerator": {
+    "display_name": "Lux3D 单图生成",
+    "description": "根据图片、文本提示词或图文组合生成一张新图片。",
+    "inputs": {
+      "base_api_path": {
+        "name": "API 地址",
+        "tooltip": "国内使用 https://api.aholo3d.cn，国际使用 https://api.aholo.ai；请在服务端配置对应区域的 API Key。"
+      },
+      "image": {
+        "name": "图片",
+        "tooltip": "公开图片 URL、上游字符串地址或包含一张图片的 IMAGE 输入；本地图片会先上传。"
+      },
+      "prompt": {
+        "name": "提示词",
+        "tooltip": "填写描述主体、材质、风格和关键细节的提示词。"
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "任务 ID"
+      },
+      "1": {
+        "name": "图片地址"
+      }
+    }
+  },
+  "Lux3DOpenAPIImageToFourView": {
+    "display_name": "Lux3D 四视图生成",
+    "description": "根据图片、文本提示词或图文组合生成四张不同视角的图片。",
+    "inputs": {
+      "base_api_path": {
+        "name": "API 地址",
+        "tooltip": "国内使用 https://api.aholo3d.cn，国际使用 https://api.aholo.ai；请在服务端配置对应区域的 API Key。"
+      },
+      "image": {
+        "name": "图片",
+        "tooltip": "公开图片 URL、上游字符串地址或包含一张图片的 IMAGE 输入；本地图片会先上传。"
+      },
+      "prompt": {
+        "name": "提示词",
+        "tooltip": "填写描述主体、材质、风格和关键细节的提示词。"
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "任务 ID"
+      },
+      "1": {
+        "name": "图片 1"
+      },
+      "2": {
+        "name": "图片 2"
+      },
+      "3": {
+        "name": "图片 3"
+      },
+      "4": {
+        "name": "图片 4"
+      }
+    }
+  },
+  "Lux3DOpenAPIMultiFormatExport": {
+    "display_name": "Lux3D 多格式导出",
+    "description": "将 GLB 或 Lux3D ZIP 模型导出为一种或多种目标格式。",
+    "inputs": {
+      "base_api_path": {
+        "name": "API 地址",
+        "tooltip": "国内使用 https://api.aholo3d.cn，国际使用 https://api.aholo.ai；请在服务端配置对应区域的 API Key。"
+      },
+      "model_url": {
+        "name": "模型地址",
+        "tooltip": "公开 GLB/Lux3D ZIP URL、上游模型地址，或本地 GLB/ZIP 文件；本地文件会先上传。"
+      },
+      "output_format": {
+        "name": "输出格式",
+        "tooltip": "GLB 输入必须选择至少一种导出格式；默认只适用于 Lux3D ZIP 输入。",
+        "options": {
+          "default": "默认",
+          "usdz": "USDZ",
+          "obj_zip": "OBJ ZIP",
+          "fbx_zip": "FBX ZIP",
+          "stl": "STL",
+          "3mf": "3MF",
+          "usdz,obj_zip": "USDZ + OBJ ZIP",
+          "usdz,fbx_zip": "USDZ + FBX ZIP",
+          "usdz,stl": "USDZ + STL",
+          "usdz,3mf": "USDZ + 3MF",
+          "obj_zip,fbx_zip": "OBJ ZIP + FBX ZIP",
+          "obj_zip,stl": "OBJ ZIP + STL",
+          "obj_zip,3mf": "OBJ ZIP + 3MF",
+          "fbx_zip,stl": "FBX ZIP + STL",
+          "fbx_zip,3mf": "FBX ZIP + 3MF",
+          "stl,3mf": "STL + 3MF",
+          "usdz,obj_zip,fbx_zip": "USDZ + OBJ ZIP + FBX ZIP",
+          "usdz,obj_zip,stl": "USDZ + OBJ ZIP + STL",
+          "usdz,obj_zip,3mf": "USDZ + OBJ ZIP + 3MF",
+          "usdz,fbx_zip,stl": "USDZ + FBX ZIP + STL",
+          "usdz,fbx_zip,3mf": "USDZ + FBX ZIP + 3MF",
+          "usdz,stl,3mf": "USDZ + STL + 3MF",
+          "obj_zip,fbx_zip,stl": "OBJ ZIP + FBX ZIP + STL",
+          "obj_zip,fbx_zip,3mf": "OBJ ZIP + FBX ZIP + 3MF",
+          "obj_zip,stl,3mf": "OBJ ZIP + STL + 3MF",
+          "fbx_zip,stl,3mf": "FBX ZIP + STL + 3MF",
+          "usdz,obj_zip,fbx_zip,stl": "USDZ + OBJ ZIP + FBX ZIP + STL",
+          "usdz,obj_zip,fbx_zip,3mf": "USDZ + OBJ ZIP + FBX ZIP + 3MF",
+          "usdz,obj_zip,stl,3mf": "USDZ + OBJ ZIP + STL + 3MF",
+          "usdz,fbx_zip,stl,3mf": "USDZ + FBX ZIP + STL + 3MF",
+          "obj_zip,fbx_zip,stl,3mf": "OBJ ZIP + FBX ZIP + STL + 3MF",
+          "usdz,obj_zip,fbx_zip,stl,3mf": "USDZ + OBJ ZIP + FBX ZIP + STL + 3MF"
+        }
+      },
+      "Choose local GLB / ZIP": {
+        "name": "选择本地 GLB / ZIP"
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "任务 ID"
+      },
+      "1": {
+        "name": "GLB"
+      },
+      "2": {
+        "name": "USDZ"
+      },
+      "3": {
+        "name": "OBJ ZIP"
+      },
+      "4": {
+        "name": "FBX ZIP"
+      },
+      "5": {
+        "name": "STL"
+      },
+      "6": {
+        "name": "3MF"
+      },
+      "7": {
+        "name": "Lux3D ZIP"
+      }
+    }
+  },
+  "Lux3DOpenAPIPartSplit": {
+    "display_name": "Lux3D 部件拆分",
+    "description": "将 GLB 模型拆分为多个部件，返回包含拆分结果的重构 GLB。",
+    "inputs": {
+      "base_api_path": {
+        "name": "API 地址",
+        "tooltip": "国内使用 https://api.aholo3d.cn，国际使用 https://api.aholo.ai；请在服务端配置对应区域的 API Key。"
+      },
+      "model_url": {
+        "name": "模型地址",
+        "tooltip": "填写公开模型 URL、连接上游模型地址，或选择 ComfyUI 本地模型文件。需要提交任务的本地模型会先上传。"
+      },
+      "Choose local GLB": {
+        "name": "选择本地 GLB"
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "任务 ID"
+      },
+      "1": {
+        "name": "GLB"
+      }
+    }
+  },
+  "Lux3DOpenAPIRetopology": {
+    "display_name": "Lux3D 模型重拓扑",
+    "outputs": {
+      "0": {
+        "name": "任务 ID"
+      },
+      "1": {
+        "name": "GLB"
+      },
+      "2": {
+        "name": "OBJ 白模"
+      },
+      "3": {
+        "name": "OBJ 带材质"
+      }
+    },
+    "description": "为静态 GLB 重新生成拓扑，返回 GLB、OBJ 白模和可选的 OBJ 带材质 ZIP。",
+    "inputs": {
+      "base_api_path": {
+        "name": "API 地址",
+        "tooltip": "国内使用 https://api.aholo3d.cn，国际使用 https://api.aholo.ai；请在服务端配置对应区域的 API Key。"
+      },
+      "model_url": {
+        "name": "模型地址",
+        "tooltip": "填写公开模型 URL、连接上游模型地址，或选择 ComfyUI 本地模型文件。需要提交任务的本地模型会先上传。"
+      },
+      "face_limit": {
+        "name": "目标面数",
+        "tooltip": "必填目标面数：四边面 1000–500000，三角面 2000–1000000；0 表示尚未填写，不能创建任务。"
+      },
+      "quad": {
+        "name": "四边面拓扑",
+        "tooltip": "开启为四边面拓扑，关闭为三角面；正式拓扑以 OBJ 为准，GLB 始终为三角面。"
+      },
+      "bake_textures": {
+        "name": "烘焙贴图",
+        "tooltip": "是否生成贴图；恢复查询时保持与原任务一致，以正确提示贴图包缺失。"
+      },
+      "texture_size": {
+        "name": "贴图尺寸",
+        "tooltip": "贴图尺寸允许 512、1024、2048 或 4096，默认 2048。"
+      },
+      "content_id": {
+        "name": "业务内容 ID",
+        "tooltip": "可选业务内容 ID，用于任务溯源，未提供时留空；不是幂等键。"
+      },
+      "resume_task_id": {
+        "name": "恢复任务 ID",
+        "tooltip": "填写已有任务 ID 后仅继续查询原任务，不重新上传模型、创建任务或修改原任务参数。"
+      },
+      "Choose local GLB": {
+        "name": "选择本地 GLB"
+      }
+    }
+  },
+  "Lux3DOpenAPIArticulation": {
+    "display_name": "Lux3D 模型关节化",
+    "description": "根据运动提示词为 GLB 模型部件添加关节并生成运动效果。",
+    "inputs": {
+      "base_api_path": {
+        "name": "API 地址",
+        "tooltip": "国内使用 https://api.aholo3d.cn，国际使用 https://api.aholo.ai；请在服务端配置对应区域的 API Key。"
+      },
+      "model_url": {
+        "name": "模型地址",
+        "tooltip": "填写公开模型 URL、连接上游模型地址，或选择 ComfyUI 本地模型文件。需要提交任务的本地模型会先上传。"
+      },
+      "prompt": {
+        "name": "提示词",
+        "tooltip": "说明运动部件、固定部件及期望的关节运动方式，不可为空。"
+      },
+      "Choose local GLB": {
+        "name": "选择本地 GLB"
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "任务 ID"
+      },
+      "1": {
+        "name": "结果地址"
+      }
+    }
+  },
+  "Lux3DOpenAPIAutoRig": {
+    "display_name": "Lux3D 人物模型自动绑骨",
+    "description": "为人物 GLB 模型自动绑定骨骼，返回可用于动画重定向的 GLB。",
+    "inputs": {
+      "base_api_path": {
+        "name": "API 地址",
+        "tooltip": "国内使用 https://api.aholo3d.cn，国际使用 https://api.aholo.ai；请在服务端配置对应区域的 API Key。"
+      },
+      "model_url": {
+        "name": "模型地址",
+        "tooltip": "填写人物模型的公开 HTTPS GLB URL、连接上游模型地址，或选择本地人物 GLB；本地文件会先上传。"
+      },
+      "Choose local GLB": {
+        "name": "选择本地 GLB"
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "任务 ID"
+      },
+      "1": {
+        "name": "GLB"
+      }
+    }
+  },
+  "Lux3DOpenAPIAnimationRetarget": {
+    "display_name": "Lux3D 人物模型动画重定向",
+    "description": "为已绑骨人物模型生成指定动作，支持逐动作或合并输出、GLB 或 FBX 和原地动画。",
+    "inputs": {
+      "base_api_path": {
+        "name": "API 地址",
+        "tooltip": "国内使用 https://api.aholo3d.cn，国际使用 https://api.aholo.ai；请在服务端配置对应区域的 API Key。"
+      },
+      "model_url": {
+        "name": "模型地址",
+        "tooltip": "填写已绑骨模型的公开 HTTPS GLB URL、连接绑骨节点的 GLB 输出，或选择本地已绑骨 GLB；本地文件会先上传。"
+      },
+      "animation_ids": {
+        "name": "动作 ID",
+        "tooltip": "从公开动作目录选择 1–10 个不同 ID，区分大小写；支持 JSON 数组或每行一个 ID，也可用添加动作按钮。"
+      },
+      "output_mode": {
+        "name": "动画输出方式",
+        "tooltip": "逐动作为每个动作生成一个文件；合并输出将动作保存为单个文件中的独立动画片段。",
+        "options": {
+          "separate": "逐动作",
+          "combined": "合并输出"
+        }
+      },
+      "out_format": {
+        "name": "输出格式",
+        "tooltip": "选择 GLB 或 FBX；GLB 支持画布预览，FBX 为原文件，需下载后用 3D 软件打开。",
+        "options": {
+          "glb": "GLB",
+          "fbx": "FBX"
+        }
+      },
+      "animate_in_place": {
+        "name": "原地动画",
+        "tooltip": "开启后使用原地动画，关闭时保留动作位移。"
+      },
+      "Choose local GLB": {
+        "name": "选择本地 GLB"
+      },
+      "Action to add": {
+        "name": "选择动作"
+      },
+      "Add action": {
+        "name": "添加动作"
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "任务 ID"
+      },
+      "1": {
+        "name": "GLB"
+      },
+      "2": {
+        "name": "FBX"
+      },
+      "3": {
+        "name": "动作结果 JSON"
+      }
+    }
+  }
+}

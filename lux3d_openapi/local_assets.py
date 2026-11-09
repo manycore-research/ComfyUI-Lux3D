@@ -6,7 +6,7 @@ import os
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
-from urllib.parse import urlparse
+from urllib.parse import urlparse, parse_qs
 
 import numpy as np
 from PIL import Image
@@ -353,6 +353,7 @@ def validate_single_url_or_local_file_source(
     extensions: Sequence[str],
     *,
     field_name: str,
+    allow_view_url: bool = False,
 ) -> Tuple[Optional[str], Optional[Path]]:
     """Resolve one STRING field as either an HTTP(S) URL or ComfyUI file.
 
@@ -364,6 +365,17 @@ def validate_single_url_or_local_file_source(
     if not isinstance(value, str) or not value.strip():
         raise ValueError(f"{field_name} cannot be empty")
     source = value.strip()
+    if allow_view_url and source.startswith("/view?"):
+        parsed_view = urlparse(source)
+        values = parse_qs(parsed_view.query, keep_blank_values=True)
+        if parsed_view.fragment or set(values) - {"filename", "subfolder", "type"} or any(len(v) != 1 for v in values.values()):
+            raise ValueError("invalid ComfyUI preview URL")
+        filename = values.get("filename", [""])[0]
+        subfolder = values.get("subfolder", [""])[0]
+        directory_type = values.get("type", ["input"])[0]
+        if directory_type not in ("input", "output", "temp") or not filename or "/" in filename or "\\" in filename:
+            raise ValueError("invalid ComfyUI preview URL")
+        source = (subfolder + "/" if subfolder else "") + filename + f" [{directory_type}]"
     parsed = urlparse(source)
 
     # Let resolve_input_file produce the more useful containment error for an
@@ -398,6 +410,7 @@ def resolve_single_url_or_local_file(
     *,
     field_name: str,
     explicit_api_key: str = "",
+    allow_view_url: bool = False,
 ) -> str:
     """Return a remote URL, uploading a selected local ComfyUI file first."""
 
@@ -405,6 +418,7 @@ def resolve_single_url_or_local_file(
         value,
         extensions,
         field_name=field_name,
+        allow_view_url=allow_view_url,
     )
     if url is not None:
         return url
