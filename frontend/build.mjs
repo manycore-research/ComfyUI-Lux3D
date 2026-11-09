@@ -41,6 +41,8 @@ const MIME_BY_EXTENSION = Object.freeze({
 export async function buildViewerDistribution(options = {}) {
   const outputRoot = resolve(options.outputRoot ?? repositoryRoot);
   const entryPoints = {
+    localization: resolve(options.entryPoints?.localization ?? join(repositoryRoot, "frontend/src/lux3d-localization-extension.mjs")),
+    postprocess: resolve(options.entryPoints?.postprocess ?? join(repositoryRoot, "frontend/src/lux3d-postprocess-extension.mjs")),
     inputSources: resolve(options.entryPoints?.inputSources
       ?? join(repositoryRoot, "frontend/src/lux3d-input-source-extension.mjs")),
     controller: resolve(options.entryPoints?.controller
@@ -64,6 +66,9 @@ export async function buildViewerDistribution(options = {}) {
       normalizeTextLineEndings(inputSource),
       "utf8",
     );
+
+    await writeFile(join(stageBundles, "lux3d-postprocess-extension.mjs"), normalizeTextLineEndings(await readFile(entryPoints.postprocess, "utf8")), "utf8");
+    await writeFile(join(stageBundles, "lux3d-localization-extension.mjs"), normalizeTextLineEndings(await readFile(entryPoints.localization, "utf8")), "utf8");
 
     const manifest = await emitViewerAssets(stageViewerAssets);
     const manifestBytes = Buffer.from(`${JSON.stringify(manifest, null, 2)}\n`, "utf8");
@@ -105,6 +110,8 @@ export async function buildViewerDistribution(options = {}) {
       manifestDigest,
       manifest,
       bundles: Object.freeze({
+        localization: join(outputRoot, "js/assets/lux3d-localization-extension.mjs"),
+        postprocess: join(outputRoot, "js/assets/lux3d-postprocess-extension.mjs"),
         inputSources: join(outputRoot, "js/assets/lux3d-input-source-extension.mjs"),
         controller: join(outputRoot, "js/assets/lux3d-viewer-controller.mjs"),
         glb: join(outputRoot, "js/assets/lux3d-glb-adapter.mjs"),
@@ -339,6 +346,7 @@ function assertThreeIsolation(controllerMetafile, glbMetafile, gaussianMetafile)
 async function assertSelfContainedBundles(directory) {
   for (const file of [
     "lux3d-input-source-extension.mjs",
+    "lux3d-postprocess-extension.mjs",
     "lux3d-viewer-controller.mjs",
     "lux3d-glb-adapter.mjs",
     "lux3d-gaussian-adapter.mjs",

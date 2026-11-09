@@ -175,7 +175,7 @@ class Lux3DMaterialTransferTest(unittest.TestCase):
         self.client.create_material_transfer_task.assert_not_called()
 
     def test_missing_server_environment_key_fails_before_upload(self):
-        with patch.dict(self.server_environment, {"LUX3D_API_KEY_CN": ""}):
+        with patch.dict(self.server_environment, {"LUX3D_API_KEY_CN": ""}), patch.object(sys, "platform", "linux"):
             with self.assertRaisesRegex(
                 RuntimeError,
                 "set LUX3D_API_KEY_CN in the ComfyUI server environment",

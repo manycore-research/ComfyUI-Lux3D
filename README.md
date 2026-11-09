@@ -13,6 +13,13 @@
 
 A ComfyUI extension that turns text descriptions or 2D images into 3D models in your workflow.
 
+
+## Model postprocessing
+
+Five Lux3D/Postprocess nodes support Mesh Segmentation, Retopology, Articulation, Humanoid Rigging and Humanoid Animation. Retopology accepts a public or local GLB, a required face budget, topology mode and optional texture baking; its fixed outputs are GLB, OBJ and an optional OBJ ZIP.
+
+Humanoid Animation supports separate/combined, GLB/FBX and in-place motion, with visible partial failures and complete actions_json. GLB Viewer provides clip selection. Articulation preserves the actual result format; download ZIP results instead of connecting them to the GLB Viewer.
+
 ## Related Projects
 
 For quick trials or conversational Lux3D workflows, install the Skill distribution that matches your service region:
@@ -292,9 +299,41 @@ Rapidly digitize furniture and create realistic 3D assets for interior planning.
 - Accepts a public GLB URL, upstream `STRING` URL, or ComfyUI-local GLB through `mesh_url`
 - Creates and polls a material-redraw task, then returns a new `glb_model_url`
 
+### Lux3D Mesh Segmentation
+
+- Splits one GLB model into multiple parts and returns a reconstructed GLB containing the result
+- Accepts a public GLB URL, upstream `STRING` URL, or ComfyUI-local GLB; local models are uploaded first
+- Creates and polls the task, then returns `task_id` and `glb`
+
+### Lux3D Retopology
+
+- Rebuilds the topology of a static, non-Draco GLB with quad or triangle topology and a target face count
+- Supports optional texture baking and texture size; returns GLB, untextured OBJ, and an optional textured OBJ ZIP
+- Resumes an existing task through `resume_task_id` without uploading the model or creating another task
+
+### Lux3D Articulation
+
+- Adds joint motion to model parts from a GLB and a motion prompt
+- Accepts a public GLB URL, upstream `STRING` URL, or ComfyUI-local GLB
+- Returns `task_id` and `result_url`; the final file can be downloaded from the result panel
+
+### Lux3D Humanoid Rigging
+
+- Automatically rigs a character GLB from a public HTTPS URL, upstream `STRING` URL, or ComfyUI-local GLB
+- Creates and polls the rigging task, then returns `task_id` and the rigged `glb`
+- Connects to `Lux3D Humanoid Animation` to generate selected motions
+
+### Lux3D Humanoid Animation
+
+- Applies selected motions to a rigged GLB; choose 1–10 distinct, case-sensitive IDs from 85 public actions
+- Supports separate files or combined animation clips, GLB / FBX output, and in-place motion
+- Returns `task_id`, the first successful `glb` or `fbx`, and `actions_json` with every action's status
+- Shows per-action status and download links in the result panel; successful results remain available when some actions fail
+
 ### Lux3D Viewer
 
 - Previews remote or local GLB and PLY Gaussian-splat files in the ComfyUI canvas
+- Plays GLB animations and supports animation clip selection
 - Loads local models through ComfyUI's `/view` route without uploading them to Lux3D
 - Returns the resolved `model_url` for downstream nodes
 
@@ -344,19 +383,23 @@ If you have any questions, contact us at lux3d@qunhemail.com.
 
 ### Recommended Basic Workflows
 
-The current release provides seven nodes, which can be combined as needed.
+The current release provides twelve nodes, which can be combined as needed.
 
 #### Lux3D Image to 3D
 
-1. Find `Lux3D Image to 3D` under `Lux3D/Generate`, or double-click an empty area to search and add it.
+1. Find `Lux3D Image to 3D` under `Lux3D/Generate`.
 
 2. Provide at least one source in `image_1` through `image_8`. Each slot accepts a public HTTP(S) URL, an upstream `STRING` URL, or one `IMAGE`, and the source types may be mixed.
 
-3. Select `base_api_path`, the generation version, face count, and required output formats, then run the workflow.
+3. (Optional) When you have one reference image and want to complete the remaining views, add `Lux3D Multi-View Generator` between `Load Image` and `Lux3D Image to 3D`, then connect `image_1` through `image_4` to the matching Image to 3D inputs. When you already have multiple views, connect them directly to `image_1` through `image_8` without using Multi-View Generator.
 
-4. After polling completes, the node returns `task_id`, `lux3d_zip`, `glb`, and `ply`. A format that was not requested or returned is an empty string.
+4. Select `base_api_path`, the generation version, face count, and required output formats. Include `glb` when you need an in-canvas preview; Multi-Format Export accepts either the generated `glb` or `lux3d_zip`.
 
-5. Connect a non-empty `glb` or `ply` output to `Lux3D Viewer` for in-canvas preview. ZIP output cannot be previewed directly.
+5. Run the workflow.
+
+6. After polling completes, the node returns `task_id`, `lux3d_zip`, `glb`, and `ply`. A format that was not requested or returned is an empty string.
+
+7. (Optional) Connect a non-empty `glb` or `ply` output to `Lux3D Viewer` for in-canvas preview. When you need USDZ, OBJ ZIP, FBX ZIP, or other formats, connect either `glb` or `lux3d_zip` to `Lux3D Multi-Format Export`.
 
 <p align="center">
   <img src="figures/image-to-3d-workflow-en.png" width="900" alt="Lux3D Image to 3D workflow" />
@@ -379,14 +422,28 @@ The current release provides seven nodes, which can be combined as needed.
    - `fantasy`: Fantasy
    - `glass`: Glass
 
-5. Select `base_api_path`, the generation version, face count, and required output formats, then run the workflow.
+5. Select `base_api_path`, the generation version, face count, and required output formats. Include `glb` when you need an in-canvas preview; Multi-Format Export accepts either the generated `glb` or `lux3d_zip`.
 
-6. After polling completes, the node returns `task_id`, `lux3d_zip`, `glb`, and `ply`.
+6. Run the workflow.
 
-7. Connect a non-empty `glb` or `ply` output to `Lux3D Viewer` for in-canvas preview.
+7. After polling completes, the node returns `task_id`, `lux3d_zip`, `glb`, and `ply`.
+
+8. (Optional) Connect a non-empty `glb` or `ply` output to `Lux3D Viewer` for in-canvas preview. When you need USDZ, OBJ ZIP, FBX ZIP, or other formats, connect either `glb` or `lux3d_zip` to `Lux3D Multi-Format Export`.
 
 <p align="center">
   <img src="figures/text-to-3d-workflow-en.png" width="900" alt="Lux3D Text to 3D workflow" />
+</p>
+
+#### Lux3D Single Image Generator
+
+1. Add `Lux3D Single Image Generator` from `Lux3D/Generate`.
+
+2. Optionally enter a public HTTP(S) URL in `image`, connect an upstream `STRING` URL, or connect one `IMAGE`. Optionally enter a multiline `prompt`. At least one of `image` and `prompt` is required.
+
+3. Select `base_api_path` and run the workflow. The node creates and polls the task internally, then returns `task_id` and `image_url`. Image-only input still produces a newly generated image; the source URL is not passed through as the result.
+
+<p align="center">
+  <img src="figures/single-image-to-four-view-workflow-en.png" width="900" alt="Lux3D Single Image Generator to Multi-View Generator workflow" />
 </p>
 
 #### Lux3D Multi-View Generator
@@ -396,14 +453,6 @@ The current release provides seven nodes, which can be combined as needed.
 2. Optionally enter a public HTTP(S) URL in `image`, connect an upstream `STRING` URL, or connect one `IMAGE`. Optionally enter a multiline `prompt`. At least one of `image` and `prompt` is required, so the node supports image-only, text-only, and image-plus-text generation.
 
 3. Select `base_api_path` and run the workflow. The node returns `task_id` and four image URLs in a stable order: `image_1` = `FRONT_THREE_QUARTER`, `image_2` = `OPPOSITE_THREE_QUARTER`, `image_3` = `SIDE`, and `image_4` = `BACK`.
-
-#### Lux3D Single Image Generator
-
-1. Add `Lux3D Single Image Generator` from `Lux3D/Generate`.
-
-2. Optionally enter a public HTTP(S) URL in `image`, connect an upstream `STRING` URL, or connect one `IMAGE`. Optionally enter a multiline `prompt`. At least one of `image` and `prompt` is required.
-
-3. Select `base_api_path` and run the workflow. The node creates and polls the task internally, then returns `task_id` and `image_url`. Image-only input still produces a newly generated image; the source URL is not passed through as the result.
 
 #### Lux3D Multi-Format Export
 
@@ -433,6 +482,82 @@ The current release provides seven nodes, which can be combined as needed.
   <img src="figures/material-redraw-workflow-en.png" width="900" alt="Lux3D Material Redraw workflow" />
 </p>
 
+#### Lux3D Mesh Segmentation
+
+1. Add `Lux3D Mesh Segmentation` from `Lux3D/Postprocess`.
+
+2. Enter a public GLB URL in `model_url`, connect the `glb` output of an Image to 3D or Text to 3D node, or use the node's button to select a ComfyUI-local GLB.
+
+3. Select `base_api_path` and run the workflow. Local models are uploaded first. After polling completes, the node returns `task_id` and a `glb` containing the reconstructed parts.
+
+4. Connect `glb` to `Lux3D Viewer` for preview or download it from the result panel. If the account already has a part-splitting task in progress, wait for it to finish before submitting another.
+
+<p align="center">
+  <img src="figures/part-split-workflow-en.png" width="1200" alt="Lux3D Mesh Segmentation workflow and result example" />
+</p>
+
+#### Lux3D Retopology
+
+1. Add `Lux3D Retopology` from `Lux3D/Postprocess`.
+
+2. Enter a public GLB URL in `model_url`, connect an upstream `glb` output, or select a ComfyUI-local GLB. Input must be static and non-Draco, without bones, skinning, animation, or morph targets.
+
+3. Enter the required `face_limit`, such as `5000`, and use `quad` to choose quad or triangle topology. Enable `bake_textures` and select `texture_size` when texture baking is needed.
+
+4. Select `base_api_path` and run the workflow. The node returns `task_id`, `glb`, `OBJ Untextured`, and `OBJ Textured` (a textured OBJ ZIP). The last output is empty when no texture package is generated; the result panel reports a missing package if baking was requested.
+
+5. Connect `glb` to `Lux3D Viewer` for preview. Download the untextured OBJ and any returned texture ZIP from the result panel. Use OBJ to inspect quad topology; GLB is always triangulated.
+
+6. If polling times out or is interrupted, enter the recorded task ID in `resume_task_id`, keep the original account, `base_api_path`, and `bake_textures` setting, and run again. This only queries the original task; it does not upload the model, create a task, or change the original parameters.
+
+<p align="center">
+  <img src="figures/retopology-workflow-en.png" width="1200" alt="Lux3D Retopology workflow with before and after topology comparison" />
+</p>
+
+#### Lux3D Articulation
+
+1. Add `Lux3D Articulation` from `Lux3D/Postprocess`.
+
+2. Enter a public GLB URL in `model_url`, connect the `glb` output of a generation or Mesh Segmentation node, or select a ComfyUI-local GLB.
+
+3. Use `prompt` to describe the moving parts, fixed parts, and desired motion, for example: "Keep the base fixed and slowly open and close the lid around its hinge."
+
+4. Select `base_api_path` and run the workflow. The node returns `task_id` and the final file's `result_url`.
+
+5. For a GLB result, connect `result_url` to `Lux3D Viewer` to preview the motion. Download ZIP or other formats from the result panel.
+
+<p align="center">
+  <img src="figures/articulation-urdf-workflow-en.png" width="1200" alt="Lux3D Articulation workflow and ZIP output structure" />
+</p>
+
+#### Lux3D Humanoid Rigging
+
+1. Add `Lux3D Humanoid Rigging` from `Lux3D/Postprocess`.
+
+2. Enter the character model's public HTTPS GLB URL in `model_url`, connect an upstream `glb` output, or select a ComfyUI-local GLB. Local models are uploaded first.
+
+3. Select `base_api_path` and run the workflow. After polling completes, the node returns `task_id` and the rigged `glb`.
+
+4. Connect `glb` to `Lux3D Viewer` for preview, or to `model_url` on `Lux3D Humanoid Animation` to generate character motions.
+
+#### Lux3D Humanoid Animation
+
+1. Add `Lux3D Humanoid Animation` from `Lux3D/Postprocess`.
+
+2. Connect the `glb` output of `Lux3D Humanoid Rigging` to `model_url`. For an existing rigged model, enter a public HTTPS GLB URL or select a ComfyUI-local GLB.
+
+3. Select an action in `Action to add` and click `Add action`, or enter a JSON array or one action ID per line in `animation_ids`, such as `["Walk_Loop", "Idle_Loop"]`. Choose 1–10 distinct, case-sensitive IDs.
+
+4. Set `output_mode` to `separate` for one file per action or `combined` for one file with independent animation clips. Set `out_format` to `glb` or `fbx`, and enable `animate_in_place` for in-place motion.
+
+5. Select `base_api_path` and run the workflow. The node returns `task_id`, the first successful `glb` or `fbx`, and `actions_json` containing every action's status, result URL, or failure reason. Download other successful results from the result panel.
+
+6. For GLB output, connect `glb` to `Lux3D Viewer` to play the animation; combined output supports clip selection. Download the original FBX file from the result panel and open it in your target 3D application.
+
+<p align="center">
+  <img src="figures/humanoid-rigging-retarget-workflow-en.png" width="1200" alt="Lux3D Humanoid Rigging and Animation workflow" />
+</p>
+
 #### Lux3D Viewer
 
 1. Add `Lux3D Viewer` from the `Lux3D` category.
@@ -441,9 +566,11 @@ The current release provides seven nodes, which can be combined as needed.
 
 3. Run the workflow to preview the model in the canvas and return the resolved `model_url`. Local models are never uploaded to Lux3D.
 
+4. GLB animations play automatically when present. Use the animation clip dropdown in the preview to switch motions.
+
 ## Node Reference
 
-The current release registers seven nodes. Generation, export, and material-redraw nodes create asynchronous tasks internally and poll until completion, with up to 60 checks at 15-second intervals (about 15 minutes).
+The current release registers twelve nodes. Generation, export, material-redraw, and postprocessing nodes create asynchronous tasks internally and poll until completion, with up to 60 checks at 15-second intervals (about 15 minutes). Retopology only queries an existing task when `resume_task_id` is set.
 
 Common conventions:
 
@@ -452,6 +579,7 @@ Common conventions:
 - Image fields typed as `STRING / IMAGE` accept a public HTTP(S) URL, an upstream `STRING` URL, or a connected ComfyUI `IMAGE` containing exactly one image. Local images are uploaded through Asset/OUS before the Lux3D task is submitted; nodes use the resulting asset URL and do not expose Base64 data URLs.
 - Model fields with local-file support provide a picker for the ComfyUI `input` directory and also accept relative files from `output` or `temp` (marked with ` [output]` or ` [temp]`). Local models used by Lux3D tasks are uploaded first.
 - The multi-format service returns seven fixed slots in `zipUrl`, `glbUrl`, `usdzUrl`, `objZipUrl`, `fbxZipUrl`, `stlUrl`, `threeMfUrl` order. The plugin maps these slots by position rather than inferring formats from filenames; a format that was not requested or returned is represented by an empty string.
+- All five postprocessing nodes use the `Lux3D/Postprocess` category. Their result panels show the task ID, available download links, and warnings or per-action status. GLB can connect to Viewer; use download links for OBJ, ZIP, and FBX.
 
 ### Lux3D Viewer
 
@@ -626,6 +754,125 @@ Redraws the material of an existing GLB from one reference image using the fixed
 | --- | --- | --- |
 | glb_model_url | STRING | Download URL for the model with the redrawn material |
 
+### Lux3D Mesh Segmentation
+
+**Category:** `Lux3D/Postprocess`
+
+Splits one GLB model into multiple parts and returns a single reconstructed GLB containing the result. Local GLBs are uploaded to Lux3D first. If the account already has a part-splitting task in progress, wait for it to finish before submitting another.
+
+#### Inputs
+
+| Input | Type | Description |
+| --- | --- | --- |
+| base_api_path | STRING | Lux3D API endpoint: `https://api.aholo3d.cn` (China) or `https://api.aholo.ai` (international) |
+| model_url | STRING / model source | Public HTTP(S) `.glb` URL, upstream STRING output, or a local ComfyUI `.glb` file |
+
+#### Outputs
+
+| Output | Type | Description |
+| --- | --- | --- |
+| task_id | STRING | Lux3D task ID |
+| glb | STRING | Reconstructed GLB URL containing the split parts; connects to Viewer or downstream model-processing nodes |
+
+### Lux3D Retopology
+
+**Category:** `Lux3D/Postprocess`
+
+Rebuilds the topology of a static, non-Draco GLB. Bones, skinning, animation, and morph targets are unsupported, and original part boundaries may not be preserved. The target face count is a budget rather than a guarantee of an exact count or all-quad topology. OBJ is the topology geometry result; GLB is always triangulated.
+
+#### Inputs
+
+| Input | Type | Description |
+| --- | --- | --- |
+| base_api_path | STRING | Lux3D API endpoint: `https://api.aholo3d.cn` (China) or `https://api.aholo.ai` (international) |
+| model_url | STRING / model source | Public HTTP(S) static `.glb` URL, upstream STRING output, or a local ComfyUI `.glb` file |
+| face_limit | INT | Required face budget: `1000`–`500000` for quads or `2000`–`1000000` for triangles. The default `0` means not set and cannot be used to create a task |
+| quad | BOOLEAN | Uses quad topology when `true` (default), or triangle topology when `false` |
+| bake_textures | BOOLEAN | Enables texture baking; defaults to `false`. Keep the original request's setting when resuming so a missing texture package is reported correctly |
+| texture_size | Enum | `512`, `1024`, `2048`, or `4096`; defaults to `2048`. A valid value is required even when baking is disabled |
+| content_id | STRING | Optional business correlation value; defaults to an empty string and is not an idempotency key |
+| resume_task_id | STRING | Optional existing task ID; queries using the original account and region without uploading a model, creating a task, or changing the original parameters |
+
+#### Outputs
+
+| Output | Type | Description |
+| --- | --- | --- |
+| task_id | STRING | Lux3D task ID |
+| glb | STRING | Retopologized GLB URL for Viewer; includes textures when baking succeeds |
+| OBJ Untextured | STRING | Standalone OBJ geometry URL preserving the topology generated by the service |
+| OBJ Textured | STRING | ZIP URL containing OBJ, MTL, and textures; empty when no texture package is generated |
+
+Output positions remain fixed when the texture package is missing. The result panel shows only non-empty download links. If baking was requested but no ZIP was generated, it reports that geometry results are available but the texture package is missing; GLB and OBJ remain usable. Resume a timed-out or interrupted query with its recorded task ID. If task creation has an unknown outcome, check task history before submitting again.
+
+### Lux3D Articulation
+
+**Category:** `Lux3D/Postprocess`
+
+Adds joint motion to model parts from a GLB and a motion prompt. The final file format follows the actual service result. For a GLB result, connect `result_url` to Viewer; download ZIP or other formats from the result panel.
+
+#### Inputs
+
+| Input | Type | Description |
+| --- | --- | --- |
+| base_api_path | STRING | Lux3D API endpoint: `https://api.aholo3d.cn` (China) or `https://api.aholo.ai` (international) |
+| model_url | STRING / model source | Public HTTP(S) `.glb` URL, upstream STRING output, or a local ComfyUI `.glb` file |
+| prompt | STRING | Required, non-empty motion prompt describing moving parts, fixed parts, and the desired joint motion |
+
+#### Outputs
+
+| Output | Type | Description |
+| --- | --- | --- |
+| task_id | STRING | Lux3D task ID |
+| result_url | STRING | Download URL of the single final file |
+
+### Lux3D Humanoid Rigging
+
+**Category:** `Lux3D/Postprocess`
+
+Automatically rigs a character GLB. Public model URLs must use HTTPS; local GLBs are uploaded first. The resulting rigged GLB can connect to Humanoid Animation.
+
+#### Inputs
+
+| Input | Type | Description |
+| --- | --- | --- |
+| base_api_path | STRING | Lux3D API endpoint: `https://api.aholo3d.cn` (China) or `https://api.aholo.ai` (international) |
+| model_url | STRING / model source | Public HTTPS character `.glb` URL, upstream STRING output, or a local ComfyUI character `.glb` file |
+
+#### Outputs
+
+| Output | Type | Description |
+| --- | --- | --- |
+| task_id | STRING | Lux3D task ID |
+| glb | STRING | Rigged GLB URL; connects to Viewer or `model_url` on `Lux3D Humanoid Animation` |
+
+### Lux3D Humanoid Animation
+
+**Category:** `Lux3D/Postprocess`
+
+Applies selected motions to a rigged GLB. Public model URLs must use HTTPS; local GLBs are uploaded first. The catalogue contains 85 public IDs, with 1–10 distinct actions per task, separate or combined output, and in-place motion support.
+
+#### Inputs
+
+| Input | Type | Description |
+| --- | --- | --- |
+| base_api_path | STRING | Lux3D API endpoint: `https://api.aholo3d.cn` (China) or `https://api.aholo.ai` (international) |
+| model_url | STRING / model source | Public HTTPS rigged `.glb` URL, a rigging node's `glb` output, or a local ComfyUI rigged `.glb` file |
+| animation_ids | STRING | 1–10 distinct, case-sensitive public action IDs as a JSON array or one ID per line. Defaults to `["Walk_Loop"]`; actions can also be added with the selection button |
+| output_mode | Enum | `separate` (default) returns one file per action; `combined` returns one file with independent animation clips |
+| out_format | Enum | `glb` (default) or `fbx`; FBX is the original file, not a ZIP |
+| animate_in_place | BOOLEAN | Enables in-place motion; defaults to `false` |
+
+#### Outputs
+
+| Output | Type | Description |
+| --- | --- | --- |
+| task_id | STRING | Lux3D task ID |
+| glb | STRING | First successful result URL in GLB mode; empty in FBX mode |
+| fbx | STRING | First successful result URL in FBX mode; empty in GLB mode |
+| actions_json | STRING | JSON string containing an `actions` array in request order, with each action's ID, status, success URL, or failure reason |
+
+The result panel provides download links for every successful file and per-action status. Successful results remain usable when some actions fail; the node raises an error if all actions fail. GLB animations play in Viewer, with clip selection for combined output. Download FBX files and open them in your target 3D application.
+
 ## FAQ
 
 1. If the ComfyUI Manager shows a security-level warning when installing this plugin, adjust the corresponding security level in the ComfyUI Manager config and retry.
@@ -636,8 +883,8 @@ Redraws the material of an existing GLB from one reference image using the fixed
 
 ```text
 comfyui-lux3d/
-├── __init__.py               # Registers the current seven nodes and frontend directory
-├── lux3d_openapi/            # OpenAPI client, contracts, polling, and five task nodes
+├── __init__.py               # Registers the current twelve nodes and frontend directory
+├── lux3d_openapi/            # OpenAPI client, contracts, polling, and ten task nodes
 ├── lux3d_material.py         # Lux3D Material Redraw node
 ├── lux3d_viewer.py           # Lux3D Viewer node
 ├── viewer_asset_routes.py    # Viewer static-asset routes

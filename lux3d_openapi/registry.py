@@ -15,6 +15,7 @@ from .nodes import (
     Lux3DOpenAPITextTo3D,
 )
 
+from .postprocess_nodes import (Lux3DOpenAPIPartSplit, Lux3DOpenAPIArticulation, Lux3DOpenAPIAutoRig, Lux3DOpenAPIAnimationRetarget, Lux3DOpenAPIRetopology)
 
 OPERATION_NODE_MAPPINGS = {
     operation.operation_id: operation.node_key
@@ -22,6 +23,11 @@ OPERATION_NODE_MAPPINGS = {
 }
 
 NODE_CLASS_MAPPINGS = {
+    "Lux3DOpenAPIAnimationRetarget": Lux3DOpenAPIAnimationRetarget,
+    "Lux3DOpenAPIRetopology": Lux3DOpenAPIRetopology,
+    "Lux3DOpenAPIAutoRig": Lux3DOpenAPIAutoRig,
+    "Lux3DOpenAPIArticulation": Lux3DOpenAPIArticulation,
+    "Lux3DOpenAPIPartSplit": Lux3DOpenAPIPartSplit,
     "Lux3DOpenAPISingleImageGenerator": Lux3DOpenAPISingleImageGenerator,
     "Lux3DOpenAPIImageTo3D": Lux3DOpenAPIImageTo3D,
     "Lux3DOpenAPITextTo3D": Lux3DOpenAPITextTo3D,
@@ -30,6 +36,11 @@ NODE_CLASS_MAPPINGS = {
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
+    "Lux3DOpenAPIAnimationRetarget": "Lux3D Humanoid Animation",
+    "Lux3DOpenAPIRetopology": "Lux3D Retopology",
+    "Lux3DOpenAPIAutoRig": "Lux3D Humanoid Rigging",
+    "Lux3DOpenAPIArticulation": "Lux3D Articulation",
+    "Lux3DOpenAPIPartSplit": "Lux3D Mesh Segmentation",
     "Lux3DOpenAPISingleImageGenerator": "Lux3D Single Image Generator",
     "Lux3DOpenAPIImageTo3D": "Lux3D Image to 3D",
     "Lux3DOpenAPITextTo3D": "Lux3D Text to 3D",

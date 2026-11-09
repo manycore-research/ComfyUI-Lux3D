@@ -3,6 +3,9 @@
 from __future__ import annotations
 
 import os
+import sys
+import getpass
+import subprocess
 from typing import Tuple
 
 
@@ -28,11 +31,22 @@ def api_config(base_api_path: str) -> Tuple[str, str]:
 
 
 def resolve_api_key(base_api_path: str, explicit_key: str = "") -> str:
-    """Resolve an optional workflow key, otherwise use the server environment."""
+    """Resolve server credentials; macOS Desktop can use a regional Keychain item."""
     _, variable_name = api_config(base_api_path)
     if isinstance(explicit_key, str) and explicit_key.strip():
         return explicit_key.strip()
     value = os.environ.get(variable_name, "")
+    if not value.strip() and sys.platform == "darwin":
+        service = "lux3d-api-key" if variable_name == "LUX3D_API_KEY_CN" else "lux3d-api-key-intl"
+        try:
+            result = subprocess.run(
+                ["/usr/bin/security", "find-generic-password", "-a", getpass.getuser(), "-s", service, "-w"],
+                capture_output=True, text=True, timeout=5, check=False,
+            )
+            if result.returncode == 0:
+                value = result.stdout.strip()
+        except (OSError, subprocess.TimeoutExpired):
+            pass
     if not value.strip():
         raise ValueError(
             f"Lux3D API key is not configured; set {variable_name} "

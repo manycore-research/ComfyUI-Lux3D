@@ -1,4 +1,35 @@
 const RULES = Object.freeze({
+  Lux3DOpenAPIRetopology: Object.freeze({
+    unionSocketType: "STRING,LUX3D_MODEL_SOURCE",
+    unionWidgets: Object.freeze(["model_url"]),
+    localPicker: Object.freeze({field: "model_url", widget: "Choose local GLB", label: "Choose local GLB", accept: ".glb"}),
+    widgetOrder: Object.freeze(["base_api_path", "model_url", "face_limit", "quad", "bake_textures", "texture_size", "content_id", "resume_task_id"]),
+  }),
+  Lux3DOpenAPIPartSplit: Object.freeze({
+    unionSocketType: "STRING,LUX3D_MODEL_SOURCE",
+    unionWidgets: Object.freeze(["model_url"]),
+    localPicker: Object.freeze({field: "model_url", widget: "Choose local GLB", label: "Choose local GLB", accept: ".glb"}),
+    widgetOrder: Object.freeze(["base_api_path", "model_url"]),
+  }),
+  Lux3DOpenAPIArticulation: Object.freeze({
+    unionSocketType: "STRING,LUX3D_MODEL_SOURCE",
+    unionWidgets: Object.freeze(["model_url"]),
+    localPicker: Object.freeze({field: "model_url", widget: "Choose local GLB", label: "Choose local GLB", accept: ".glb"}),
+    widgetOrder: Object.freeze(["base_api_path", "model_url", "prompt"]),
+  }),
+  Lux3DOpenAPIAutoRig: Object.freeze({
+    unionSocketType: "STRING,LUX3D_MODEL_SOURCE",
+    unionWidgets: Object.freeze(["model_url"]),
+    localPicker: Object.freeze({field: "model_url", widget: "Choose local GLB", label: "Choose local GLB", accept: ".glb"}),
+    widgetOrder: Object.freeze(["base_api_path", "model_url"]),
+  }),
+  Lux3DOpenAPIAnimationRetarget: Object.freeze({
+    unionSocketType: "STRING,LUX3D_MODEL_SOURCE",
+    unionWidgets: Object.freeze(["model_url"]),
+    localPicker: Object.freeze({field: "model_url", widget: "Choose local GLB", label: "Choose local GLB", accept: ".glb"}),
+    widgetOrder: Object.freeze(["base_api_path", "model_url", "animation_ids", "output_mode", "out_format", "animate_in_place"]),
+  }),
+
   Lux3DOpenAPIImageTo3D: Object.freeze({
     unionSocketType: "STRING,IMAGE",
     unionWidgets: Object.freeze([

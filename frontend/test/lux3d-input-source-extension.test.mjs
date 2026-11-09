@@ -8,12 +8,17 @@ import {
 } from "../src/lux3d-input-source-extension.mjs";
 
 
-test("all seven public Lux3D nodes have input-source rules", () => {
+test("all twelve public Lux3D nodes have input-source rules", () => {
   assert.deepEqual(Object.keys(LUX3D_INPUT_SOURCE_RULES).sort(), [
     "Lux3DMaterialTransfer",
+    "Lux3DOpenAPIAnimationRetarget",
+    "Lux3DOpenAPIArticulation",
+    "Lux3DOpenAPIAutoRig",
     "Lux3DOpenAPIImageTo3D",
     "Lux3DOpenAPIImageToFourView",
     "Lux3DOpenAPIMultiFormatExport",
+    "Lux3DOpenAPIPartSplit",
+    "Lux3DOpenAPIRetopology",
     "Lux3DOpenAPISingleImageGenerator",
     "Lux3DOpenAPITextTo3D",
     "Lux3DViewer",

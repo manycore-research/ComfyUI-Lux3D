@@ -51,6 +51,8 @@ test("builds isolated self-contained controller, GLB and Gaussian bundles", asyn
         "lux3d-gaussian-adapter.mjs",
         "lux3d-glb-adapter.mjs",
         "lux3d-input-source-extension.mjs",
+        "lux3d-localization-extension.mjs",
+        "lux3d-postprocess-extension.mjs",
         "lux3d-viewer-controller.mjs",
       ],
     );
@@ -159,6 +161,8 @@ test("checked-in viewer distribution exactly matches a clean build from current 
     const relativeFiles = [
       "frontend/src/generated/viewer-assets.js",
       "js/assets/lux3d-input-source-extension.mjs",
+      "js/assets/lux3d-localization-extension.mjs",
+      "js/assets/lux3d-postprocess-extension.mjs",
       "js/assets/lux3d-viewer-controller.mjs",
       "js/assets/lux3d-glb-adapter.mjs",
       "js/assets/lux3d-gaussian-adapter.mjs",

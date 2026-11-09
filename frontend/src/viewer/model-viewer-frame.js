@@ -66,7 +66,23 @@ export async function mountGlbViewerFrame(config) {
   // Use the packaged Web HDR from the first attribute assignment, including the skybox.
   applyModelViewerPreset(viewer, assets.environment);
   const report = (state) => parent.postMessage({type: "lux3d-glb-frame", id, state}, parentOrigin);
-  viewer.addEventListener("load", () => report("ready"), {once: true});
+  const clips = document.createElement("select");
+  clips.setAttribute("aria-label", "Animation clip");
+  clips.style.cssText = "position:absolute;bottom:8px;left:8px;max-width:85%;z-index:2;background:#222;color:#fff;padding:5px";
+  clips.hidden = true;
+  clips.addEventListener("change", () => { viewer.animationName = clips.value; viewer.play(); });
+  viewer.addEventListener("load", () => {
+    clips.replaceChildren();
+    for (const name of viewer.availableAnimations ?? []) {
+      const option = document.createElement("option");
+      option.value = name;
+      option.textContent = name;
+      clips.appendChild(option);
+    }
+    clips.hidden = clips.options.length === 0;
+    if (clips.options.length) clips.value = viewer.animationName || clips.options[0].value;
+    report("ready");
+  }, {once: true});
   viewer.addEventListener("error", () => report("error"));
   window.addEventListener("message", (event) => {
     if (event.source !== parent || event.origin !== parentOrigin
@@ -89,9 +105,11 @@ export async function mountGlbViewerFrame(config) {
       case "dispose":
         viewer.pause();
         viewer.remove();
+        clips.remove();
         break;
     }
   });
   viewer.src = modelUrl;
   document.body.appendChild(viewer);
+  document.body.appendChild(clips);
 }

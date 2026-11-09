@@ -189,7 +189,9 @@ try {
   });
   const animatedFrame = await (await page.locator("#host iframe").elementHandle()).contentFrame();
   await animatedFrame.waitForFunction(() => document.getElementById("viewer").currentTime > 0.05);
-  assert.deepEqual(await animatedFrame.evaluate(() => document.getElementById("viewer").availableAnimations), ["Float"]);
+  assert.deepEqual(await animatedFrame.evaluate(() => document.getElementById("viewer").availableAnimations), ["Float", "FloatAgain"]);
+  await animatedFrame.getByRole("combobox", {name: "Animation clip"}).selectOption("FloatAgain");
+  assert.equal(await animatedFrame.evaluate(() => document.getElementById("viewer").animationName), "FloatAgain");
   await page.evaluate(() => window.adapter.suspend());
   await animatedFrame.waitForFunction(() => document.getElementById("viewer").paused);
   const pausedAt = await animatedFrame.evaluate(() => document.getElementById("viewer").currentTime);
@@ -271,6 +273,7 @@ function makeMaterialFixture(animated = false) {
     }],
     channels: [{sampler: 0, target: {node: 1, path: "translation"}}],
   }] : [];
+  if (animated) animations.push({...animations[0], name: "FloatAgain"});
   return Buffer.from(makeGlb({
     buffers: [{byteLength}], bufferViews, accessors, materials, meshes,
     animations,

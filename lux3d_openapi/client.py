@@ -15,8 +15,22 @@ REGION_BASE_URLS = {
 }
 
 
+def _post_outcome_unknown(method: str, status_code: Any) -> bool:
+    if method.upper() != "POST":
+        return False
+    try:
+        status = int(status_code)
+    except (TypeError, ValueError):
+        return True
+    return status == 0 or 200 <= status < 300 or status >= 500
+
+
 class Lux3DAPIError(RuntimeError):
     """Sanitized Lux3D HTTP or business error."""
+
+    def __init__(self, message: str, *, outcome_unknown: bool = False) -> None:
+        super().__init__(message)
+        self.outcome_unknown = bool(outcome_unknown)
 
 
 class Lux3DOpenAPIClient:
@@ -79,7 +93,8 @@ class Lux3DOpenAPIClient:
             )
         except requests.RequestException as exc:
             raise Lux3DAPIError(
-                f"Lux3D {method} {path} request failed ({exc.__class__.__name__})"
+                f"Lux3D {method} {path} request failed ({exc.__class__.__name__})",
+                outcome_unknown=method.upper() == "POST",
             ) from exc
 
         status_code = getattr(response, "status_code", 0)
@@ -87,12 +102,14 @@ class Lux3DOpenAPIClient:
             payload = response.json()
         except (ValueError, TypeError) as exc:
             raise Lux3DAPIError(
-                f"Lux3D {method} {path} returned invalid JSON (HTTP {status_code})"
+                f"Lux3D {method} {path} returned invalid JSON (HTTP {status_code})",
+                outcome_unknown=_post_outcome_unknown(method, status_code),
             ) from exc
 
         if not isinstance(payload, dict):
             raise Lux3DAPIError(
-                f"Lux3D {method} {path} returned a non-object JSON response"
+                f"Lux3D {method} {path} returned a non-object JSON response",
+                outcome_unknown=_post_outcome_unknown(method, status_code),
             )
 
         message = self._sanitize_message(payload.get("m"))
@@ -100,7 +117,8 @@ class Lux3DOpenAPIClient:
         if not 200 <= int(status_code) < 300:
             detail = f": {message}" if message else ""
             raise Lux3DAPIError(
-                f"Lux3D {method} {path} failed with HTTP {status_code}{detail}"
+                f"Lux3D {method} {path} failed with HTTP {status_code}{detail}",
+                outcome_unknown=_post_outcome_unknown(method, status_code),
             )
         if code not in (None, "", "0", 0):
             detail = f": {message}" if message else ""
@@ -108,6 +126,23 @@ class Lux3DOpenAPIClient:
                 f"Lux3D {method} {path} failed with code {code}{detail}"
             )
         return payload
+
+    def create_part_split_task(self, payload: Mapping[str, Any]) -> Dict[str, Any]:
+        return self._request("POST", "/lux3d/v1/part-split/task/create", json_body=payload)
+
+    def create_mesh_retopology_task(self, payload: Mapping[str, Any]) -> Dict[str, Any]:
+        return self._request(
+            "POST", "/lux3d/v1/mesh-retopology/task/create", json_body=payload
+        )
+
+    def create_articulation_task(self, payload: Mapping[str, Any]) -> Dict[str, Any]:
+        return self._request("POST", "/lux3d/v1/articulation-animation/task/create", json_body=payload)
+
+    def create_rig_task(self, payload: Mapping[str, Any]) -> Dict[str, Any]:
+        return self._request("POST", "/lux3d/v1/animations/rig/task/create", json_body=payload)
+
+    def create_retarget_task(self, payload: Mapping[str, Any]) -> Dict[str, Any]:
+        return self._request("POST", "/lux3d/v1/animations/retarget/task/create", json_body=payload)
 
     def create_img_to_3d_task(self, payload: Mapping[str, Any]) -> Dict[str, Any]:
         return self._request(
