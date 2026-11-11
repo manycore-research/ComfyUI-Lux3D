@@ -91,7 +91,7 @@ class ApiDomainMigrationTest(unittest.TestCase):
 
 class ExplicitApiOriginTest(unittest.TestCase):
     def test_node_requests_keep_the_selected_origin(self):
-        for origin in ("https://api.aholo.ai", "https://api.aholo3d.com", "https://api.aholo3d.cn"):
+        for origin in ("https://api.aholo.ai", "https://api.aholo3d.com", "https://api.aholo.cn", "https://api.aholo3d.cn"):
             session = RecordingSession(
                 json_response({"ousToken": OUS_TOKEN, "globalDomain": "https://ous.example", "blockSize": 8}),
                 json_response({"d": 123}),
@@ -221,7 +221,7 @@ class Lux3DTransportContractTest(unittest.TestCase):
             "c": None,
         }
         cases = (
-            ("cn", "https://api.aholo3d.cn/lux3d/v1/generate/task/get"),
+            ("cn", "https://api.aholo.cn/lux3d/v1/generate/task/get"),
             (
                 "intl",
                 "https://api.aholo.ai/global/lux3d/v1/generate/task/get",
@@ -1492,7 +1492,7 @@ class Lux3DNodeExecutionContractTest(unittest.TestCase):
                 self.assertEqual(required["base_api_path"][0], "STRING")
                 self.assertEqual(
                     required["base_api_path"][1]["default"],
-                    "https://api.aholo3d.cn",
+                    "https://api.aholo.cn",
                 )
 
         with patch.dict(
@@ -2148,7 +2148,7 @@ class Lux3DAssetUploadContractTest(unittest.TestCase):
                 call = session.calls[0]
                 self.assertEqual(call["method"], "GET")
                 self.assertEqual(
-                    call["url"], "https://api.aholo3d.cn/asset/v1/token"
+                    call["url"], "https://api.aholo.cn/asset/v1/token"
                 )
                 self.assertEqual(call["headers"]["Authorization"], API_KEY)
                 self.assertNotIn("Bearer", call["headers"]["Authorization"])

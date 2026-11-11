@@ -10,7 +10,7 @@ from .config import api_config
 
 
 REGION_BASE_URLS = {
-    "cn": "https://api.aholo3d.cn",
+    "cn": "https://api.aholo.cn",
     "intl": "https://api.aholo.ai/global",
 }
 

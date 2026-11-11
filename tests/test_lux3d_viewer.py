@@ -9,7 +9,7 @@ from unittest.mock import patch
 
 
 ROOT = Path(__file__).resolve().parents[1]
-CN = "https://api.aholo3d.cn"
+CN = "https://api.aholo.cn"
 
 
 def load_viewer_module():

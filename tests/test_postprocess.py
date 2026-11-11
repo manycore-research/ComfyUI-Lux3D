@@ -15,7 +15,7 @@ from lux3d_openapi.postprocess_outputs import parse_retarget_result, parse_singl
 from lux3d_openapi.postprocess_nodes import Lux3DOpenAPIAnimationRetarget, Lux3DOpenAPIArticulation, Lux3DOpenAPIPartSplit, Lux3DOpenAPIAutoRig, Lux3DOpenAPIRetopology
 from lux3d_openapi.task_polling import wait_for_task_terminal
 
-CN = "https://api.aholo3d.cn"
+CN = "https://api.aholo.cn"
 URL = "https://assets.example/model.glb?signature=test"
 IDS = ["Walk_Loop", "Idle_Loop"]
 
