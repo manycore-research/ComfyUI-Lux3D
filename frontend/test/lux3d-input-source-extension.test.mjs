@@ -655,7 +655,7 @@ test("legacy region aliases are displayed as full base API URLs", async () => {
   });
   const node = new TextNode();
   node.onConfigure();
-  assert.equal(node.find("base_api_path").value, "https://api.aholo3d.cn");
+  assert.equal(node.find("base_api_path").value, "https://api.aholo.cn");
 
   node.find("base_api_path").value = "intl";
   node.find("base_api_path").callback("intl");
@@ -687,7 +687,7 @@ test("saved timeout values are removed without shifting old workflow widgets", a
       ], "G1-Turbo", 0, "default", "default", "default",
     ],
   });
-  assert.equal(node.find("base_api_path").value, "https://api.aholo3d.cn");
+  assert.equal(node.find("base_api_path").value, "https://api.aholo.cn");
   assert.equal(node.find("image_1").value, "https://assets.example/front.png");
   assert.equal(node.find("image_2").value, "https://assets.example/side.png");
   assert.equal(node.find("image_3").value, "");
@@ -757,7 +757,7 @@ test("dual-field Image to 3D workflows preserve all eight saved URL widgets", as
     widgets_values: ["cn", ...urls],
   });
 
-  assert.equal(node.find("base_api_path").value, "https://api.aholo3d.cn");
+  assert.equal(node.find("base_api_path").value, "https://api.aholo.cn");
   for (const [index, name] of unionNames.entries()) {
     assert.equal(node.find(name).value, urls[index]);
     assert.equal(node.find(name).disabled, false);

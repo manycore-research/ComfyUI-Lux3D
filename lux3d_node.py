@@ -336,6 +336,10 @@ class Lux3DMaterialTransfer(BaseLux3DNode):
     _IMAGE_UPLOAD_GUID = "holo-web-image-upload"
     _VERSION = "v3.0-standard"
     _ROUTES = {
+        "https://api.aholo.cn": (
+            "/lux3d/v1/generate/material-transfer/task/create",
+            "/lux3d/v1/generate/task/get",
+        ),
         "https://api.aholo3d.cn": (
             "/lux3d/v1/generate/material-transfer/task/create",
             "/lux3d/v1/generate/task/get",
@@ -361,7 +365,7 @@ class Lux3DMaterialTransfer(BaseLux3DNode):
                 ),
                 "base_api_path": (
                     "STRING",
-                    {"default": "https://api.aholo3d.cn"},
+                    {"default": "https://api.aholo.cn"},
                 ),
                 "lux3d_api_key": (
                     "STRING",

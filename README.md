@@ -8,7 +8,7 @@
 
 [English](README.md) / [中文](README_CN.md)
 
-🌐 Official Website: [Lux3D China](https://lux3d.aholo3d.cn/lux3d/home) | [Lux3D Global](https://lux3d.aholo.ai/lux3d/home)
+🌐 Official Website: [Lux3D China](https://3d.aholo.cn/lux3d/home) | [Lux3D Global](https://3d.aholo.ai/lux3d/home)
 </div>
 
 A ComfyUI extension that turns text descriptions or 2D images into 3D models in your workflow.
@@ -370,13 +370,13 @@ comfy node install lux3d
 3. Configure the API key in the server environment that starts ComfyUI. Set `LUX3D_API_KEY_CN` for the China service or `LUX3D_API_KEY_INTL` for the international service. If you use only one region, set only its variable.
 4. Restart ComfyUI.
 
-🚀 Want a quick preview first? Try the official site: [Lux3D China](https://lux3d.aholo3d.cn/lux3d/home) | [Lux3D Global](https://lux3d.aholo.ai/lux3d/home)
+🚀 Want a quick preview first? Try the official site: [Lux3D China](https://3d.aholo.cn/lux3d/home) | [Lux3D Global](https://3d.aholo.ai/lux3d/home)
 
 ## Usage
 
 ### Getting an API key
 
-- China service: [https://labs.aholo3d.cn/api-keys](https://labs.aholo3d.cn/api-keys)
+- China service: [https://labs.aholo.cn/api-keys](https://labs.aholo.cn/api-keys)
 - International service: [https://labs.aholo.ai/api-keys](https://labs.aholo.ai/api-keys)
 
 If you have any questions, contact us at lux3d@qunhemail.com.
@@ -574,7 +574,7 @@ The current release registers twelve nodes. Generation, export, material-redraw,
 
 Common conventions:
 
-- `base_api_path` accepts `https://api.aholo3d.cn` (China) or `https://api.aholo.ai` (international). Do not add a trailing slash.
+- `base_api_path` accepts `https://api.aholo.cn` (China) or `https://api.aholo.ai` (international). Do not add a trailing slash.
 - Nodes other than `Lux3D Viewer` no longer expose an API-key input. Set `LUX3D_API_KEY_CN` or `LUX3D_API_KEY_INTL` in the ComfyUI server environment to match `base_api_path`.
 - Image fields typed as `STRING / IMAGE` accept a public HTTP(S) URL, an upstream `STRING` URL, or a connected ComfyUI `IMAGE` containing exactly one image. Local images are uploaded through Asset/OUS before the Lux3D task is submitted; nodes use the resulting asset URL and do not expose Base64 data URLs.
 - Model fields with local-file support provide a picker for the ComfyUI `input` directory and also accept relative files from `output` or `temp` (marked with ` [output]` or ` [temp]`). Local models used by Lux3D tasks are uploaded first.
@@ -612,7 +612,7 @@ Creates an image-to-3D task from 1–8 images. Public URLs, upstream `STRING` UR
 
 | Input | Type | Description |
 | --- | --- | --- |
-| base_api_path | STRING | Lux3D API endpoint: `https://api.aholo3d.cn` (China) or `https://api.aholo.ai` (international) |
+| base_api_path | STRING | Lux3D API endpoint: `https://api.aholo.cn` (China) or `https://api.aholo.ai` (international) |
 | image_1 … image_8 | STRING / IMAGE | Each slot may be empty, a public HTTP(S) image URL, an upstream `STRING` URL, or one connected `IMAGE`; at least one of the eight slots is required |
 | version | Enum | `G1` / `G1-Turbo`; defaults to `G1-Turbo` |
 | face_count | INT | Target face count; defaults to `200000`. `0` omits the field; a nonzero value must be `10000`–`300000` |
@@ -639,7 +639,7 @@ Creates a text-to-3D task from a prompt and one optional reference image.
 
 | Input | Type | Description |
 | --- | --- | --- |
-| base_api_path | STRING | Lux3D API endpoint: `https://api.aholo3d.cn` (China) or `https://api.aholo.ai` (international) |
+| base_api_path | STRING | Lux3D API endpoint: `https://api.aholo.cn` (China) or `https://api.aholo.ai` (international) |
 | prompt | STRING | Non-empty text describing the object to generate |
 | style | Enum | `photorealistic` (default), `cartoon`, `anime`, `hand_painted`, `cyberpunk`, `fantasy`, or `glass` |
 | reference_image | STRING / IMAGE | Optional public HTTP(S) reference-image URL, upstream `STRING` URL, or one local `IMAGE` |
@@ -668,7 +668,7 @@ Generates four multi-view images from an optional object image and/or a text pro
 
 | Input | Type | Description |
 | --- | --- | --- |
-| base_api_path | STRING | Lux3D API endpoint: `https://api.aholo3d.cn` (China) or `https://api.aholo.ai` (international) |
+| base_api_path | STRING | Lux3D API endpoint: `https://api.aholo.cn` (China) or `https://api.aholo.ai` (international) |
 | image | STRING / IMAGE | Optional public HTTP(S) image URL, upstream `STRING` URL, or one local `IMAGE`; local input is uploaded through Asset/OUS |
 | prompt | STRING | Optional multiline generation prompt; at least one of `image` and `prompt` is required |
 
@@ -694,7 +694,7 @@ Generates one new image from an optional image and/or a text prompt. It creates 
 
 | Input | Type | Description |
 | --- | --- | --- |
-| base_api_path | STRING | Lux3D API endpoint: `https://api.aholo3d.cn` (China) or `https://api.aholo.ai` (international) |
+| base_api_path | STRING | Lux3D API endpoint: `https://api.aholo.cn` (China) or `https://api.aholo.ai` (international) |
 | image | STRING / IMAGE | Optional public HTTP(S) image URL, upstream `STRING` URL, or one local `IMAGE`; local input is uploaded through Asset/OUS |
 | prompt | STRING | Optional multiline generation prompt; at least one of `image` and `prompt` is required |
 
@@ -715,7 +715,7 @@ Exports a remote or ComfyUI-local GLB / Lux3D ZIP model to one or more target fo
 
 | Input | Type | Description |
 | --- | --- | --- |
-| base_api_path | STRING | Lux3D API endpoint: `https://api.aholo3d.cn` (China) or `https://api.aholo.ai` (international) |
+| base_api_path | STRING | Lux3D API endpoint: `https://api.aholo.cn` (China) or `https://api.aholo.ai` (international) |
 | model_url | STRING / model source | Public HTTP(S) `.glb` / `.zip` URL, upstream STRING output, or a local ComfyUI `.glb` / `.zip` file |
 | output_format | Enum | `default`; any one of `usdz`, `obj_zip`, `fbx_zip`, `stl`, or `3mf`; or any non-duplicate combination of those five formats. A GLB input requires at least one explicit export format, so `default` applies only to ZIP input |
 
@@ -746,7 +746,7 @@ Redraws the material of an existing GLB from one reference image using the fixed
 | --- | --- | --- |
 | image | STRING / IMAGE | Required public HTTP(S) reference-image URL, upstream `STRING` URL, or one local `IMAGE` |
 | mesh_url | STRING / model source | Public HTTP(S) `.glb` URL, upstream STRING output, or a local ComfyUI `.glb` file |
-| base_api_path | STRING | Lux3D API endpoint: `https://api.aholo3d.cn` (China) or `https://api.aholo.ai` (international) |
+| base_api_path | STRING | Lux3D API endpoint: `https://api.aholo.cn` (China) or `https://api.aholo.ai` (international) |
 
 #### Outputs
 
@@ -764,7 +764,7 @@ Splits one GLB model into multiple parts and returns a single reconstructed GLB 
 
 | Input | Type | Description |
 | --- | --- | --- |
-| base_api_path | STRING | Lux3D API endpoint: `https://api.aholo3d.cn` (China) or `https://api.aholo.ai` (international) |
+| base_api_path | STRING | Lux3D API endpoint: `https://api.aholo.cn` (China) or `https://api.aholo.ai` (international) |
 | model_url | STRING / model source | Public HTTP(S) `.glb` URL, upstream STRING output, or a local ComfyUI `.glb` file |
 
 #### Outputs
@@ -784,7 +784,7 @@ Rebuilds the topology of a static, non-Draco GLB. Bones, skinning, animation, an
 
 | Input | Type | Description |
 | --- | --- | --- |
-| base_api_path | STRING | Lux3D API endpoint: `https://api.aholo3d.cn` (China) or `https://api.aholo.ai` (international) |
+| base_api_path | STRING | Lux3D API endpoint: `https://api.aholo.cn` (China) or `https://api.aholo.ai` (international) |
 | model_url | STRING / model source | Public HTTP(S) static `.glb` URL, upstream STRING output, or a local ComfyUI `.glb` file |
 | face_limit | INT | Required face budget: `1000`–`500000` for quads or `2000`–`1000000` for triangles. The default `0` means not set and cannot be used to create a task |
 | quad | BOOLEAN | Uses quad topology when `true` (default), or triangle topology when `false` |
@@ -814,7 +814,7 @@ Adds joint motion to model parts from a GLB and a motion prompt. The final file 
 
 | Input | Type | Description |
 | --- | --- | --- |
-| base_api_path | STRING | Lux3D API endpoint: `https://api.aholo3d.cn` (China) or `https://api.aholo.ai` (international) |
+| base_api_path | STRING | Lux3D API endpoint: `https://api.aholo.cn` (China) or `https://api.aholo.ai` (international) |
 | model_url | STRING / model source | Public HTTP(S) `.glb` URL, upstream STRING output, or a local ComfyUI `.glb` file |
 | prompt | STRING | Required, non-empty motion prompt describing moving parts, fixed parts, and the desired joint motion |
 
@@ -835,7 +835,7 @@ Automatically rigs a character GLB. Public model URLs must use HTTPS; local GLBs
 
 | Input | Type | Description |
 | --- | --- | --- |
-| base_api_path | STRING | Lux3D API endpoint: `https://api.aholo3d.cn` (China) or `https://api.aholo.ai` (international) |
+| base_api_path | STRING | Lux3D API endpoint: `https://api.aholo.cn` (China) or `https://api.aholo.ai` (international) |
 | model_url | STRING / model source | Public HTTPS character `.glb` URL, upstream STRING output, or a local ComfyUI character `.glb` file |
 
 #### Outputs
@@ -855,7 +855,7 @@ Applies selected motions to a rigged GLB. Public model URLs must use HTTPS; loca
 
 | Input | Type | Description |
 | --- | --- | --- |
-| base_api_path | STRING | Lux3D API endpoint: `https://api.aholo3d.cn` (China) or `https://api.aholo.ai` (international) |
+| base_api_path | STRING | Lux3D API endpoint: `https://api.aholo.cn` (China) or `https://api.aholo.ai` (international) |
 | model_url | STRING / model source | Public HTTPS rigged `.glb` URL, a rigging node's `glb` output, or a local ComfyUI rigged `.glb` file |
 | animation_ids | STRING | 1–10 distinct, case-sensitive public action IDs as a JSON array or one ID per line. Defaults to `["Walk_Loop"]`; actions can also be added with the selection button |
 | output_mode | Enum | `separate` (default) returns one file per action; `combined` returns one file with independent animation clips |
@@ -913,8 +913,10 @@ The currently registered nodes do not read `config.txt` or expose an API-key inp
 
 | `base_api_path` | Environment variable |
 | --- | --- |
-| `https://api.aholo3d.cn` | `LUX3D_API_KEY_CN` |
+| `https://api.aholo.cn` | `LUX3D_API_KEY_CN` |
 | `https://api.aholo.ai` | `LUX3D_API_KEY_INTL` |
+
+Saved workflows using `https://api.aholo3d.cn` keep using that China origin and `LUX3D_API_KEY_CN`. New nodes default to `https://api.aholo.cn`; updating the extension does not rewrite saved addresses.
 
 Existing workflows that explicitly store `https://api.aholo3d.com` continue to use that origin for upload credentials, generation, and task queries, with `LUX3D_API_KEY_INTL`. Updating the extension does not rewrite saved workflow addresses. To migrate, change each affected node's `base_api_path` to `https://api.aholo.ai` and save the workflow. The client adds `/global`; do not enter it in the field. Legacy API availability and its compatibility period depend on the gateway operator; accepting the old address does not guarantee it will remain available.
 

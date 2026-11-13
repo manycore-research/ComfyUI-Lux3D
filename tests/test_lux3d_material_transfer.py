@@ -11,7 +11,7 @@ import numpy as np
 
 
 ROOT = Path(__file__).resolve().parents[1]
-CN = "https://api.aholo3d.cn"
+CN = "https://api.aholo.cn"
 INTL = "https://api.aholo.ai"
 KEY = "material-test-key-never-log"
 MESH = "https://assets.example/source.glb"

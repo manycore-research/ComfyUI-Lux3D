@@ -35,7 +35,7 @@
       },
       "base_api_path": {
         "name": "API 地址",
-        "tooltip": "国内使用 https://api.aholo3d.cn，国际使用 https://api.aholo.ai；请在服务端配置对应区域的 API Key。"
+        "tooltip": "国内使用 https://api.aholo.cn，国际使用 https://api.aholo.ai；请在服务端配置对应区域的 API Key。"
       },
       "Choose local GLB": {
         "name": "选择本地 GLB"
@@ -53,7 +53,7 @@
     "inputs": {
       "base_api_path": {
         "name": "API 地址",
-        "tooltip": "国内使用 https://api.aholo3d.cn，国际使用 https://api.aholo.ai；请在服务端配置对应区域的 API Key。"
+        "tooltip": "国内使用 https://api.aholo.cn，国际使用 https://api.aholo.ai；请在服务端配置对应区域的 API Key。"
       },
       "image_1": {
         "name": "图片 1",
@@ -148,7 +148,7 @@
     "inputs": {
       "base_api_path": {
         "name": "API 地址",
-        "tooltip": "国内使用 https://api.aholo3d.cn，国际使用 https://api.aholo.ai；请在服务端配置对应区域的 API Key。"
+        "tooltip": "国内使用 https://api.aholo.cn，国际使用 https://api.aholo.ai；请在服务端配置对应区域的 API Key。"
       },
       "prompt": {
         "name": "提示词",
@@ -232,7 +232,7 @@
     "inputs": {
       "base_api_path": {
         "name": "API 地址",
-        "tooltip": "国内使用 https://api.aholo3d.cn，国际使用 https://api.aholo.ai；请在服务端配置对应区域的 API Key。"
+        "tooltip": "国内使用 https://api.aholo.cn，国际使用 https://api.aholo.ai；请在服务端配置对应区域的 API Key。"
       },
       "image": {
         "name": "图片",
@@ -258,7 +258,7 @@
     "inputs": {
       "base_api_path": {
         "name": "API 地址",
-        "tooltip": "国内使用 https://api.aholo3d.cn，国际使用 https://api.aholo.ai；请在服务端配置对应区域的 API Key。"
+        "tooltip": "国内使用 https://api.aholo.cn，国际使用 https://api.aholo.ai；请在服务端配置对应区域的 API Key。"
       },
       "image": {
         "name": "图片",
@@ -293,7 +293,7 @@
     "inputs": {
       "base_api_path": {
         "name": "API 地址",
-        "tooltip": "国内使用 https://api.aholo3d.cn，国际使用 https://api.aholo.ai；请在服务端配置对应区域的 API Key。"
+        "tooltip": "国内使用 https://api.aholo.cn，国际使用 https://api.aholo.ai；请在服务端配置对应区域的 API Key。"
       },
       "model_url": {
         "name": "模型地址",
@@ -374,7 +374,7 @@
     "inputs": {
       "base_api_path": {
         "name": "API 地址",
-        "tooltip": "国内使用 https://api.aholo3d.cn，国际使用 https://api.aholo.ai；请在服务端配置对应区域的 API Key。"
+        "tooltip": "国内使用 https://api.aholo.cn，国际使用 https://api.aholo.ai；请在服务端配置对应区域的 API Key。"
       },
       "model_url": {
         "name": "模型地址",
@@ -413,7 +413,7 @@
     "inputs": {
       "base_api_path": {
         "name": "API 地址",
-        "tooltip": "国内使用 https://api.aholo3d.cn，国际使用 https://api.aholo.ai；请在服务端配置对应区域的 API Key。"
+        "tooltip": "国内使用 https://api.aholo.cn，国际使用 https://api.aholo.ai；请在服务端配置对应区域的 API Key。"
       },
       "model_url": {
         "name": "模型地址",
@@ -454,7 +454,7 @@
     "inputs": {
       "base_api_path": {
         "name": "API 地址",
-        "tooltip": "国内使用 https://api.aholo3d.cn，国际使用 https://api.aholo.ai；请在服务端配置对应区域的 API Key。"
+        "tooltip": "国内使用 https://api.aholo.cn，国际使用 https://api.aholo.ai；请在服务端配置对应区域的 API Key。"
       },
       "model_url": {
         "name": "模型地址",
@@ -483,7 +483,7 @@
     "inputs": {
       "base_api_path": {
         "name": "API 地址",
-        "tooltip": "国内使用 https://api.aholo3d.cn，国际使用 https://api.aholo.ai；请在服务端配置对应区域的 API Key。"
+        "tooltip": "国内使用 https://api.aholo.cn，国际使用 https://api.aholo.ai；请在服务端配置对应区域的 API Key。"
       },
       "model_url": {
         "name": "模型地址",
@@ -508,7 +508,7 @@
     "inputs": {
       "base_api_path": {
         "name": "API 地址",
-        "tooltip": "国内使用 https://api.aholo3d.cn，国际使用 https://api.aholo.ai；请在服务端配置对应区域的 API Key。"
+        "tooltip": "国内使用 https://api.aholo.cn，国际使用 https://api.aholo.ai；请在服务端配置对应区域的 API Key。"
       },
       "model_url": {
         "name": "模型地址",

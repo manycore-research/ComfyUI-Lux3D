@@ -43,7 +43,7 @@ def _api_inputs() -> Dict[str, Any]:
                 "default": DEFAULT_BASE_API_PATH,
                 "multiline": False,
                 "tooltip": (
-                    "Use https://api.aholo3d.cn or https://api.aholo.ai. "
+                    "Use https://api.aholo.cn or https://api.aholo.ai. "
                     "The matching server API key environment variable is used."
                 ),
             },
